@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "493811003769",
+    "project_id": "buscapet-464b5",
+    "storage_bucket": "buscapet-464b5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:493811003769:android:f7b508e1a67218823dbfa8",
+        "android_client_info": {
+          "package_name": "com.example.buscapet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "493811003769-9n3nn17e6fverv04pkuvqjl8t9i4nka4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBosVKXNdPwnNdiqK2aopr2D93eajU2ohM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "493811003769-9n3nn17e6fverv04pkuvqjl8t9i4nka4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
