@@ -1,17 +1,16 @@
 package com.example.buscapet.ui.screens.commons
 
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material3.NavigationBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.buscapet.R
+import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.ui.navigation.NavItem
 
 @Composable
@@ -20,8 +19,9 @@ fun MainBottomNav(navController: NavController) {
         NavItem.LoginNavItem,
         NavItem.HomeNavItem
     )
-    androidx.compose.material.BottomNavigation(
-        backgroundColor = colorResource(id = R.color.teal_200),
+    NavigationBar(
+        //backgroundColor = colorResource(id = R.color.teal_200),
+        //backgroundColor = MaterialTheme.colors.background,
         contentColor = Color.Black
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -58,4 +58,10 @@ fun MainBottomNav(navController: NavController) {
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun PreviewMainBottomNav() {
+    MainBottomNav(navController = rememberNavController())
 }

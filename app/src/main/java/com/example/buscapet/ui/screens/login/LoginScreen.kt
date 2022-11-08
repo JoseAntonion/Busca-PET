@@ -23,7 +23,7 @@ import com.google.android.gms.tasks.Task
 fun LoginScreen(signedId: () -> Unit) {
     val viewModel: LoginViewModel = viewModel()
     val activity = LocalContext.current as Activity
-    val inProgress = viewModel.progress.observeAsState(false)
+    val bussy = viewModel.progress.observeAsState(false)
     val activityResult =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(it.data)
@@ -31,7 +31,7 @@ fun LoginScreen(signedId: () -> Unit) {
         }
 
     MainLoginContainer(
-        inProgress = inProgress.value,
+        signInProgress = bussy.value,
         signInButton = {
             viewModel.loginWithGoogle(activity) {
                 activityResult.launch(it)
@@ -44,13 +44,13 @@ fun LoginScreen(signedId: () -> Unit) {
 @Composable
 fun PreviewMainLoginContainer() {
     MainLoginContainer(
-        inProgress = false
+        signInProgress = false
     ) {}
 }
 
 @Composable
 fun MainLoginContainer(
-    inProgress: Boolean,
+    signInProgress: Boolean,
     signInButton: () -> Unit
 ) {
     Box(
@@ -59,7 +59,7 @@ fun MainLoginContainer(
             .background(color = MaterialTheme.colors.background),
         contentAlignment = Alignment.Center
     ) {
-        if (inProgress) {
+        if (signInProgress) {
             CircularProgressIndicator()
         }
         Column(
@@ -70,7 +70,7 @@ fun MainLoginContainer(
             Text(
                 text = "BuscaPET"
             )
-            Button(onClick = { signInButton.invoke() }) {
+            Button(onClick = { signInButton.invoke() }, enabled = !signInProgress) {
                 Text(text = "Sign in with Google")
             }
         }
