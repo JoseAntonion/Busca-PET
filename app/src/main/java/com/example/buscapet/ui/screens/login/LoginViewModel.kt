@@ -60,6 +60,7 @@ class LoginViewModel : ViewModel(), CoroutineScope {
         } catch (e: Exception) {
             Log.e("signIn", "error signin: ${e.message}")
             _progress.value = false
+            _signInName.value = e.message
         }
     }
 
