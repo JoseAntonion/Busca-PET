@@ -27,7 +27,7 @@ fun HomeScreen(
 
     Scaffold(
         bottomBar = { MainBottomNav(navController = navController) }, // NavBar
-        topBar = { AppBar() } // TOOLBAR
+        topBar = { AppBar(userName) } // TOOLBAR
     ) { padding ->
         MainView(
             scaffoldPadding = padding,
@@ -41,7 +41,7 @@ fun HomeScreen(
 fun PreviewMainView() {
     Scaffold(
         bottomBar = { MainBottomNav(navController = rememberNavController()) }, // NavBar
-        topBar = { AppBar() } // TOOLBAR
+        topBar = { AppBar("Test profile") } // TOOLBAR
     ) { padding ->
         MainView(
             scaffoldPadding = padding,

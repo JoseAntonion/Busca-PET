@@ -28,6 +28,18 @@ sealed class NavItem(
         screenRoute = "home"
     )
 
+    object LastReportNavItem : NavItem(
+        title = "Últimos Reportes",
+        icon = R.drawable.ic_dog_paw,
+        screenRoute = "last_reports"
+    )
+
+    object MyReportsNavItem : NavItem(
+        title = "Mis Reportes",
+        icon = R.drawable.ic_dog_paw,
+        screenRoute = "my_reports"
+    )
+
     object LoginNavItem : NavItem(
         title = "Login",
         icon = R.drawable.ic_dog_paw,

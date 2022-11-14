@@ -1,6 +1,7 @@
 package com.example.buscapet.ui.screens.login
 
 import android.app.Activity
+import android.content.res.Configuration
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -11,10 +12,13 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.buscapet.R
+import com.example.buscapet.ui.screens.commons.SignInButton
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
@@ -23,7 +27,7 @@ import com.google.android.gms.tasks.Task
 fun LoginScreen(signedId: () -> Unit) {
     val viewModel: LoginViewModel = viewModel()
     val activity = LocalContext.current as Activity
-    val inProgress = viewModel.progress.observeAsState(false)
+    val bussy = viewModel.progress.observeAsState(false)
     val activityResult =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(it.data)
@@ -31,7 +35,7 @@ fun LoginScreen(signedId: () -> Unit) {
         }
 
     MainLoginContainer(
-        inProgress = inProgress.value,
+        signInProgress = bussy.value,
         signInButton = {
             viewModel.loginWithGoogle(activity) {
                 activityResult.launch(it)
@@ -41,16 +45,18 @@ fun LoginScreen(signedId: () -> Unit) {
 }
 
 @Preview(showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewMainLoginContainer() {
     MainLoginContainer(
-        inProgress = false
+        signInProgress = false
     ) {}
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MainLoginContainer(
-    inProgress: Boolean,
+    signInProgress: Boolean,
     signInButton: () -> Unit
 ) {
     Box(
@@ -59,9 +65,6 @@ fun MainLoginContainer(
             .background(color = MaterialTheme.colors.background),
         contentAlignment = Alignment.Center
     ) {
-        if (inProgress) {
-            CircularProgressIndicator()
-        }
         Column(
             modifier = Modifier.fillMaxHeight(),
             verticalArrangement = Arrangement.SpaceEvenly,
@@ -70,9 +73,15 @@ fun MainLoginContainer(
             Text(
                 text = "BuscaPET"
             )
-            Button(onClick = { signInButton.invoke() }) {
-                Text(text = "Sign in with Google")
-            }
+            SignInButton(
+                text = "Ingresar con Google",
+                loadingText = "Ingresando...",
+                isLoading = signInProgress,
+                icon = painterResource(id = R.drawable.btn_google_light_normal_ios),
+                onClick = {
+                    signInButton.invoke()
+                }
+            )
         }
     }
 }
