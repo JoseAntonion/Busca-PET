@@ -6,7 +6,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.buscapet.ui.screens.home.HomeScreen
 import com.example.buscapet.ui.screens.last_reports.LastReportsScreen
 import com.example.buscapet.ui.screens.login.LoginScreen
 import com.example.buscapet.ui.screens.my_reports.MyReportsScreen
@@ -31,11 +30,6 @@ fun Navigation() {
         }
         composable(NavItem.MyReportsNavItem) {
             MyReportsScreen(
-                navController = navController
-            )
-        }
-        composable(NavItem.HomeNavItem) {
-            HomeScreen(
                 navController = navController
             )
         }

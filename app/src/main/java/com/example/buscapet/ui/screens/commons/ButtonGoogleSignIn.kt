@@ -1,8 +1,10 @@
 package com.example.buscapet.ui.screens.commons
 
 import android.content.res.Configuration
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -48,10 +50,12 @@ fun SignInButton(
     icon: Painter,
     isLoading: Boolean = false,
     shape: Shape = shapes.extraSmall,
-    borderColor: Color = Color.LightGray,
     progressIndicatorColor: Color = MaterialTheme.colorScheme.primary,
     onClick: () -> Unit
 ) {
+    val buttonColor = if (isSystemInDarkTheme()) GoogleDarkSignInButton else GoogleLightSignInButton
+    val buttonBorder = if (isSystemInDarkTheme()) GoogleDarkSignInButton else Color.LightGray
+
     Surface(
         modifier = Modifier
             .clickable(
@@ -59,11 +63,18 @@ fun SignInButton(
                 onClick = onClick
             ),
         shape = shape,
-        border = BorderStroke(width = 1.dp, color = borderColor),
-        color = if (isSystemInDarkTheme()) GoogleDarkSignInButton else GoogleLightSignInButton
+        border = BorderStroke(width = 1.dp, color = buttonBorder),
+        color = buttonColor
     ) {
         Row(
-            modifier = Modifier.padding(end = 16.dp),
+            modifier = Modifier
+                .padding(end = 16.dp)
+                .animateContentSize(
+                    animationSpec = tween(
+                        durationMillis = 300,
+                        easing = LinearOutSlowInEasing
+                    )
+                ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
@@ -84,7 +95,6 @@ fun SignInButton(
                         .height(18.dp)
                         .width(18.dp),
                     strokeWidth = 2.dp,
-                    progress = 5f,
                     color = progressIndicatorColor
                 )
             }
