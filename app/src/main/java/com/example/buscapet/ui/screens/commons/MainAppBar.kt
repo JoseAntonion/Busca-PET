@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -14,13 +15,18 @@ import com.example.buscapet.R
 
 @Preview
 @Composable
-fun AppBar() {
+fun PreviewAppBar() {
+    AppBar(profileName = "Prueba")
+}
+
+@Composable
+fun AppBar(profileName: String?) {
     TopAppBar(
         backgroundColor = MaterialTheme.colors.background,
         //contentColor = MaterialTheme.colors.onSecondary,
         title = {
             Text(
-                text = stringResource(id = R.string.app_name),
+                text = "Hola $profileName",
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -28,6 +34,7 @@ fun AppBar() {
         actions = {
             //AppBarAction(Icons.Default.Search) { /*TODO*/ }// Agregar Boton de accion a la derecha
             //AppBarAction(Icons.Default.Share) { /*TODO*/ }// Agregar Boton de accion a la derecha
+            AppBarAction(Icons.Default.Menu) { /*TODO*/ }// Agregar Boton de accion a la derecha
         }
     )
 }

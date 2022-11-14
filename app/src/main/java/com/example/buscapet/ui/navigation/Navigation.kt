@@ -1,4 +1,4 @@
-package com.example.buscapet.ui
+package com.example.buscapet.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
@@ -6,10 +6,10 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.buscapet.ui.navigation.NavArgs
-import com.example.buscapet.ui.navigation.NavItem
 import com.example.buscapet.ui.screens.home.HomeScreen
+import com.example.buscapet.ui.screens.last_reports.LastReportsScreen
 import com.example.buscapet.ui.screens.login.LoginScreen
+import com.example.buscapet.ui.screens.my_reports.MyReportsScreen
 
 @Composable
 fun Navigation() {
@@ -21,15 +21,18 @@ fun Navigation() {
     ) {
         composable(NavItem.LoginNavItem) {
             LoginScreen {
-                navController.navigate(NavItem.HomeNavItem.route)
+                navController.navigate(NavItem.LastReportNavItem.route)
             }
-            //MainScreen(
-            //    navController = navController,
-            //    viewModel = viewModel()
-            //) {
-            //    val route = NavItem.DetalleNavItem.createNavRoute(it)
-            //    navController.navigate(route)
-            //}
+        }
+        composable(NavItem.LastReportNavItem) {
+            LastReportsScreen(
+                navController = navController
+            )
+        }
+        composable(NavItem.MyReportsNavItem) {
+            MyReportsScreen(
+                navController = navController
+            )
         }
         composable(NavItem.HomeNavItem) {
             HomeScreen(
