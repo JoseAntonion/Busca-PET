@@ -49,7 +49,6 @@ fun SignInButton(
     isLoading: Boolean = false,
     shape: Shape = shapes.extraSmall,
     borderColor: Color = Color.LightGray,
-    //backgroundColor: Color = MaterialTheme.colorScheme.surface,
     progressIndicatorColor: Color = MaterialTheme.colorScheme.primary,
     onClick: () -> Unit
 ) {
