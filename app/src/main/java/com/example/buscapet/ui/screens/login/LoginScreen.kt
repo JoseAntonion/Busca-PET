@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buscapet.R
@@ -73,13 +74,13 @@ fun MainLoginContainer(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "BuscaPET",
+                    text = stringResource(R.string.login_app_name),
                     color = MaterialTheme.colorScheme.inverseSurface,
                     style = MaterialTheme.typography.titleLarge
                 )
                 SignInButton(
-                    text = "Ingresar con Google",
-                    loadingText = "Ingresando...",
+                    text = stringResource(R.string.login_google_sing_in_button_text),
+                    loadingText = stringResource(R.string.login_google_sing_in_button_loading_text),
                     isLoading = signInProgress,
                     icon = painterResource(id = R.drawable.btn_google_light_normal_ios),
                     onClick = {

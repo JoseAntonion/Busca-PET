@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">BuscaPet</string>
+    <string name="login_app_name">BuscaPET</string>
+    <string name="login_google_sing_in_button_text">Ingresar con Google</string>
+    <string name="login_google_sing_in_button_loading_text">Ingresando...</string>
 </resources>
