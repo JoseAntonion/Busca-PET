@@ -11,10 +11,12 @@ import com.example.buscapet.R
 import com.example.buscapet.ui.theme.BuscaPetTheme
 
 @Composable
-fun CommonFabM3() {
+fun CommonFabM3(
+    action: () -> Unit
+) {
     BuscaPetTheme {
         FloatingActionButton(
-            onClick = { /*TODO*/ },
+            onClick = { action() },
             containerColor = MaterialTheme.colorScheme.background
         ) {
             Icon(
@@ -27,10 +29,12 @@ fun CommonFabM3() {
 }
 
 @Composable
-fun CommonFabM2() {
+fun CommonFabM2(
+    action: () -> Unit
+) {
     BuscaPetTheme {
         androidx.compose.material.FloatingActionButton(
-            onClick = { /*TODO*/ },
+            onClick = { action() },
             backgroundColor = MaterialTheme.colorScheme.background
         ) {
             Icon(
@@ -46,12 +50,12 @@ fun CommonFabM2() {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewCommonFabM3() {
-    CommonFabM3()
+    CommonFabM3 {}
 }
 
 @Preview
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewCommonFabM2() {
-    CommonFabM2()
+    CommonFabM2 {}
 }

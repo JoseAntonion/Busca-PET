@@ -13,7 +13,6 @@ import com.example.buscapet.ui.navigation.NavItem
 import com.example.buscapet.ui.navigation.Navigation
 import com.example.buscapet.ui.screens.commons.AppBar
 import com.example.buscapet.ui.screens.commons.CommonBottomNavigation
-import com.example.buscapet.ui.screens.commons.CommonFabM3
 import com.example.buscapet.ui.theme.BuscaPetTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,7 +21,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             BuscaPetTheme {
-                InitActivity()
+                Navigation()
             }
         }
     }
@@ -45,7 +44,7 @@ fun InitActivity() {
                 navController = navController
             )
         }, // NavBar
-        floatingActionButton = { if (showBottomBar) CommonFabM3() },
+        //floatingActionButton = { if (showBottomBar) CommonFabM3() },
         isFloatingActionButtonDocked = true,
         floatingActionButtonPosition = FabPosition.Center,
         topBar = { if (showBottomBar) AppBar("PROANDING") } // TOOLBAR

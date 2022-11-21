@@ -11,13 +11,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.buscapet.ui.screens.commons.CommonAlertDialog
 import com.example.buscapet.ui.screens.commons.CommonScaffoldM3
 import com.google.firebase.auth.FirebaseAuth
 
@@ -39,22 +42,36 @@ fun MainView(
     userName: String?,
     navController: NavHostController
 ) {
+    val viewModel: LastReportsViewModel = viewModel()
+    val showDialog = viewModel.showDialog.observeAsState(false)
+
     CommonScaffoldM3(
         navController = navController,
-        userName = userName
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.primary)
-                .padding(padding),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Últimos Reports",
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
+        userName = userName,
+        content =
+        { padding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.primary)
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Últimos Reports",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        },
+        fabAction = {
+            viewModel.dialogState(true)
+        }
+    )
+
+    if (showDialog.value) {
+        CommonAlertDialog {
+            viewModel.dialogState(false)
         }
     }
 }

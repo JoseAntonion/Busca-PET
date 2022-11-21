@@ -2,6 +2,7 @@ package com.example.buscapet.ui.screens.commons
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.FabPosition
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
@@ -14,7 +15,8 @@ import com.example.buscapet.ui.theme.BuscaPetTheme
 fun CommonScaffoldM2(
     navController: NavController,
     userName: String? = "No Name",
-    content: @Composable (PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit,
+    fabAction: () -> Unit
 ) {
     BuscaPetTheme {
         Scaffold(
@@ -23,7 +25,7 @@ fun CommonScaffoldM2(
                     navController = navController
                 )
             },
-            floatingActionButton = { CommonFabM2() },
+            floatingActionButton = { CommonFabM2(fabAction) },
             isFloatingActionButtonDocked = true,
             floatingActionButtonPosition = FabPosition.Center,
             topBar = { AppBar(userName) } // TOOLBAR
@@ -37,7 +39,8 @@ fun CommonScaffoldM2(
 fun CommonScaffoldM3(
     navController: NavController,
     userName: String? = "No Name",
-    content: @Composable (PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit,
+    fabAction: () -> Unit
 ) {
     BuscaPetTheme {
         Scaffold(
@@ -46,7 +49,7 @@ fun CommonScaffoldM3(
                     navController = navController
                 )
             },
-            floatingActionButton = { CommonFabM3() },
+            floatingActionButton = { CommonFabM3 { fabAction() } },
             isFloatingActionButtonDocked = true,
             floatingActionButtonPosition = FabPosition.Center,
             topBar = { AppBar(userName) } // TOOLBAR
@@ -61,10 +64,10 @@ fun CommonScaffoldM3(
 @Composable
 fun M2() {
     CommonScaffoldM2(
-        navController = rememberNavController()
-    ) {
-
-    }
+        navController = rememberNavController(),
+        fabAction = {},
+        content = {}
+    )
 }
 
 @Preview
@@ -72,8 +75,8 @@ fun M2() {
 @Composable
 fun M3() {
     CommonScaffoldM3(
-        navController = rememberNavController()
-    ) {
-
-    }
+        navController = rememberNavController(),
+        content = {},
+        fabAction = {}
+    )
 }
