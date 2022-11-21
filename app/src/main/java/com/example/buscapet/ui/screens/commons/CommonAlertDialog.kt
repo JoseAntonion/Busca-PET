@@ -28,7 +28,9 @@ import com.example.buscapet.ui.theme.BuscaPetTheme
 
 @Composable
 fun CommonAlertDialog(
-    dismissAction: () -> Unit
+    dismissAction: () -> Unit,
+    reportPet: () -> Unit,
+    myPet: () -> Unit
 ) {
     BuscaPetTheme {
         Dialog(
@@ -70,7 +72,10 @@ fun CommonAlertDialog(
                     ) {
                         Box(
                             modifier = Modifier
-                                .clickable {}
+                                .clickable {
+                                    dismissAction()
+                                    reportPet()
+                                }
                                 .weight(1f)
                         ) {
                             Column(
@@ -95,7 +100,10 @@ fun CommonAlertDialog(
                         }
                         Box(
                             modifier = Modifier
-                                .clickable {}
+                                .clickable {
+                                    dismissAction()
+                                    myPet()
+                                }
                                 .weight(1f)
                         ) {
                             Column(
@@ -129,5 +137,9 @@ fun CommonAlertDialog(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark")
 @Composable
 fun PreviewCommonAlertDialog() {
-    CommonAlertDialog { }
+    CommonAlertDialog(
+        dismissAction = {},
+        reportPet = {},
+        myPet = {}
+    )
 }

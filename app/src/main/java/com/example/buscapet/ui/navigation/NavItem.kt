@@ -46,6 +46,12 @@ sealed class NavItem(
         screenRoute = "login"
     )
 
+    object ReportNavItem : NavItem(
+        title = "Reportar",
+        icon = R.drawable.ic_dog_paw,
+        screenRoute = "report"
+    )
+
     object DetalleNavItem : NavItem(
         title = "detalle titulo",
         icon = R.drawable.ic_dog_paw,

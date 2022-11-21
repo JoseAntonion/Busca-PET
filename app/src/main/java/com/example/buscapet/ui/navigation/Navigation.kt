@@ -10,14 +10,11 @@ import com.example.buscapet.ui.screens.home.HomeScreen
 import com.example.buscapet.ui.screens.last_reports.LastReportsScreen
 import com.example.buscapet.ui.screens.login.LoginScreen
 import com.example.buscapet.ui.screens.my_reports.MyReportsScreen
+import com.example.buscapet.ui.screens.report.ReportScreen
 
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
-    val bottomNavScreens = listOf(
-        NavItem.LastReportNavItem,
-        NavItem.MyReportsNavItem
-    )
     NavHost(
         navController = navController,
         startDestination = NavItem.LoginNavItem.route
@@ -33,6 +30,9 @@ fun Navigation() {
         }
         composable(NavItem.HomeNavItem) {
             HomeScreen(navController = navController)
+        }
+        composable(NavItem.ReportNavItem) {
+            ReportScreen(navController = navController)
         }
     }
 }

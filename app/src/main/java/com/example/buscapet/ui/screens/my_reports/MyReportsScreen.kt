@@ -68,9 +68,13 @@ fun MainView(
     }
 
     if (showDialog.value) {
-        CommonAlertDialog {
-            viewModel.dialogState(false)
-        }
+        CommonAlertDialog(
+            dismissAction = {
+                viewModel.dialogState(false)
+            },
+            reportPet = {},
+            myPet = {}
+        )
     }
 }
 
