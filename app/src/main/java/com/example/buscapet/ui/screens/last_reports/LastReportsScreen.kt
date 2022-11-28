@@ -35,9 +35,7 @@ fun LastReportsScreen(
 ) {
     val userName = FirebaseAuth.getInstance().currentUser?.displayName
     val activity = (LocalContext.current as? Activity)
-    BackHandler {
-        activity?.finishAffinity()
-    }
+    BackHandler { activity?.finishAffinity() }
     MainView(userName, navController)
 }
 

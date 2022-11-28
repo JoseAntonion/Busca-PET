@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.buscapet.ui.navigation.NavItem
 import com.example.buscapet.ui.screens.commons.CommonAlertDialog
 import com.example.buscapet.ui.screens.commons.CommonBottomAppBarM3
 import com.example.buscapet.ui.screens.commons.CommonFabM3
@@ -79,11 +80,9 @@ fun MainView(
 
     if (showDialog.value) {
         CommonAlertDialog(
-            dismissAction = {
-                viewModel.dialogState(false)
-            },
-            reportPet = {},
-            myPet = {}
+            dismissAction = { viewModel.dialogState(false) },
+            reportPet = { navController.navigate(NavItem.ReportNavItem.screenRoute) },
+            myPet = { navController.navigate(NavItem.ReportNavItem.screenRoute) }
         )
     }
 }

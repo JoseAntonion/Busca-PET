@@ -1,13 +1,14 @@
 package com.example.buscapet.ui.screens.report
 
+import android.app.Activity
 import android.content.res.Configuration
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,10 +16,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.ui.screens.commons.*
 import com.google.firebase.auth.FirebaseAuth
 
@@ -48,7 +51,9 @@ fun ReportScreen(
         Input("Detalles", InputType.TextField)
     )
     val userName = FirebaseAuth.getInstance().currentUser?.displayName
+    BackHandler { navController.popBackStack() }
     MainView(
+        navController,
         user = userName,
         inputList = inputList
     )
@@ -56,6 +61,7 @@ fun ReportScreen(
 
 @Composable
 fun MainView(
+    navController: NavHostController,
     user: String?,
     inputList: List<Input>
 ) {
@@ -81,7 +87,7 @@ fun MainView(
             }
         },
         topAppBarIcon = Icons.Default.ArrowBack,
-        topAppBarIconClick = {}
+        topAppBarIconClick = { navController.popBackStack() }
     )
 }
 
@@ -133,7 +139,10 @@ fun FormSections(inputList: List<Input>) {
             modifier = Modifier
                 .align(Alignment.Center)
                 .fillMaxWidth(),
-            text = "Reportar"
+            text = "Reportar",
+            onClick = {
+                viewModel.reportPet()
+            }
         )
     }
 }
@@ -154,7 +163,8 @@ fun PreviewReportScreen() {
     )
     MainView(
         user = "Demo user",
-        inputList = inputList
+        inputList = inputList,
+        navController = rememberNavController()
     )
 }
 

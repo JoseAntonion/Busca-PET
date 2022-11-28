@@ -10,10 +10,11 @@ import com.example.buscapet.ui.theme.BuscaPetTheme
 @Composable
 fun CommonButton(
     modifier: Modifier = Modifier,
-    text: String = "Label"
+    text: String = "Label",
+    onClick: () -> Unit
 ) {
     BuscaPetTheme {
-        Button(onClick = { /*TODO*/ }, modifier = modifier) {
+        Button(onClick = { onClick() }, modifier = modifier) {
             Text(text = text)
         }
     }
@@ -77,5 +78,5 @@ fun OutlinedButton() {
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark")
 @Composable
 fun Button() {
-    CommonButton(text = "Reportar")
+    CommonButton(text = "Reportar", onClick = {})
 }

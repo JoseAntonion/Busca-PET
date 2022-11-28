@@ -69,6 +69,7 @@ dependencies {
     // When using the BoM, don't specify versions in Firebase dependencies
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
     // Sign-in with Facebook
     //implementation 'com.facebook.android:facebook-android-sdk:8.x'
     // Sign-in with Facebook
