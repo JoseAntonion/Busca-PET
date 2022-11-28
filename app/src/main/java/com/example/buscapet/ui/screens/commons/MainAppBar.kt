@@ -48,8 +48,7 @@ fun CommonCenterAlignedTopAppBar(
     profileName: String?,
     navIcon: ImageVector,
     onNavIconClick: () -> Unit = {},
-    actionIcon: ImageVector,
-    onActionClick: () -> Unit = {}
+    action: @Composable () -> Unit
 ) {
     CenterAlignedTopAppBar(
         title = {
@@ -67,14 +66,7 @@ fun CommonCenterAlignedTopAppBar(
                 )
             }
         },
-        actions = {
-            IconButton(onClick = { onActionClick() }) {
-                Icon(
-                    imageVector = actionIcon,
-                    contentDescription = "Localized description"
-                )
-            }
-        }
+        actions = {action()}
     )
 }
 
@@ -85,8 +77,25 @@ fun PreviewCommonCenterAlignedTopAppBar() {
         profileName = "Demo User",
         navIcon = Icons.Default.Menu,
         onNavIconClick = {},
-        actionIcon = Icons.Default.AccountCircle,
-        onActionClick = {}
+        action = {
+            IconButton(onClick = {}) {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "Localized description"
+                )
+            }
+        }
+    )
+}
+
+@Preview
+@Composable
+fun Preview2CommonCenterAlignedTopAppBar() {
+    CommonCenterAlignedTopAppBar(
+        profileName = "Demo User",
+        navIcon = Icons.Default.ArrowBack,
+        onNavIconClick = {},
+        action = {}
     )
 }
 

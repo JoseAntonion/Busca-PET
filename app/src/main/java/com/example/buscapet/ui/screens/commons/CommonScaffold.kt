@@ -2,10 +2,12 @@ package com.example.buscapet.ui.screens.commons
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material.AlertDialog
 import androidx.compose.material.FabPosition
 import androidx.compose.material.Scaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -37,22 +39,28 @@ fun CommonScaffoldM2(
 
 @Composable
 fun CommonScaffoldM3(
-    navController: NavController,
     userName: String? = "No Name",
     content: @Composable (PaddingValues) -> Unit,
-    fabAction: () -> Unit
+    fabAction: @Composable () -> Unit = {},
+    topAppBarIcon: ImageVector,
+    topAppBarIconClick: () -> Unit,
+    bottomAppBar: @Composable () -> Unit = {}
 ) {
     BuscaPetTheme {
         Scaffold(
-            bottomBar = {
-                CommonBottomAppBarM3(
-                    navController = navController
-                )
-            },
-            floatingActionButton = { CommonFabM3 { fabAction() } },
+            bottomBar = { bottomAppBar() },
+            floatingActionButton = { fabAction() },
             isFloatingActionButtonDocked = true,
             floatingActionButtonPosition = FabPosition.Center,
-            topBar = { AppBar(userName) } // TOOLBAR
+            topBar = {
+                //AppBar(userName)
+                CommonCenterAlignedTopAppBar(
+                    profileName = userName,
+                    navIcon = topAppBarIcon,
+                    onNavIconClick = { topAppBarIconClick() },
+                    action = {}
+                )
+            }
         ) { padding ->
             content(padding)
         }
@@ -75,8 +83,10 @@ fun M2() {
 @Composable
 fun M3() {
     CommonScaffoldM3(
-        navController = rememberNavController(),
         content = {},
-        fabAction = {}
+        fabAction = {},
+        topAppBarIcon = Icons.Default.Favorite,
+        topAppBarIconClick = {},
+        userName = "Demo UserName"
     )
 }

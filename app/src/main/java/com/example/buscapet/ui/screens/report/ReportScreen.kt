@@ -5,6 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,26 +19,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.buscapet.ui.screens.commons.ChipGroup
-import com.example.buscapet.ui.screens.commons.CommonButton
-import com.example.buscapet.ui.screens.commons.CommonExposedDropdownMenuBox
-import com.example.buscapet.ui.screens.commons.CommonTextField
-import com.example.buscapet.ui.theme.BuscaPetTheme
-
-enum class InputType {
-    TextField,
-    Dropdown,
-    ChipList,
-    Map,
-    RadioButton,
-}
-
-data class Input(
-    val title: String,
-    val type: InputType,
-    val items: List<String> = emptyList()
-)
+import com.example.buscapet.ui.screens.commons.*
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun ReportScreen(
@@ -62,25 +47,42 @@ fun ReportScreen(
         Input("Imagen", InputType.TextField),
         Input("Detalles", InputType.TextField)
     )
+    val userName = FirebaseAuth.getInstance().currentUser?.displayName
+    MainView(
+        user = userName,
+        inputList = inputList
+    )
+}
 
-    BuscaPetTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceEvenly,
+@Composable
+fun MainView(
+    user: String?,
+    inputList: List<Input>
+) {
+    CommonScaffoldM3(
+        userName = user,
+        content = { padding ->
+            Box(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
+                    .fillMaxSize()
+                    .padding(padding)
+                    .background(MaterialTheme.colorScheme.background)
             ) {
-                FormSections(inputList)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp)
+                ) {
+                    FormSections(inputList)
+                }
             }
-        }
-    }
+        },
+        topAppBarIcon = Icons.Default.ArrowBack,
+        topAppBarIconClick = {}
+    )
 }
 
 @Composable
@@ -140,5 +142,32 @@ fun FormSections(inputList: List<Input>) {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewReportScreen() {
-    ReportScreen(rememberNavController())
+    val inputList = listOf(
+        Input("Color", InputType.TextField),
+        Input("Tamaño", InputType.ChipList, listOf("Pequeño", "Mediano", "Grande", "Gigante")),
+        Input("Raza", InputType.Dropdown),
+        Input("Ubicacion", InputType.Map),
+        Input("Genero", InputType.ChipList, listOf("Hembra", "Macho")),
+        Input("Edad", InputType.ChipList, listOf("Cachorro", "Adulto", "Senior")),
+        Input("Imagen", InputType.TextField),
+        Input("Detalles", InputType.TextField)
+    )
+    MainView(
+        user = "Demo user",
+        inputList = inputList
+    )
 }
+
+enum class InputType {
+    TextField,
+    Dropdown,
+    ChipList,
+    Map,
+    RadioButton,
+}
+
+data class Input(
+    val title: String,
+    val type: InputType,
+    val items: List<String> = emptyList()
+)

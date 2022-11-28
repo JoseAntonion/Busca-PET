@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
@@ -22,6 +24,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.ui.navigation.NavItem
 import com.example.buscapet.ui.screens.commons.CommonAlertDialog
+import com.example.buscapet.ui.screens.commons.CommonBottomAppBarM3
+import com.example.buscapet.ui.screens.commons.CommonFabM3
 import com.example.buscapet.ui.screens.commons.CommonScaffoldM3
 import com.google.firebase.auth.FirebaseAuth
 
@@ -47,7 +51,6 @@ fun MainView(
     val showDialog = viewModel.showDialog.observeAsState(false)
 
     CommonScaffoldM3(
-        navController = navController,
         userName = userName,
         content =
         { padding ->
@@ -66,7 +69,14 @@ fun MainView(
             }
         },
         fabAction = {
-            viewModel.dialogState(true)
+            CommonFabM3 { viewModel.dialogState(true) }
+        },
+        topAppBarIcon = Icons.Default.Menu,
+        topAppBarIconClick = {},
+        bottomAppBar = {
+            CommonBottomAppBarM3(
+                navController = navController
+            )
         }
     )
 
