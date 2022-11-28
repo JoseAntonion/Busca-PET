@@ -3,6 +3,8 @@ package com.example.buscapet.ui.screens.report
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,6 +18,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.ui.screens.commons.ChipGroup
+import com.example.buscapet.ui.screens.commons.CommonButton
+import com.example.buscapet.ui.screens.commons.CommonExposedDropdownMenuBox
 import com.example.buscapet.ui.screens.commons.CommonTextField
 import com.example.buscapet.ui.theme.BuscaPetTheme
 
@@ -70,6 +74,7 @@ fun ReportScreen(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier
                     .fillMaxHeight()
+                    .verticalScroll(rememberScrollState())
                     .padding(16.dp)
             ) {
                 FormSections(inputList)
@@ -86,7 +91,9 @@ fun FormSections(inputList: List<Input>) {
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Column {
+            Column(
+                verticalArrangement = Arrangement.SpaceAround
+            ) {
                 when (type) {
                     InputType.ChipList -> {
                         Text(
@@ -106,10 +113,26 @@ fun FormSections(inputList: List<Input>) {
                     }
                     InputType.RadioButton -> {}
                     InputType.Map -> {}
-                    InputType.Dropdown -> {}
+                    InputType.Dropdown -> {
+                        val breeds =
+                            listOf("Policial", "Shaushau", "Haspapi", "Pudul", "Chico Terri")
+                        CommonExposedDropdownMenuBox(breeds)
+                    }
                 }
             }
         }
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        CommonButton(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .fillMaxWidth(),
+            text = "Reportar"
+        )
     }
 }
 

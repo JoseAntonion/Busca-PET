@@ -2,59 +2,47 @@ package com.example.buscapet.ui.screens.commons
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.buscapet.ui.theme.BuscaPetTheme
+
+val breeds = listOf("Policial", "Shaushau", "Haspapi", "Pudul", "Chico Terri")
 
 @Composable
-fun CommonDropdownMenu() {
+fun CommonDropdownMenu(
+    breeds: List<String>
+) {
     var expanded by remember { mutableStateOf(false) }
+    var breedSelected by remember { mutableStateOf("Seleccione una raza") }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .wrapContentSize(Alignment.TopStart)
-    ) {
-        IconButton(onClick = { expanded = true }) {
-            Icon(
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = "Localized description"
-            )
-        }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
+    BuscaPetTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentSize(Alignment.TopStart)
         ) {
-            CommonDropdownMenuItem(
-                text = "Edit",
-                onClick = { /* Handle send feedback! */ },
-                leadingIcon = Icons.Outlined.Edit,
-                {}
-            )
-            CommonDropdownMenuItem(
-                text = "Settings",
-                onClick = { /* Handle send feedback! */ },
-                leadingIcon = Icons.Outlined.Settings,
-                {}
-            )
-            Divider()
-            CommonDropdownMenuItem(
-                text = "Send Feedback",
-                onClick = { /* Handle send feedback! */ },
-                leadingIcon = Icons.Outlined.Email,
-                trailingIcon = { Text("F11", textAlign = TextAlign.Center) }
-            )
+            TextButton(onClick = { expanded = true }) {
+                Text(text = breedSelected)
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                breeds.forEach { breed ->
+                    CommonDropdownMenuItem(
+                        text = breed,
+                        onClick = {
+                            breedSelected = breed
+                            expanded = false
+                        }
+                    )
+                }
+            }
         }
     }
 }
@@ -63,33 +51,86 @@ fun CommonDropdownMenu() {
 fun CommonDropdownMenuItem(
     text: String,
     onClick: () -> Unit,
-    leadingIcon: ImageVector,
-    trailingIcon: @Composable () -> Unit
+//    leadingIcon: ImageVector,
+//    trailingIcon: @Composable () -> Unit
 ) {
-    DropdownMenuItem(
-        text = { Text(text) },
-        onClick = { onClick() },
-        leadingIcon = {
-            Icon(leadingIcon, null)
-        },
-        trailingIcon = { trailingIcon }
-    )
+    BuscaPetTheme {
+        DropdownMenuItem(
+            text = { Text(text) },
+            onClick = { onClick() },
+//        leadingIcon = {
+//            Icon(leadingIcon, null)
+//        },
+//        trailingIcon = { trailingIcon() }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CommonExposedDropdownMenuBox(
+    breeds: List<String>
+) {
+    //val options = listOf("Option 1", "Option 2", "Option 3", "Option 4", "Option 5")
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOptionText by remember { mutableStateOf("") }
+// We want to react on tap/press on TextField to show menu
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        TextField(
+            // The `menuAnchor` modifier must be passed to the text field for correctness.
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(),
+            //readOnly = true,
+            value = selectedOptionText,
+            onValueChange = { selectedOptionText = it },
+            label = { Text("Raza") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+        )
+        // filter options based on text field value
+        val filteringOptions = breeds.filter { it.contains(selectedOptionText, ignoreCase = true) }
+        if (filteringOptions.isNotEmpty()) {
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                filteringOptions.forEach { selectionOption ->
+                    DropdownMenuItem(
+                        text = { Text(selectionOption) },
+                        onClick = {
+                            selectedOptionText = selectionOption
+                            expanded = false
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun PreviewCommonExposedDropdownMenuBox() {
+    CommonExposedDropdownMenuBox(breeds)
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewCommonDropdownMenuItem() {
     CommonDropdownMenuItem(
-        text = "Item prueba 1",
-        {},
-        leadingIcon = Icons.Outlined.Email,
-        trailingIcon = { Text("F11", textAlign = TextAlign.Center) }
-    )
+        text = "Item prueba 1"
+    ) {}
 }
 
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewCommonDropdownMenu() {
-    CommonDropdownMenu()
+    CommonDropdownMenu(breeds)
 }
