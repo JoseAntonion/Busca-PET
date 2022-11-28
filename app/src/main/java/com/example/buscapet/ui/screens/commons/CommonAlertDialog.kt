@@ -1,13 +1,11 @@
 package com.example.buscapet.ui.screens.commons
 
 import android.content.res.Configuration
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.SentimentDissatisfied
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -15,8 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,31 +40,30 @@ fun CommonAlertDialog(
                     modifier = Modifier
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_report),
-                        contentDescription = null, // decorative
-                        contentScale = ContentScale.Fit,
-                        colorFilter = ColorFilter.tint(
-                            color = MaterialTheme.colorScheme.onBackground
-                        ),
-                        modifier = Modifier
-                            .padding(top = 8.dp)
-                            .height(30.dp)
-                            .fillMaxWidth()
-                    )
-                    Text(
-                        text = "Selecciona una opción",
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+//                    Image(
+//                        painter = painterResource(id = R.drawable.ic_report),
+//                        contentDescription = null, // decorative
+//                        contentScale = ContentScale.Fit,
+//                        colorFilter = ColorFilter.tint(
+//                            color = MaterialTheme.colorScheme.onBackground
+//                        ),
+//                        modifier = Modifier
+//                            .padding(top = 8.dp)
+//                            .height(30.dp)
+//                            .fillMaxWidth()
+//                    )
+//                    Text(
+//                        text = "Selecciona una opción",
+//                        textAlign = TextAlign.Center,
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .padding(8.dp),
+//                        style = MaterialTheme.typography.bodyMedium,
+//                        color = MaterialTheme.colorScheme.onBackground
+//                    )
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .padding(top = 10.dp)
-                            .background(MaterialTheme.colorScheme.secondary)
                     ) {
                         Box(
                             modifier = Modifier
@@ -77,6 +72,7 @@ fun CommonAlertDialog(
                                     reportPet()
                                 }
                                 .weight(1f)
+                                .background(MaterialTheme.colorScheme.primary)
                         ) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -88,13 +84,13 @@ fun CommonAlertDialog(
                                     Icons.Default.Visibility,
                                     null,
                                     modifier = Modifier.size(60.dp),
-                                    tint = MaterialTheme.colorScheme.onSecondary
+                                    tint = MaterialTheme.colorScheme.onPrimary
                                 )
                                 Text(
                                     "Reportar Mascota",
                                     fontWeight = FontWeight.Bold,
                                     textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colorScheme.onSecondary
+                                    color = MaterialTheme.colorScheme.onPrimary
                                 )
                             }
                         }
@@ -105,6 +101,7 @@ fun CommonAlertDialog(
                                     myPet()
                                 }
                                 .weight(1f)
+                                .background(MaterialTheme.colorScheme.secondary)
                         ) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -113,7 +110,7 @@ fun CommonAlertDialog(
                                     .fillMaxWidth()
                             ) {
                                 Icon(
-                                    Icons.Default.SentimentDissatisfied,
+                                    painterResource(id = R.drawable.dog_barking_48px),
                                     null,
                                     modifier = Modifier.size(60.dp),
                                     tint = MaterialTheme.colorScheme.onSecondary
