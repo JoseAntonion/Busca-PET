@@ -75,7 +75,8 @@ fun MainView(
             CommonBottomAppBarM3(
                 navController = navController
             )
-        }
+        },
+        snackbarHostState = {}
     )
 
     if (showDialog.value) {

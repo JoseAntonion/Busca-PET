@@ -4,9 +4,12 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.FabPosition
 import androidx.compose.material.Scaffold
+import androidx.compose.material.SnackbarHost
+import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
@@ -44,7 +47,8 @@ fun CommonScaffoldM3(
     fabAction: @Composable () -> Unit = {},
     topAppBarIcon: ImageVector,
     topAppBarIconClick: () -> Unit,
-    bottomAppBar: @Composable () -> Unit = {}
+    bottomAppBar: @Composable () -> Unit = {},
+    snackbarHostState: @Composable (androidx.compose.material.SnackbarHostState) -> Unit
 ) {
     BuscaPetTheme {
         Scaffold(
@@ -60,7 +64,7 @@ fun CommonScaffoldM3(
                     onNavIconClick = { topAppBarIconClick() },
                     action = {}
                 )
-            }
+            }, snackbarHost = snackbarHostState
         ) { padding ->
             content(padding)
         }
@@ -82,11 +86,15 @@ fun M2() {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun M3() {
+    val snackbarHostState = remember { SnackbarHostState() }
     CommonScaffoldM3(
         content = {},
         fabAction = {},
         topAppBarIcon = Icons.Default.Favorite,
         topAppBarIconClick = {},
-        userName = "Demo UserName"
+        userName = "Demo UserName",
+        snackbarHostState = {
+            SnackbarHost(snackbarHostState)
+        }
     )
 }

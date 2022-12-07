@@ -69,11 +69,13 @@ fun CommonDropdownMenuItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommonExposedDropdownMenuBox(
-    breeds: List<String>
+    hintText: String,
+    breeds: List<String>,
+    data: MutableState<String>
 ) {
-    //val options = listOf("Option 1", "Option 2", "Option 3", "Option 4", "Option 5")
     var expanded by remember { mutableStateOf(false) }
-    var selectedOptionText by remember { mutableStateOf("") }
+    val (currentData, onCurrentDataChange) = data
+    //var selectedOptionText by remember { mutableStateOf("") }
 // We want to react on tap/press on TextField to show menu
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -86,14 +88,14 @@ fun CommonExposedDropdownMenuBox(
                 .menuAnchor()
                 .fillMaxWidth(),
             //readOnly = true,
-            value = selectedOptionText,
-            onValueChange = { selectedOptionText = it },
-            label = { Text("Raza") },
+            value = currentData,
+            onValueChange = { onCurrentDataChange(it) },
+            label = { Text(hintText) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
         )
         // filter options based on text field value
-        val filteringOptions = breeds.filter { it.contains(selectedOptionText, ignoreCase = true) }
+        val filteringOptions = breeds.filter { it.contains(currentData, ignoreCase = true) }
         if (filteringOptions.isNotEmpty()) {
             ExposedDropdownMenu(
                 expanded = expanded,
@@ -103,7 +105,7 @@ fun CommonExposedDropdownMenuBox(
                     DropdownMenuItem(
                         text = { Text(selectionOption) },
                         onClick = {
-                            selectedOptionText = selectionOption
+                            onCurrentDataChange(selectionOption)
                             expanded = false
                         },
                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
@@ -117,7 +119,12 @@ fun CommonExposedDropdownMenuBox(
 @Preview
 @Composable
 fun PreviewCommonExposedDropdownMenuBox() {
-    CommonExposedDropdownMenuBox(breeds)
+    val testData = remember { mutableStateOf("wea") }
+    CommonExposedDropdownMenuBox(
+        "Input with search",
+        breeds,
+        testData
+    )
 }
 
 @Preview(showBackground = true)

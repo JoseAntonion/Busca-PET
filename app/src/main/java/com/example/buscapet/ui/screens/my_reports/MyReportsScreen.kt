@@ -74,7 +74,8 @@ fun MainView(
                 CommonBottomAppBarM3(
                     navController = navController
                 )
-            }
+            },
+            snackbarHostState = {}
         )
     }
 

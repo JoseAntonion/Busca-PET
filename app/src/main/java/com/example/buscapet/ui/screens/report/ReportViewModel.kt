@@ -1,10 +1,11 @@
 package com.example.buscapet.ui.screens.report
 
 import android.util.Log
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.example.buscapet.ui.model.FormData
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -22,64 +23,41 @@ class ReportViewModel : ViewModel() {
      */
 
     val TAG = ReportViewModel::class.java.simpleName
+    var formData by mutableStateOf(FormData())
+    var showSnackbar by mutableStateOf(false)
+    var snackbarText by mutableStateOf("")
 
-    private val _color = MutableLiveData<String>()
-    val color: LiveData<String>
-        get() = _color
-    private val _size = MutableLiveData<String>()
-    val size: LiveData<String>
-        get() = _size
-    private val _breed = MutableLiveData<String>()
-    val breed: LiveData<String>
-        get() = _breed
-    private val _geoLoc = MutableLiveData<String>()
-    val geoLoc: LiveData<String>
-        get() = _geoLoc
-    private val _gender = MutableLiveData<String>()
-    val gender: LiveData<String>
-        get() = _gender
-    private val _age = MutableLiveData<String>()
-    val age: LiveData<String>
-        get() = _age
-    private val _image = MutableLiveData<String>()
-    val image: LiveData<String>
-        get() = _image
-    private val _details = MutableLiveData<String>()
-    val details: LiveData<String>
-        get() = _details
+    private fun toggleSnackbar(b: Boolean, text: String = "") {
+        showSnackbar = b
+        snackbarText = text
+    }
 
     fun reportPet() {
         val prueba = hashMapOf(
-            "color" to "Pruea",
-            "detalle" to "Pruea",
-            "edad" to "Pruea",
-            "genero" to "Pruea",
-            "geo" to "Pruea",
-            "imagen" to "Pruea",
-            "raza" to "Pruea",
-            "tamaño" to "Pruea"
+            "color" to formData.color.value,
+            "detalle" to formData.details.value,
+            "edad" to formData.age.value,
+            "genero" to formData.gender.value,
+            "geo" to formData.geoLoc.value,
+            "imagen" to formData.image.value,
+            "raza" to formData.breed.value,
+            "tamaño" to formData.size.value
         )
+
+        Log.i(TAG, "reportPet: $prueba")
 
         Firebase.firestore
             .collection("mascotas")
             .document("My68dAGppMpxpnKTmYQ2")
             .collection("mascotas")
             .add(prueba)
-            .addOnSuccessListener { Log.d(TAG, "DocumentSnapshot successfully written!") }
-            .addOnFailureListener { e -> Log.w(TAG, "Error writing document", e) }
+            .addOnSuccessListener {
+                Log.d(TAG, "DocumentSnapshot successfully written!")
+                toggleSnackbar(true, "Success")
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error writing document", e)
+                toggleSnackbar(true, "${e.message}")
+            }
     }
-
-    val formData = FormData()
-
-    class FormData {
-        val color = mutableStateOf("")
-        val size = mutableStateOf("")
-        val breed = mutableStateOf("")
-        val geoLoc = mutableStateOf("")
-        val gender = mutableStateOf("")
-        val age = mutableStateOf("")
-        val image = mutableStateOf("")
-        val details = mutableStateOf("")
-    }
-
 }
