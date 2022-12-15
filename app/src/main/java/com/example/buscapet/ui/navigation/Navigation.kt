@@ -20,19 +20,19 @@ fun Navigation() {
         startDestination = NavItem.LoginNavItem.route
     ) {
         composable(NavItem.LoginNavItem) {
-            LoginScreen { navController.navigate(NavItem.LastReportNavItem.route) }
+            LoginScreen(navController)
         }
         composable(NavItem.LastReportNavItem) {
-            LastReportsScreen(navController = navController)
+            LastReportsScreen(navController)
         }
         composable(NavItem.MyReportsNavItem) {
-            MyReportsScreen(navController = navController)
+            MyReportsScreen(navController)
         }
         composable(NavItem.HomeNavItem) {
-            HomeScreen(navController = navController)
+            HomeScreen(navController)
         }
         composable(NavItem.ReportNavItem) {
-            ReportScreen(navController = navController)
+            ReportScreen(navController)
         }
     }
 }

@@ -6,7 +6,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavController
 import com.example.buscapet.R
+import com.example.buscapet.ui.navigation.NavItem
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -18,15 +20,38 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
 
-class LoginViewModel : ViewModel(), CoroutineScope {
+class LoginViewModel() : ViewModel(),
+    CoroutineScope {
 
     private lateinit var auth: FirebaseAuth
-    private val _signInName = MutableLiveData<String>()
-    val signInName: LiveData<String>
-        get() = _signInName
-    private val _progress = MutableLiveData<Boolean>()
-    val progress: LiveData<Boolean>
-        get() = _progress
+    private val _logginIn = MutableLiveData<Boolean>()
+    val logginIn: LiveData<Boolean>
+        get() = _logginIn
+    private val _checkingSession = MutableLiveData<Boolean>()
+    val checkingSession: LiveData<Boolean>
+        get() = _checkingSession
+
+    //var checkingSession = MutableStateFlow(false)
+
+    init {
+        _checkingSession.value = true
+        val hasSession = FirebaseAuth.getInstance().currentUser
+        _checkingSession.value = hasSession != null
+    }
+
+    fun checkSession(navController: NavController) {
+        _checkingSession.value = true
+        val hasSession = FirebaseAuth.getInstance().currentUser
+        if (hasSession != null) {
+            try {
+                navController.navigate(NavItem.LastReportNavItem.screenRoute)
+            }catch (e:Exception){
+                val wea = e.message
+            }
+        } else {
+            _checkingSession.value = false
+        }
+    }
 
     fun loginWithGoogle(activity: Activity?, startLogin: (Intent) -> Unit) {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -36,10 +61,10 @@ class LoginViewModel : ViewModel(), CoroutineScope {
         val client = GoogleSignIn.getClient(activity, gso)
         val signInIntent = client.signInIntent
         startLogin.invoke(signInIntent)
-        _progress.value = true
+        _logginIn.value = true
     }
 
-    fun finishLogin(googleTask: Task<GoogleSignInAccount>, signedId: () -> Unit) {
+    fun finishLogin(googleTask: Task<GoogleSignInAccount>, navController: NavController) {
         try {
             val account: GoogleSignInAccount = googleTask.getResult(ApiException::class.java)
             account.idToken?.let { it ->
@@ -48,8 +73,8 @@ class LoginViewModel : ViewModel(), CoroutineScope {
                 auth.signInWithCredential(credential).addOnCompleteListener { authResult ->
                     if (authResult.isSuccessful) {
                         val user = auth.currentUser
-                        _signInName.value = user?.displayName
-                        signedId.invoke()
+                        //_signInName.value = user?.displayName
+                        navController.navigate(NavItem.LastReportNavItem.screenRoute)
                         //_progress.value = false
                     } else {
                         Log.e("signIn", "unSuccess signin")
@@ -59,7 +84,7 @@ class LoginViewModel : ViewModel(), CoroutineScope {
             }
         } catch (e: Exception) {
             Log.e("signIn", "error signin: ${e.message}")
-            _progress.value = false
+            _logginIn.value = false
         }
     }
 
