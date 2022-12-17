@@ -74,7 +74,7 @@ class LoginViewModel() : ViewModel(),
                     if (authResult.isSuccessful) {
                         val user = auth.currentUser
                         //_signInName.value = user?.displayName
-                        navController.navigate(NavItem.LastReportNavItem.screenRoute)
+                        navController.navigate(NavItem.HomeNavItem.screenRoute)
                         //_progress.value = false
                     } else {
                         Log.e("signIn", "unSuccess signin")

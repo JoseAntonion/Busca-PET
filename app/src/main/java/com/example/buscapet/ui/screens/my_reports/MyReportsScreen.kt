@@ -47,7 +47,7 @@ fun MainView(
     val viewModel: MyReportsViewModel = viewModel()
     val showDialog = viewModel.showDialog.observeAsState(false)
 
-    BuscaPetTheme {
+    /*BuscaPetTheme {
         CommonScaffoldM3(
             userName = userName,
             content = { padding ->
@@ -76,6 +76,20 @@ fun MainView(
                 )
             },
             snackbarHostState = {}
+        )
+    }*/
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            //.padding(padding)
+            .background(color = MaterialTheme.colorScheme.primary),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Mis Reportes",
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onPrimary
         )
     }
 

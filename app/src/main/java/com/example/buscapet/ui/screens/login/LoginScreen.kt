@@ -83,20 +83,20 @@ fun MainLoginContainer(
                     color = MaterialTheme.colorScheme.inverseSurface,
                     style = MaterialTheme.typography.titleLarge
                 )
-                if (checkingSession) {
-                    Box {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.padding(bottom = 16.dp),
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Text(text = "Validando sesión")
-                        }
-                    }
-                }
-                if (!checkingSession) {
+//                if (checkingSession) {
+//                    Box {
+//                        Column(
+//                            horizontalAlignment = Alignment.CenterHorizontally
+//                        ) {
+//                            CircularProgressIndicator(
+//                                modifier = Modifier.padding(bottom = 16.dp),
+//                                color = MaterialTheme.colorScheme.primary
+//                            )
+//                            Text(text = "Validando sesión")
+//                        }
+//                    }
+//                }
+                //if (!checkingSession) {
                     SignInButton(text = stringResource(R.string.login_google_sing_in_button_text),
                         loadingText = stringResource(R.string.login_google_sing_in_button_loading_text),
                         isLoading = signInProgress,
@@ -104,7 +104,7 @@ fun MainLoginContainer(
                         onClick = {
                             signInButton.invoke()
                         })
-                }
+                //}
             }
         }
     }

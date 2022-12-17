@@ -48,7 +48,7 @@ fun MainView(
     val viewModel: LastReportsViewModel = viewModel()
     val showDialog = viewModel.showDialog.observeAsState(false)
 
-    CommonScaffoldM3(
+    /*CommonScaffoldM3(
         userName = userName,
         content =
         { padding ->
@@ -77,7 +77,21 @@ fun MainView(
             )
         },
         snackbarHostState = {}
-    )
+    )*/
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            //.padding(padding)
+            .background(color = MaterialTheme.colorScheme.primary),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Últimos Reports",
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+    }
 
     if (showDialog.value) {
         CommonAlertDialog(
