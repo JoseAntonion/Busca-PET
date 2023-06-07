@@ -10,7 +10,7 @@ class LastReportsViewModel : ViewModel() {
     val showDialog: LiveData<Boolean>
         get() = _showDialog
 // Comentario de prueba
-    val prueba = "hola prueba"
+    val prueba = "hola prueba desde dell"
     fun dialogState(b: Boolean) {
         _showDialog.value = b
     }
