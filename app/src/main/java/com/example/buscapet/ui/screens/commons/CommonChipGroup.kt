@@ -145,9 +145,12 @@ fun SegmentedButton(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChipGroup(
-    items: List<String>
+    items: List<String>,
+    data: MutableState<String>,
+    //onChipSelected: (String) -> Unit
 ) {
-    var chipState by remember { mutableStateOf("Pequeño") }
+    var chipState by remember { mutableStateOf("") }
+    val (currentData, onCurrentDataChange) = data
 
     BuscaPetTheme {
         FlowRow(
@@ -157,15 +160,19 @@ fun ChipGroup(
                 SuggestionChip(
                     onClick = {
                         chipState = if (item != chipState) item else ""
+                        onCurrentDataChange(chipState)
+                        //onChipSelected(item)
                     },
-                    label = { Text(
-                        text = item,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = if (item == chipState)
-                            MaterialTheme.colorScheme.onPrimary
-                        else
-                            MaterialTheme.colorScheme.onBackground
-                    ) },
+                    label = {
+                        Text(
+                            text = item,
+                            style = MaterialTheme.typography.labelLarge,
+                            color = if (item == chipState)
+                                MaterialTheme.colorScheme.onPrimary
+                            else
+                                MaterialTheme.colorScheme.onBackground
+                        )
+                    },
                     colors = SuggestionChipDefaults.suggestionChipColors(
                         containerColor = if (item == chipState)
                             MaterialTheme.colorScheme.primary
@@ -186,5 +193,9 @@ fun ChipGroup(
 @Composable
 fun PreviewSegmentedButton() {
     val demoButtons = listOf("Pequeño", "Mediano", "Grande", "Gigante")
-    ChipGroup(items = demoButtons)
+    val chipState = remember { mutableStateOf("") }
+    ChipGroup(
+        items = demoButtons,
+        data = chipState
+    )
 }

@@ -50,24 +50,26 @@ fun CommonCenterAlignedTopAppBar(
     onNavIconClick: () -> Unit = {},
     action: @Composable () -> Unit
 ) {
-    CenterAlignedTopAppBar(
-        title = {
-            Text(
-                "Hola $profileName",
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = { onNavIconClick() }) {
-                Icon(
-                    imageVector = navIcon,
-                    contentDescription = "Localized description"
+    BuscaPetTheme {
+        CenterAlignedTopAppBar(
+            title = {
+                Text(
+                    "Hola $profileName",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
-            }
-        },
-        actions = {action()}
-    )
+            },
+            navigationIcon = {
+                IconButton(onClick = { onNavIconClick() }) {
+                    Icon(
+                        imageVector = navIcon,
+                        contentDescription = "Localized description"
+                    )
+                }
+            },
+            actions = { action() }
+        )
+    }
 }
 
 @Preview

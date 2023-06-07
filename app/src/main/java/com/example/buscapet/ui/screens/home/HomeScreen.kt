@@ -1,14 +1,17 @@
 package com.example.buscapet.ui.screens.home
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.res.Configuration
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.buscapet.ui.screens.commons.CommonBottomAppBarM3
+import com.example.buscapet.ui.screens.commons.CommonFabM3
+import com.example.buscapet.ui.screens.commons.CommonScaffoldM3
 import com.example.buscapet.ui.theme.BuscaPetTheme
 import com.google.firebase.auth.FirebaseAuth
 
@@ -17,42 +20,35 @@ fun HomeScreen(
     navController: NavHostController
 ) {
     val userName = FirebaseAuth.getInstance().currentUser?.displayName
-    val context = LocalContext.current
-    MainView(userName, context, navController)
+    MainView(userName, navController)
 }
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MainView(
     userName: String?,
-    context: Context,
-    navController: NavHostController
+    navControllerOLD: NavHostController,
+    viewModel: HomeViewModel = viewModel()
 ) {
-    val scaffoldState = rememberScaffoldState()
+    val navController = rememberNavController()
     BuscaPetTheme {
-//        Scaffold(
-//            scaffoldState = scaffoldState,
-//            bottomBar = { MainBottomNav(navController = navController) }, // NavBar
-//            floatingActionButton = { FabCommon(context = context) },
-//            isFloatingActionButtonDocked = true,
-//            floatingActionButtonPosition = FabPosition.Center,
-//            topBar = { AppBar(userName) } // TOOLBAR
-//        ){
-//
-//        }
-        //            Box(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .background(color = MaterialTheme.colorScheme.primary)
-//                    .padding(padding),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                Text(
-//                    text = "Mis Reportes",
-//                    textAlign = TextAlign.Center,
-//                    color = MaterialTheme.colorScheme.onPrimary
-//                )
-//            }
+        CommonScaffoldM3(
+            userName = userName,
+            content = {
+                HomeNavigation(navController)
+            },
+            fabAction = {
+                CommonFabM3 { viewModel.dialogState(true) }
+            },
+            topAppBarIcon = Icons.Default.Menu,
+            topAppBarIconClick = {},
+            bottomAppBar = {
+                CommonBottomAppBarM3(
+                    navController = navController
+                )
+            },
+            snackbarHostState = {}
+        )
     }
 }
 
@@ -62,7 +58,6 @@ fun MainView(
 fun PreviewMainView() {
     MainView(
         userName = "Test",
-        context = LocalContext.current,
-        navController = rememberNavController()
+        navControllerOLD = rememberNavController()
     )
 }
