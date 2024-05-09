@@ -21,9 +21,11 @@ import kotlin.coroutines.CoroutineContext
 class LoginViewModel : ViewModel(), CoroutineScope {
 
     private lateinit var auth: FirebaseAuth
+
     private val _signInName = MutableLiveData<String>()
     val signInName: LiveData<String>
         get() = _signInName
+
     private val _progress = MutableLiveData<Boolean>()
     val progress: LiveData<Boolean>
         get() = _progress
@@ -41,25 +43,25 @@ class LoginViewModel : ViewModel(), CoroutineScope {
 
     fun finishLogin(googleTask: Task<GoogleSignInAccount>, signedId: () -> Unit) {
         //try {
-            Log.d("TAG", "finishLogin: INIT... googleTask: $googleTask")
-            val account: GoogleSignInAccount = googleTask.getResult(ApiException::class.java)
-            Log.d("TAG", "finishLogin: account.idToken: ${account.idToken}")
-            account.idToken?.let {
-                auth = FirebaseAuth.getInstance()
-                val credential = GoogleAuthProvider.getCredential(it, null)
-                auth.signInWithCredential(credential).addOnCompleteListener { authResult ->
-                    if (authResult.isSuccessful) {
-                        val user = auth.currentUser
-                        _signInName.value = user?.displayName
-                        Log.d("TAG", "Success signin")
-                        signedId.invoke()
-                        //_progress.value = false
-                    } else {
-                        Log.e("TAG", "unSuccess signin")
-                        //_progress.value = false
-                    }
+        Log.d("TAG", "finishLogin: INIT... googleTask: $googleTask")
+        val account: GoogleSignInAccount = googleTask.getResult(ApiException::class.java)
+        Log.d("TAG", "finishLogin: account.idToken: ${account.idToken}")
+        account.idToken?.let { token ->
+            auth = FirebaseAuth.getInstance()
+            val credential = GoogleAuthProvider.getCredential(token, null)
+            auth.signInWithCredential(credential).addOnCompleteListener { authResult ->
+                if (authResult.isSuccessful) {
+                    val user = auth.currentUser
+                    _signInName.value = user?.displayName
+                    Log.d("TAG", "Success signin")
+                    signedId.invoke()
+                    //_progress.value = false
+                } else {
+                    Log.e("TAG", "unSuccess signin")
+                    //_progress.value = false
                 }
             }
+        }
         //} catch (e: Exception) {
         //    Log.e("TAG", "error signin: ${e.message} ${e.localizedMessage} ${e.stackTrace} ${e.cause}")
         //    _progress.value = false

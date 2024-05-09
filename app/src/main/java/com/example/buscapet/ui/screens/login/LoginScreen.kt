@@ -25,14 +25,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 
 @Composable
-fun LoginScreen(signedId: () -> Unit) {
+fun LoginScreen(navToHome: () -> Unit) {
     val viewModel: LoginViewModel = viewModel()
     val activity = LocalContext.current as Activity
     val bussy = viewModel.progress.observeAsState(false)
     val activityResult =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(it.data)
-            viewModel.finishLogin(task, signedId)
+            viewModel.finishLogin(task, navToHome)
             Log.d("TAG", "LoginScreen:  viewModel.finishLogin")
         }
 

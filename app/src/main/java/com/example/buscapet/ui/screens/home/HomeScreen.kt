@@ -1,7 +1,9 @@
 package com.example.buscapet.ui.screens.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -23,11 +25,19 @@ import com.google.firebase.auth.FirebaseAuth
 fun HomeScreen(
     navController: NavHostController
 ) {
-    val userName = FirebaseAuth.getInstance().currentUser?.displayName
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val completeName = currentUser?.displayName
+    val userName = completeName?.split(" ")?.get(0)
+    val photo = currentUser?.photoUrl
 
     Scaffold(
         bottomBar = { MainBottomNav(navController = navController) }, // NavBar
-        topBar = { AppBar() } // TOOLBAR
+        topBar = {
+            AppBar(
+                userName,
+                photo
+            )
+        } // TOOLBAR
     ) { padding ->
         MainView(
             scaffoldPadding = padding,
@@ -41,11 +51,11 @@ fun HomeScreen(
 fun PreviewMainView() {
     Scaffold(
         bottomBar = { MainBottomNav(navController = rememberNavController()) }, // NavBar
-        topBar = { AppBar() } // TOOLBAR
+        topBar = { AppBar("Juanito") } // TOOLBAR
     ) { padding ->
         MainView(
             scaffoldPadding = padding,
-            sessionName = "Prueba"
+            sessionName = "Juanito"
         )
     }
 }
@@ -62,6 +72,11 @@ fun MainView(
             .padding(scaffoldPadding),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "Welcome $sessionName", textAlign = TextAlign.Center)
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Bienvenid@ $sessionName", textAlign = TextAlign.Center)
+        }
     }
 }
