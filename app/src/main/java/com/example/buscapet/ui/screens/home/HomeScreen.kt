@@ -62,6 +62,9 @@ fun MainView(
             .padding(scaffoldPadding),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "Welcome $sessionName", textAlign = TextAlign.Center)
+        Text(
+            text = "Welcome $sessionName",
+            textAlign = TextAlign.Center
+        )
     }
 }
