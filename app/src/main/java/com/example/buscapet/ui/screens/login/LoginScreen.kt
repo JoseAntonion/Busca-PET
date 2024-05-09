@@ -1,6 +1,7 @@
 package com.example.buscapet.ui.screens.login
 
 import android.app.Activity
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -32,6 +33,7 @@ fun LoginScreen(signedId: () -> Unit) {
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(it.data)
             viewModel.finishLogin(task, signedId)
+            Log.d("TAG", "LoginScreen:  viewModel.finishLogin")
         }
 
     MainLoginContainer(
@@ -83,7 +85,7 @@ fun MainLoginContainer(
                 style = MaterialTheme.typography.h6
             )
             Button(
-                onClick = { signInButton.invoke() },
+                onClick = { signInButton() },
                 enabled = !signInProgress
             ) {
                 Text(
