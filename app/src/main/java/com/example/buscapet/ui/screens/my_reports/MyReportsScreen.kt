@@ -27,7 +27,7 @@ fun MyReportsScreen(
 
     Scaffold(
         bottomBar = { MainBottomNav(navController = navController) }, // NavBar
-        topBar = { AppBar(userName) } // TOOLBAR
+        topBar = { AppBar("Juan") } // TOOLBAR
     ) { padding ->
         MainView(
             scaffoldPadding = padding

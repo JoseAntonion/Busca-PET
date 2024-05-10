@@ -22,31 +22,31 @@ sealed class NavItem(
         navArgument(it.key) { type = it.navType }
     }
 
-    object HomeNavItem : NavItem(
+    data object HomeNavItem : NavItem(
         title = "Home",
         icon = R.drawable.ic_dog_paw,
         screenRoute = "home"
     )
 
-    object LastReportNavItem : NavItem(
+    data object LastReportNavItem : NavItem(
         title = "Últimos Reportes",
         icon = R.drawable.ic_dog_paw,
         screenRoute = "last_reports"
     )
 
-    object MyReportsNavItem : NavItem(
+    data object MyReportsNavItem : NavItem(
         title = "Mis Reportes",
         icon = R.drawable.ic_dog_paw,
         screenRoute = "my_reports"
     )
 
-    object LoginNavItem : NavItem(
+    data object LoginNavItem : NavItem(
         title = "Login",
         icon = R.drawable.ic_dog_paw,
         screenRoute = "login"
     )
 
-    object DetalleNavItem : NavItem(
+    data object DetalleNavItem : NavItem(
         title = "detalle titulo",
         icon = R.drawable.ic_dog_paw,
         screenRoute = "detalle",

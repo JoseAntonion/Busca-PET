@@ -24,9 +24,7 @@ fun MainBottomNav(navController: NavController) {
         NavItem.MyReportsNavItem
     )
     NavigationBar(
-        //backgroundColor = colorResource(id = R.color.teal_200),
-        //backgroundColor = MaterialTheme.colors.background,
-        contentColor = Color.Black,
+        contentColor = MaterialTheme.colorScheme.primaryContainer,
         containerColor = MaterialTheme.colorScheme.secondaryContainer
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -66,9 +64,14 @@ fun MainBottomNav(navController: NavController) {
 }
 
 
-@Preview(name = "Light View")
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark View")
 @Composable
 fun PreviewMainBottomNav() {
+    MainBottomNav(navController = rememberNavController())
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "Light View")
+@Composable
+fun PreviewMainBottomNav2() {
     MainBottomNav(navController = rememberNavController())
 }

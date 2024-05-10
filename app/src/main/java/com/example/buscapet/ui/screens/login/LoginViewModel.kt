@@ -54,7 +54,7 @@ class LoginViewModel : ViewModel(), CoroutineScope {
                     val user = auth.currentUser
                     _signInName.value = user?.displayName
                     Log.d("TAG", "Success signin")
-                    signedId.invoke()
+                    signedId()
                     //_progress.value = false
                 } else {
                     Log.e("TAG", "unSuccess signin")
