@@ -2,8 +2,6 @@ package com.example.buscapet.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Generate them via theme builder
-// https://material-foundation.github.io/material-theme-builder/#/custom
 
 val replyLightPrimary = Color(0xFF825500)
 val replyLightOnPrimary = Color(0xFFFFFFFF)
@@ -32,6 +30,9 @@ val replyLightInverseOnSurface = Color(0xFFF9EFE6)
 val replyLightInverseSurface = Color(0xFF34302A)
 val replyLightPrimaryInverse = Color(0xFFFFB945)
 
+val GoogleLightSignInButton = Color(0xFFFFFFFF)
+val GoogleLightOnSignInButton = Color(0xFF1F1F1F)
+
 val replyDarkPrimary = Color(0xFFFFB945)
 val replyDarkOnPrimary = Color(0xFF452B00)
 val replyDarkPrimaryContainer = Color(0xFF624000)
@@ -58,6 +59,9 @@ val replyDarkOutline = Color(0xFF9C8F80)
 val replyDarkInverseOnSurface = Color(0xFF32281A)
 val replyDarkInverseSurface = Color(0xFFEAE1D9)
 val replyDarkPrimaryInverse = Color(0xFF624000)
+
+val GoogleDarkSignInButton = Color(0xFF4285F4)
+val GoogleDarkOnSignInButton = Color(0xFFFFFFFF)
 
 val Purple200 = Color(0xFFBB86FC)
 val Purple500 = Color(0xFF6200EE)

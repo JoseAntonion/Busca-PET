@@ -5,7 +5,11 @@ import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.toArgb
@@ -24,8 +28,10 @@ private val replyDarkColorScheme = darkColorScheme(
     onSecondary = replyDarkOnSecondary,
     secondaryContainer = replyDarkSecondaryContainer,
     onSecondaryContainer = replyDarkOnSecondaryContainer,
-    tertiary = replyDarkTertiary,
-    onTertiary = replyDarkOnTertiary,
+    //tertiary = replyDarkTertiary,
+    //onTertiary = replyDarkOnTertiary,
+    tertiary = GoogleDarkSignInButton,//Color boton Sign-In con Google
+    onTertiary = GoogleDarkOnSignInButton,//Color boton Sign-In con Google
     tertiaryContainer = replyDarkTertiaryContainer,
     onTertiaryContainer = replyDarkOnTertiaryContainer,
     error = replyDarkError,
@@ -53,8 +59,10 @@ private val replyLightColorScheme = lightColorScheme(
     onSecondary = replyLightOnSecondary,
     secondaryContainer = replyLightSecondaryContainer,
     onSecondaryContainer = replyLightOnSecondaryContainer,
-    tertiary = replyLightTertiary,
-    onTertiary = replyLightOnTertiary,
+    //tertiary = replyLightTertiary,
+    //onTertiary = replyLightOnTertiary,
+    tertiary = GoogleLightSignInButton,
+    onTertiary = GoogleLightOnSignInButton,
     tertiaryContainer = replyLightTertiaryContainer,
     onTertiaryContainer = replyLightOnTertiaryContainer,
     error = replyLightError,
@@ -104,6 +112,7 @@ fun BuscaPetTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
+
         darkTheme -> replyDarkColorScheme
         else -> replyLightColorScheme
     }
@@ -122,6 +131,8 @@ fun BuscaPetTheme(
         shapes = shapes,
         content = content
     )
+}
+
 
 //    val colors = if (darkTheme) {
 //        DarkColorPalette
@@ -135,4 +146,3 @@ fun BuscaPetTheme(
 //        shapes = Shapes,
 //        content = content
 //    )
-}

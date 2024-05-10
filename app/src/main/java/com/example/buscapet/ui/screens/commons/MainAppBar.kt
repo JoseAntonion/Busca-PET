@@ -33,7 +33,7 @@ fun AppBar(
         //contentColor = MaterialTheme.colors.onSecondary,
         title = {
             Text(
-                text = stringResource(id = R.string.app_name),
+                text = "Hola $userName",
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -46,12 +46,13 @@ fun AppBar(
                         contentDescription = "Profile photo",
                         modifier = Modifier.clip(CircleShape)
                     )
-                }else{
+                } else {
                     Icon(Icons.Default.AccountCircle, contentDescription = null)
                 }
             }
             //AppBarAction(Icons.Default.Search) { /*TODO*/ }// Agregar Boton de accion a la derecha
             //AppBarAction(Icons.Default.Share) { /*TODO*/ }// Agregar Boton de accion a la derecha
+            AppBarAction(Icons.Default.Menu) { /*TODO*/ }// Agregar Boton de accion a la derecha
         }
     )
 }
