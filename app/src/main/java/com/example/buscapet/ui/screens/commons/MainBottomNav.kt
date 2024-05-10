@@ -1,6 +1,10 @@
 package com.example.buscapet.ui.screens.commons
 
-import androidx.compose.material.*
+import android.content.res.Configuration
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -16,13 +20,12 @@ import com.example.buscapet.ui.navigation.NavItem
 @Composable
 fun MainBottomNav(navController: NavController) {
     val items = listOf(
-        NavItem.LoginNavItem,
-        NavItem.HomeNavItem
+        NavItem.LastReportNavItem,
+        NavItem.MyReportsNavItem
     )
     NavigationBar(
-        //backgroundColor = colorResource(id = R.color.teal_200),
-        //backgroundColor = MaterialTheme.colors.background,
-        contentColor = Color.Black
+        contentColor = MaterialTheme.colorScheme.primaryContainer,
+        containerColor = MaterialTheme.colorScheme.secondaryContainer
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
@@ -40,8 +43,8 @@ fun MainBottomNav(navController: NavController) {
                         fontSize = 9.sp
                     )
                 },
-                selectedContentColor = Color.Black,
-                unselectedContentColor = Color.Black.copy(0.4f),
+                selectedContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                unselectedContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                 alwaysShowLabel = true,
                 selected = currentRoute == item.screenRoute,
                 onClick = {
@@ -60,8 +63,15 @@ fun MainBottomNav(navController: NavController) {
     }
 }
 
-@Preview
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark View")
 @Composable
 fun PreviewMainBottomNav() {
+    MainBottomNav(navController = rememberNavController())
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "Light View")
+@Composable
+fun PreviewMainBottomNav2() {
     MainBottomNav(navController = rememberNavController())
 }

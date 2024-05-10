@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.buscapet"
-        minSdk 21
+        minSdk 23
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -38,7 +38,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.2.0'
+        kotlinCompilerExtensionVersion '1.5.13'
     }
     packagingOptions {
         resources {
@@ -49,12 +49,12 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.13.0'
+    implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
     implementation 'androidx.activity:activity-compose:1.9.0'
     implementation "androidx.compose.ui:ui:$compose_ui_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_ui_version"
-    implementation 'androidx.compose.material:material:1.6.6'
+    implementation "androidx.compose.material:material:$compose_ui_version"
     implementation 'androidx.navigation:navigation-runtime-ktx:2.7.7'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
@@ -64,14 +64,14 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
 
     // Import the Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:31.0.0')
+    implementation platform('com.google.firebase:firebase-bom:33.0.0')
     // TODO: Add the dependencies for Firebase products you want to use
     // When using the BoM, don't specify versions in Firebase dependencies
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-auth'
     // Sign-in with Facebook
     //implementation 'com.facebook.android:facebook-android-sdk:8.x'
-    // Sign-in with Facebook
+    // Sign-in with Google
     implementation 'com.google.android.gms:play-services-auth:20.3.0'
 
     // To use '= viewModel()'
@@ -82,5 +82,7 @@ dependencies {
     implementation "androidx.navigation:navigation-compose:2.5.0-rc02"
     // Material 3
     implementation "androidx.compose.material3:material3:1.2.1"
+    // coil
+    implementation("io.coil-kt:coil-compose:2.2.2")
 
 }

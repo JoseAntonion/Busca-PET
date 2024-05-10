@@ -1,8 +1,10 @@
 package com.example.buscapet.ui.screens.home
 
+import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
@@ -23,45 +25,60 @@ import com.google.firebase.auth.FirebaseAuth
 fun HomeScreen(
     navController: NavHostController
 ) {
-    val userName = FirebaseAuth.getInstance().currentUser?.displayName
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val completeName = currentUser?.displayName
+    val userName = completeName?.split(" ")?.get(0)
+    val photo = currentUser?.photoUrl
 
+    MainContainer(
+        navController = navController,
+        currentUserName = userName,
+        profilePhoto = photo
+    )
+}
+
+@Composable
+fun MainContainer(
+    navController: NavHostController,
+    currentUserName: String?,
+    profilePhoto: Uri? = null
+) {
     Scaffold(
-        bottomBar = { MainBottomNav(navController = navController) }, // NavBar
-        topBar = { AppBar() } // TOOLBAR
+        topBar = {
+            AppBar(
+                currentUserName,
+                profilePhoto
+            )
+        }, // TOOLBAR
+        bottomBar = {
+            MainBottomNav(navController = navController)
+        } // NavBar
     ) { padding ->
-        MainView(
-            scaffoldPadding = padding,
-            sessionName = userName
-        )
+//        Box(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .background(Color.White)
+//                .padding(padding),
+//            contentAlignment = Alignment.Center
+//        ) {
+//            Column(
+//                verticalArrangement = Arrangement.Center,
+//                horizontalAlignment = Alignment.CenterHorizontally
+//            ) {
+//                Text(
+//                    text = "Bienvenid@ $currentUserName",
+//                    textAlign = TextAlign.Center
+//                )
+//            }
+//        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewMainView() {
-    Scaffold(
-        bottomBar = { MainBottomNav(navController = rememberNavController()) }, // NavBar
-        topBar = { AppBar() } // TOOLBAR
-    ) { padding ->
-        MainView(
-            scaffoldPadding = padding,
-            sessionName = "Prueba"
-        )
-    }
-}
-
-@Composable
-fun MainView(
-    scaffoldPadding: PaddingValues,
-    sessionName: String?
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(scaffoldPadding),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Welcome $sessionName", textAlign = TextAlign.Center)
-    }
+    MainContainer(
+        rememberNavController(),
+        "Padrito"
+    )
 }

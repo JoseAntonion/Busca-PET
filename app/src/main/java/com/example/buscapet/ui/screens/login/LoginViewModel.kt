@@ -21,9 +21,11 @@ import kotlin.coroutines.CoroutineContext
 class LoginViewModel : ViewModel(), CoroutineScope {
 
     private lateinit var auth: FirebaseAuth
+
     private val _signInName = MutableLiveData<String>()
     val signInName: LiveData<String>
         get() = _signInName
+
     private val _progress = MutableLiveData<Boolean>()
     val progress: LiveData<Boolean>
         get() = _progress
@@ -40,28 +42,31 @@ class LoginViewModel : ViewModel(), CoroutineScope {
     }
 
     fun finishLogin(googleTask: Task<GoogleSignInAccount>, signedId: () -> Unit) {
-        try {
-            val account: GoogleSignInAccount = googleTask.getResult(ApiException::class.java)
-            account.idToken?.let { it ->
-                auth = FirebaseAuth.getInstance()
-                val credential = GoogleAuthProvider.getCredential(it, null)
-                auth.signInWithCredential(credential).addOnCompleteListener { authResult ->
-                    if (authResult.isSuccessful) {
-                        val user = auth.currentUser
-                        _signInName.value = user?.displayName
-                        signedId.invoke()
-                        //_progress.value = false
-                    } else {
-                        Log.e("signIn", "unSuccess signin")
-                        //_progress.value = false
-                    }
+        //try {
+        Log.d("TAG", "finishLogin: INIT... googleTask: $googleTask")
+        val account: GoogleSignInAccount = googleTask.getResult(ApiException::class.java)
+        Log.d("TAG", "finishLogin: account.idToken: ${account.idToken}")
+        account.idToken?.let { token ->
+            auth = FirebaseAuth.getInstance()
+            val credential = GoogleAuthProvider.getCredential(token, null)
+            auth.signInWithCredential(credential).addOnCompleteListener { authResult ->
+                if (authResult.isSuccessful) {
+                    val user = auth.currentUser
+                    _signInName.value = user?.displayName
+                    Log.d("TAG", "Success signin")
+                    signedId()
+                    //_progress.value = false
+                } else {
+                    Log.e("TAG", "unSuccess signin")
+                    //_progress.value = false
                 }
             }
-        } catch (e: Exception) {
-            Log.e("signIn", "error signin: ${e.message}")
-            _progress.value = false
-            _signInName.value = e.message
         }
+        //} catch (e: Exception) {
+        //    Log.e("TAG", "error signin: ${e.message} ${e.localizedMessage} ${e.stackTrace} ${e.cause}")
+        //    _progress.value = false
+        //    _signInName.value = e.message
+        //}
     }
 
     override val coroutineContext: CoroutineContext

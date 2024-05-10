@@ -1,39 +1,41 @@
-package com.example.buscapet.ui
+package com.example.buscapet.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.buscapet.ui.navigation.NavArgs
-import com.example.buscapet.ui.navigation.NavItem
 import com.example.buscapet.ui.screens.home.HomeScreen
+import com.example.buscapet.ui.screens.last_reports.LastReportsScreen
 import com.example.buscapet.ui.screens.login.LoginScreen
+import com.example.buscapet.ui.screens.my_reports.MyReportsScreen
 
 @Composable
-fun Navigation() {
-    val navController = rememberNavController()
-
+fun Navigation(navHostController: NavHostController) {
     NavHost(
-        navController = navController,
+        navController = navHostController,
         startDestination = NavItem.LoginNavItem.route
     ) {
         composable(NavItem.LoginNavItem) {
             LoginScreen {
-                navController.navigate(NavItem.HomeNavItem.route)
+                navHostController.navigate(NavItem.LastReportNavItem.route)
             }
-            //MainScreen(
-            //    navController = navController,
-            //    viewModel = viewModel()
-            //) {
-            //    val route = NavItem.DetalleNavItem.createNavRoute(it)
-            //    navController.navigate(route)
-            //}
+        }
+        composable(NavItem.LastReportNavItem) {
+            LastReportsScreen(
+                navController = navHostController
+            )
+        }
+        composable(NavItem.MyReportsNavItem) {
+            MyReportsScreen(
+                navController = navHostController
+            )
         }
         composable(NavItem.HomeNavItem) {
             HomeScreen(
-                navController = navController
+                navController = navHostController
             )
         }
     }
