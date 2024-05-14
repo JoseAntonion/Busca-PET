@@ -2,16 +2,18 @@ package com.example.buscapet.ui.screens.commons
 
 import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,9 +24,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.buscapet.R
-import com.example.buscapet.ui.theme.*
+import com.example.buscapet.ui.theme.GoogleDarkOnSignInButton
+import com.example.buscapet.ui.theme.GoogleDarkSignInButton
+import com.example.buscapet.ui.theme.GoogleLightOnSignInButton
+import com.example.buscapet.ui.theme.GoogleLightSignInButton
+import com.example.buscapet.ui.theme.shapes
 
-@OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
@@ -40,7 +45,6 @@ fun PreviewSignInButton() {
     )
 }
 
-@ExperimentalMaterialApi
 @Composable
 fun SignInButton(
     text: String,
@@ -81,12 +85,12 @@ fun SignInButton(
             if (isLoading) {
                 //Spacer(modifier = Modifier.width(16.dp))
                 CircularProgressIndicator(
+                    progress = { 5f },
                     modifier = Modifier
                         .height(18.dp)
                         .width(18.dp),
+                    color = progressIndicatorColor,
                     strokeWidth = 2.dp,
-                    progress = 5f,
-                    color = progressIndicatorColor
                 )
             }
         }
