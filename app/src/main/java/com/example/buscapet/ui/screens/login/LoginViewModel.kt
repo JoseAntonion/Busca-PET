@@ -6,7 +6,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavController
 import com.example.buscapet.R
+import com.example.buscapet.ui.navigation.NavDestinations
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -41,7 +43,10 @@ class LoginViewModel : ViewModel(), CoroutineScope {
         _progress.value = true
     }
 
-    fun finishLogin(googleTask: Task<GoogleSignInAccount>, signedId: () -> Unit) {
+    fun finishLogin(
+        googleTask: Task<GoogleSignInAccount>,
+        navController: NavController
+    ) {
         //try {
         Log.d("TAG", "finishLogin: INIT... googleTask: $googleTask")
         val account: GoogleSignInAccount = googleTask.getResult(ApiException::class.java)
@@ -54,10 +59,10 @@ class LoginViewModel : ViewModel(), CoroutineScope {
                     val user = auth.currentUser
                     _signInName.value = user?.displayName
                     Log.d("TAG", "Success signin")
-                    signedId()
+                    navController.navigate(NavDestinations.Home)
                     //_progress.value = false
                 } else {
-                    Log.e("TAG", "unSuccess signin")
+                    Log.e("TAG", "unSuccess signin ${authResult.exception}")
                     //_progress.value = false
                 }
             }

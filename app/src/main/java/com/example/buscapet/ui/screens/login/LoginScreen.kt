@@ -24,30 +24,35 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.buscapet.R
+import com.example.buscapet.ui.navigation.Screens
 import com.example.buscapet.ui.screens.commons.SignInButton
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 
 @Composable
-fun LoginScreen(navToHome: () -> Unit) {
+fun LoginScreen(
+    navController: NavController
+) {
     val viewModel: LoginViewModel = viewModel()
     val activity = LocalContext.current as Activity
     val bussy = viewModel.progress.observeAsState(false)
     val activityResult =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(it.data)
-            viewModel.finishLogin(task, navToHome)
+            viewModel.finishLogin(task, navController)
             Log.d("TAG", "LoginScreen:  viewModel.finishLogin")
         }
 
     MainLoginContainer(
         signInProgress = bussy.value,
         signInButton = {
-            viewModel.loginWithGoogle(activity) {
-                activityResult.launch(it)
-            }
+            navController.navigate(Screens.Home.route)
+            //viewModel.loginWithGoogle(activity) {
+            //    activityResult.launch(it)
+            //}
         },
         vModel = viewModel
     )
@@ -89,7 +94,7 @@ fun MainLoginContainer(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "BuscaPET",
+                text = "BuscaPet",
                 fontSize = 24.sp,
                 style = MaterialTheme.typography.h6
             )

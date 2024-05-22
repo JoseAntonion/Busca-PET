@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.google.services)
 }
 
@@ -57,6 +58,7 @@ dependencies {
     implementation libs.androidx.ui.tooling.preview
     implementation libs.material
     implementation libs.navigation.runtime.ktx
+    implementation libs.serialization.json
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core
@@ -80,10 +82,12 @@ dependencies {
     // Live Data observeAsState
     implementation libs.androidx.runtime.livedata
     // Navigation Compose
-    implementation libs.androidx.navigation.compose
+    implementation libs.navigation.compose
     // Material 3
     implementation libs.material3
     // coil
-    implementation(libs.coil.compose)
+    implementation libs.coil.compose
+    // Material Icons
+    implementation libs.material.icons.extended
 
 }
