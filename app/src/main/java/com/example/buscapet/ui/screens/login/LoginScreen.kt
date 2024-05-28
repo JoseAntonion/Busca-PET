@@ -9,12 +9,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -26,8 +24,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.buscapet.R
-import com.example.buscapet.ui.navigation.Screens
-import com.example.buscapet.ui.screens.commons.SignInButton
+import com.example.buscapet.ui.commons.SignInButton
+import com.example.buscapet.ui.navigation.BottomNavScreens
+import com.example.buscapet.ui.theme.BuscaPetTheme
+import com.example.buscapet.ui.ui.login.LoginViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
@@ -49,7 +49,7 @@ fun LoginScreen(
     MainLoginContainer(
         signInProgress = bussy.value,
         signInButton = {
-            navController.navigate(Screens.Home.route)
+            navController.navigate(BottomNavScreens.Home.route)
             //viewModel.loginWithGoogle(activity) {
             //    activityResult.launch(it)
             //}
@@ -58,19 +58,6 @@ fun LoginScreen(
     )
 }
 
-@Preview(showBackground = true)
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun PreviewMainLoginContainer() {
-    MainLoginContainer(
-        signInProgress = false,
-        {},
-        viewModel()
-    )
-
-}
-
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MainLoginContainer(
     signInProgress: Boolean,
@@ -81,32 +68,49 @@ fun MainLoginContainer(
 
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(color = MaterialTheme.colors.background),
+            .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         if (signInProgress) {
             CircularProgressIndicator()
         }
         Column(
-            modifier = Modifier.fillMaxHeight(),
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
+                .fillMaxSize(),
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "BuscaPet",
                 fontSize = 24.sp,
-                style = MaterialTheme.typography.h6
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onBackground
             )
             SignInButton(
                 text = "Ingresar con Google",
                 loadingText = "Ingresando...",
+                borderColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 isLoading = signInProgress,
                 icon = painterResource(id = R.drawable.btn_google_light_normal_ios),
                 onClick = {
-                    signInButton.invoke()
+                    signInButton()
                 }
             )
         }
     }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "PreviewDARK")
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "PreviewLIGHT")
+@Composable
+fun Preview() {
+    BuscaPetTheme {
+        MainLoginContainer(
+            signInProgress = false,
+            {},
+            viewModel()
+        )
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.example.buscapet.ui.screens.commons
+package com.example.buscapet.ui.commons
 
 import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
@@ -14,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,26 +25,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.buscapet.R
+import com.example.buscapet.ui.theme.BuscaPetTheme
 import com.example.buscapet.ui.theme.GoogleDarkOnSignInButton
-import com.example.buscapet.ui.theme.GoogleDarkSignInButton
 import com.example.buscapet.ui.theme.GoogleLightOnSignInButton
-import com.example.buscapet.ui.theme.GoogleLightSignInButton
 import com.example.buscapet.ui.theme.shapes
-
-@Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun PreviewSignInButton() {
-    SignInButton(
-        text = "Sign in with Google",
-        loadingText = "Signing in...",
-        isLoading = true,
-        icon = painterResource(id = R.drawable.btn_google_light_normal_ios),
-        onClick = {
-            TODO()
-        }
-    )
-}
 
 @Composable
 fun SignInButton(
@@ -52,9 +37,9 @@ fun SignInButton(
     icon: Painter,
     isLoading: Boolean = false,
     shape: Shape = shapes.extraSmall,
-    borderColor: Color = Color.LightGray,
-    //backgroundColor: Color = MaterialTheme.colorScheme.surface,
-    progressIndicatorColor: Color = MaterialTheme.colorScheme.primary,
+    borderColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    progressIndicatorColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     onClick: () -> Unit
 ) {
     Surface(
@@ -65,7 +50,7 @@ fun SignInButton(
             ),
         shape = shape,
         border = BorderStroke(width = 1.dp, color = borderColor),
-        color = if (isSystemInDarkTheme()) GoogleDarkSignInButton else GoogleLightSignInButton
+        color = backgroundColor
     ) {
         Row(
             modifier = Modifier.padding(end = 16.dp),
@@ -94,5 +79,22 @@ fun SignInButton(
                 )
             }
         }
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode")
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "Light Mode")
+@Composable
+fun Preview() {
+    BuscaPetTheme {
+        SignInButton(
+            text = "Sign in with Google",
+            loadingText = "Signing in...",
+            isLoading = true,
+            icon = painterResource(id = R.drawable.btn_google_light_normal_ios),
+            onClick = {
+                TODO()
+            }
+        )
     }
 }

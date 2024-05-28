@@ -9,18 +9,18 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.buscapet.ui.screens.last_reports.LastReportsScreen
-import com.example.buscapet.ui.screens.my_reports.MyReportsScreen
+import com.example.buscapet.ui.ui.my_reports.MyReportsScreen
 
 @Composable
 fun HomeNavGraph(navController: NavHostController, hostPadding: PaddingValues) {
     NavHost(
         navController = navController,
-        startDestination = Screens.LastReports.route,
+        startDestination = BottomNavScreens.LastReports.route,
         modifier = Modifier
             .fillMaxSize()
             .padding(hostPadding)
     ) {
-        composable(Screens.LastReports.route) { LastReportsScreen(navController = navController) }
-        composable(Screens.MyReports.route) { MyReportsScreen(navController = navController) }
+        composable(BottomNavScreens.LastReports.route) { LastReportsScreen(navController = navController) }
+        composable(BottomNavScreens.MyReports.route) { MyReportsScreen(navController = navController) }
     }
 }

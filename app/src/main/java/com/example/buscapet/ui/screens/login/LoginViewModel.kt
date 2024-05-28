@@ -1,4 +1,4 @@
-package com.example.buscapet.ui.screens.login
+package com.example.buscapet.ui.ui.login
 
 import android.app.Activity
 import android.content.Intent
@@ -67,11 +67,6 @@ class LoginViewModel : ViewModel(), CoroutineScope {
                 }
             }
         }
-        //} catch (e: Exception) {
-        //    Log.e("TAG", "error signin: ${e.message} ${e.localizedMessage} ${e.stackTrace} ${e.cause}")
-        //    _progress.value = false
-        //    _signInName.value = e.message
-        //}
     }
 
     override val coroutineContext: CoroutineContext

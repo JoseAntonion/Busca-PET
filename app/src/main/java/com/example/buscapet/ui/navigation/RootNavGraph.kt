@@ -12,9 +12,9 @@ fun RootNavGraph() {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = Screens.Login.route
+        startDestination = BottomNavScreens.Login.route
     ) {
-        composable(Screens.Login.route) { LoginScreen(navController = navController) }
-        composable(Screens.Home.route) { HomeScreen() }
+        composable(BottomNavScreens.Login.route) { LoginScreen(navController = navController) }
+        composable(BottomNavScreens.Home.route) { HomeScreen() }
     }
 }

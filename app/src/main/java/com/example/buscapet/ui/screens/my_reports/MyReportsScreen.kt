@@ -1,4 +1,4 @@
-package com.example.buscapet.ui.screens.my_reports
+package com.example.buscapet.ui.ui.my_reports
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -40,7 +40,7 @@ fun MainView(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "My Reports $userName",
+            text = "My Reports",
             textAlign = TextAlign.Center
         )
     }

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">BuscaPet</string>
+    <string name="report_button_text">Reportar</string>
 </resources>

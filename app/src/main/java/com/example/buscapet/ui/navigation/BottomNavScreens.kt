@@ -7,31 +7,31 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.graphics.vector.ImageVector
 
-sealed class Screens(
+sealed class BottomNavScreens(
     val route: String,
     val title: String,
     val icon: ImageVector
 ) {
-    data object Login : Screens(
+    data object Login : BottomNavScreens(
         route = "login",
         title = "Login",
         icon = Icons.Default.Info
     )
 
-    data object Home : Screens(
+    data object Home : BottomNavScreens(
         route = "home",
         title = "Home",
         icon = Icons.Default.Home
     )
 
-    data object LastReports : Screens(
+    data object LastReports : BottomNavScreens(
         route = "last-reports",
         title = "Últimos reportes",
         icon = Icons.Default.LocationOn
     )
 
-    data object MyReports : Screens(
-        route = "my-reports",
+    data object MyReports : BottomNavScreens(
+        route = "my_reports",
         title = "Mis reportes",
         icon = Icons.Default.Person
     )
