@@ -14,7 +14,7 @@ import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun MyReportsScreen(navController: NavHostController) {
+fun MyReportsScreen() {
     val userName = FirebaseAuth.getInstance().currentUser?.displayName
     MainView(
         userName = userName

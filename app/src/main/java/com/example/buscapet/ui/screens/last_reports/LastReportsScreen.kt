@@ -1,16 +1,14 @@
 package com.example.buscapet.ui.screens.last_reports
 
 import android.content.res.Configuration
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Surface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -18,11 +16,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.domain.model.Pet
 import com.example.buscapet.ui.commons.CommonCardView
+import com.example.buscapet.ui.navigation.BottomNavScreens
 import com.example.buscapet.ui.theme.BuscaPetTheme
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun LastReportsScreen(navController: NavHostController) {
+fun LastReportsScreen(
+    navController: NavHostController
+) {
     val userName = FirebaseAuth.getInstance().currentUser?.displayName
     val petList = listOf(
         Pet(1, "Neru", 5, "perro", null, cover = "se perdio la neru"),
@@ -51,14 +52,13 @@ fun LastReportsScreen(navController: NavHostController) {
 fun MainView(
     userName: String?,
     petList: List<Pet> = emptyList(),
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController
 ) {
     BuscaPetTheme {
-        Box(
+        Surface(
             modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            contentAlignment = Alignment.Center
+                .fillMaxSize(),
+            color = MaterialTheme.colorScheme.background,
         ) {
             LazyColumn(
                 modifier = Modifier
@@ -73,7 +73,7 @@ fun MainView(
                         title = it.nombre,
                         subtitle = it.cover ?: "no cover",
                         onClick = {
-                            //navController.navigate(Graph.DETAILS)
+                            navController.navigate(BottomNavScreens.DetailReport.route)
                         }
                         //testUri = Uri.parse("https://getdummyimage.com/300/300")
                     )
@@ -96,6 +96,7 @@ fun PreviewDark() {
     )
     MainView(
         userName = "Usuario prueba",
-        petList = petList
+        petList = petList,
+        rememberNavController()
     )
 }

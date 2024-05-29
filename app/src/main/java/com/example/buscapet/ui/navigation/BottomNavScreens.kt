@@ -35,4 +35,10 @@ sealed class BottomNavScreens(
         title = "Mis reportes",
         icon = Icons.Default.Person
     )
+
+    data object DetailReport : BottomNavScreens(
+        route = "detail_report",
+        title = "Detalle reporte",
+        icon = Icons.Default.Person
+    )
 }

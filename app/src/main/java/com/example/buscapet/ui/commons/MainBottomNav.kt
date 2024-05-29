@@ -1,5 +1,6 @@
 package com.example.buscapet.ui.commons
 
+import android.content.res.Configuration
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.BottomNavigation
@@ -81,7 +82,8 @@ fun BottomNav(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "PreviewDARK")
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "PreviewLIGHT")
 @Composable
 fun PreviewMainBottomNav2() {
     val itemsDummy = mutableListOf(
