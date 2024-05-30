@@ -1,6 +1,7 @@
 package com.example.buscapet.ui.screens.home
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,18 +18,19 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.R
 import com.example.buscapet.ui.commons.CommonTabBar
 import com.example.buscapet.ui.commons.TabItem
-import com.example.buscapet.ui.navigation.DetailNavGraph
+import com.example.buscapet.ui.screens.last_reports.LastReportsScreen
 import com.example.buscapet.ui.ui.commons.CommonFloatingActionButton
 import com.example.buscapet.ui.ui.commons.CommonTopAppBar
 import com.example.buscapet.ui.ui.my_reports.MyReportsScreen
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavController) {
     val currentUser = FirebaseAuth.getInstance().currentUser
     val name = currentUser?.displayName?.split(" ")?.get(0)
     val photo = currentUser?.photoUrl
@@ -44,6 +46,7 @@ fun HomeScreen() {
     )
 
     HomeContainer(
+        navController = navController,
         currentUserName = name,
         profilePhoto = photo,
         tabItems = tabItems
@@ -59,6 +62,8 @@ fun HomeContainer(
 ) {
     val pagerState = rememberPagerState(0, 0f) { tabItems.size }
     val scope = rememberCoroutineScope()
+    val currentScreen = navController.currentBackStackEntry?.destination?.route
+    Log.d("TAG", "HomeContainer: currentScreen $currentScreen")
     Scaffold(
         topBar = {
             Column(
@@ -85,7 +90,7 @@ fun HomeContainer(
                 .padding(paddingValues)
         ) { index ->
             when (index) {
-                0 -> DetailNavGraph()
+                0 -> LastReportsScreen(navController = navController)
                 1 -> MyReportsScreen()
             }
         }

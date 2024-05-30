@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.ui.screens.home.HomeScreen
 import com.example.buscapet.ui.screens.login.LoginScreen
+import com.example.buscapet.ui.screens.report_detail.ReportDetailScreen
 
 @Composable
 fun RootNavGraph() {
@@ -15,6 +16,7 @@ fun RootNavGraph() {
         startDestination = BottomNavScreens.Login.route
     ) {
         composable(BottomNavScreens.Login.route) { LoginScreen(navController = navController) }
-        composable(BottomNavScreens.Home.route) { HomeScreen() }
+        composable(BottomNavScreens.Home.route) { HomeScreen(navController = navController) }
+        composable(BottomNavScreens.DetailReport.route) { ReportDetailScreen(navController = navController) }
     }
 }

@@ -18,17 +18,10 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CommonTabBar(
-    modifier: Modifier = Modifier,
-    navController: NavController = rememberNavController(),
     pagerState: PagerState,
     scope: CoroutineScope,
     tabItems: List<TabItem>
 ) {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
-    val bottomBarState = tabItems.any { it.title == currentDestination?.label }
-    Log.d("TAG", "CommonTabBar: currentDestination - $currentDestination")
-    Log.d("TAG", "CommonTabBar: bottomBarState - $bottomBarState")
     TabRow(
         selectedTabIndex = pagerState.currentPage,
         contentColor = MaterialTheme.colorScheme.primary,

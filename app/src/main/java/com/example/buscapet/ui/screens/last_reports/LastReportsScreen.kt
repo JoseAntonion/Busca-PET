@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.domain.model.Pet
 import com.example.buscapet.ui.commons.CommonCardView
@@ -22,7 +22,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun LastReportsScreen(
-    navController: NavHostController
+    navController: NavController = rememberNavController()
 ) {
     val userName = FirebaseAuth.getInstance().currentUser?.displayName
     val petList = listOf(
@@ -52,7 +52,7 @@ fun LastReportsScreen(
 fun MainView(
     userName: String?,
     petList: List<Pet> = emptyList(),
-    navController: NavHostController
+    navController: NavController
 ) {
     BuscaPetTheme {
         Surface(
@@ -73,7 +73,9 @@ fun MainView(
                         title = it.nombre,
                         subtitle = it.cover ?: "no cover",
                         onClick = {
-                            navController.navigate(BottomNavScreens.DetailReport.route)
+                            navController.navigate(
+                                route = BottomNavScreens.DetailReport.route
+                            )
                         }
                         //testUri = Uri.parse("https://getdummyimage.com/300/300")
                     )
