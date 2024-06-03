@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.devtools.ksp)
 }
 
 android {
@@ -89,5 +90,9 @@ dependencies {
     implementation libs.coil.compose
     // Material Icons
     implementation libs.material.icons.extended
+    // Room
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
 
 }

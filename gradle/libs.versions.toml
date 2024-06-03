@@ -20,6 +20,11 @@ materialVersion = "1.6.7"
 androidLibrary = "8.4.1"
 google-services-version = "4.3.13"
 serializationJson = "1.6.3"
+devToolsKspVersion = "1.9.23-1.0.19"
+## ROOM
+roomCompiler = "2.6.1"
+roomKtx = "2.6.1"
+roomRuntime = "2.6.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,6 +52,11 @@ navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-run
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serializationJson" }
 material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+## ROOM
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -54,5 +64,6 @@ android-library = { id = "com.android.library", version.ref = "androidLibrary" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "google-services-version" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "devToolsKspVersion" }
 
 [bundles]
