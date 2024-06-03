@@ -18,14 +18,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.R
 import com.example.buscapet.ui.commons.CommonTabBar
 import com.example.buscapet.ui.commons.TabItem
 import com.example.buscapet.ui.screens.last_reports.LastReportsScreen
 import com.example.buscapet.ui.ui.commons.CommonFloatingActionButton
-import com.example.buscapet.ui.ui.commons.CommonTopAppBar
+import com.example.buscapet.ui.commons.CommonTopAppBar
 import com.example.buscapet.ui.ui.my_reports.MyReportsScreen
 import com.google.firebase.auth.FirebaseAuth
 

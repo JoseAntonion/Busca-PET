@@ -8,7 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.buscapet.R
-import com.example.buscapet.ui.navigation.NavDestinations
+import com.example.buscapet.ui.navigation.Home
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -59,7 +59,7 @@ class LoginViewModel : ViewModel(), CoroutineScope {
                     val user = auth.currentUser
                     _signInName.value = user?.displayName
                     Log.d("TAG", "Success signin")
-                    navController.navigate(NavDestinations.Home)
+                    navController.navigate(Home)
                     //_progress.value = false
                 } else {
                     Log.e("TAG", "unSuccess signin ${authResult.exception}")

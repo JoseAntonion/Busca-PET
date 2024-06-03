@@ -8,5 +8,5 @@ class Pet(
     val edad: Int,
     val raza: String,
     val foto: Uri?,
-    val cover: String? = null
+    val descripcion: String? = null
 )

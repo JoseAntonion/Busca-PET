@@ -26,6 +26,7 @@ import androidx.navigation.NavController
 import com.example.buscapet.R
 import com.example.buscapet.ui.commons.SignInButton
 import com.example.buscapet.ui.navigation.BottomNavScreens
+import com.example.buscapet.ui.navigation.Home
 import com.example.buscapet.ui.theme.BuscaPetTheme
 import com.example.buscapet.ui.ui.login.LoginViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -49,7 +50,7 @@ fun LoginScreen(
     MainLoginContainer(
         signInProgress = bussy.value,
         signInButton = {
-            navController.navigate(BottomNavScreens.Home.route)
+            navController.navigate(Home)
             //viewModel.loginWithGoogle(activity) {
             //    activityResult.launch(it)
             //}

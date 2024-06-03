@@ -16,7 +16,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.domain.model.Pet
 import com.example.buscapet.ui.commons.CommonCardView
-import com.example.buscapet.ui.navigation.BottomNavScreens
+import com.example.buscapet.ui.navigation.DetailReport
 import com.example.buscapet.ui.theme.BuscaPetTheme
 import com.google.firebase.auth.FirebaseAuth
 
@@ -26,20 +26,20 @@ fun LastReportsScreen(
 ) {
     val userName = FirebaseAuth.getInstance().currentUser?.displayName
     val petList = listOf(
-        Pet(1, "Neru", 5, "perro", null, cover = "se perdio la neru"),
-        Pet(2, "Fuki", 3, "perro", null, cover = "se perdio la kuki"),
-        Pet(3, "Jota", 2, "perro", null, cover = "se perdio la jota"),
-        Pet(4, "Crepu", 1, "gato", null, cover = "se perdio la prepu"),
-        Pet(5, "Mita", 2, "gato", null, cover = "se perdio la mita"),
-        Pet(6, "Mita", 2, "gato", null, cover = "se perdio la mita"),
-        Pet(7, "Mita", 2, "gato", null, cover = "se perdio la mita"),
-        Pet(8, "Mita", 2, "gato", null, cover = "se perdio la mita"),
-        Pet(9, "Mita", 2, "gato", null, cover = "se perdio la mita"),
-        Pet(10, "Mita", 2, "gato", null, cover = "se perdio la mita"),
-        Pet(11, "Mita", 2, "gato", null, cover = "se perdio la mita"),
-        Pet(12, "Mita", 2, "gato", null, cover = "se perdio la mita"),
-        Pet(13, "Mita", 2, "gato", null, cover = "se perdio la mita"),
-        Pet(14, "Mita", 2, "gato", null, cover = "se perdio la mita"),
+        Pet(1, "Neru", 5, "perro", null, descripcion = "se perdio la neru"),
+        Pet(2, "Fuki", 3, "perro", null, descripcion = "se perdio la kuki"),
+        Pet(3, "Jota", 2, "perro", null, descripcion = "se perdio la jota"),
+        Pet(4, "Crepu", 1, "gato", null, descripcion = "se perdio la prepu"),
+        Pet(5, "Mita", 2, "gato", null, descripcion = "se perdio la mita"),
+        Pet(6, "Mita", 2, "gato", null, descripcion = "se perdio la mita"),
+        Pet(7, "Mita", 2, "gato", null, descripcion = "se perdio la mita"),
+        Pet(8, "Mita", 2, "gato", null, descripcion = "se perdio la mita"),
+        Pet(9, "Mita", 2, "gato", null, descripcion = "se perdio la mita"),
+        Pet(10, "Mita", 2, "gato", null, descripcion = "se perdio la mita"),
+        Pet(11, "Mita", 2, "gato", null, descripcion = "se perdio la mita"),
+        Pet(12, "Mita", 2, "gato", null, descripcion = "se perdio la mita"),
+        Pet(13, "Mita", 2, "gato", null, descripcion = "se perdio la mita"),
+        Pet(14, "Mita", 2, "gato", null, descripcion = "se perdio la mita"),
     )
     MainView(
         userName = userName,
@@ -66,18 +66,15 @@ fun MainView(
                     .padding(14.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                items(petList) {
+                items(petList) { pet ->
                     CommonCardView(
                         modifier = Modifier
                             .padding(vertical = 8.dp),
-                        title = it.nombre,
-                        subtitle = it.cover ?: "no cover",
+                        title = pet.nombre,
+                        subtitle = pet.descripcion ?: "no cover",
                         onClick = {
-                            navController.navigate(
-                                route = BottomNavScreens.DetailReport.route
-                            )
+                            navController.navigate(DetailReport(pet.nombre))
                         }
-                        //testUri = Uri.parse("https://getdummyimage.com/300/300")
                     )
                 }
             }
@@ -90,11 +87,11 @@ fun MainView(
 @Composable
 fun PreviewDark() {
     val petList = listOf(
-        Pet(1, "Neru", 5, "perro", null, cover = "se perdio la neru"),
-        Pet(2, "Fuki", 3, "perro", null, cover = "se perdio la kuki"),
-        Pet(3, "Jota", 2, "perro", null, cover = "se perdio la jota"),
-        Pet(4, "Crepu", 1, "gato", null, cover = "se perdio la prepu"),
-        Pet(5, "Mita", 2, "gatp", null, cover = "se perdio la mita")
+        Pet(1, "Neru", 5, "perro", null, descripcion = "se perdio la neru"),
+        Pet(2, "Fuki", 3, "perro", null, descripcion = "se perdio la kuki"),
+        Pet(3, "Jota", 2, "perro", null, descripcion = "se perdio la jota"),
+        Pet(4, "Crepu", 1, "gato", null, descripcion = "se perdio la prepu"),
+        Pet(5, "Mita", 2, "gatp", null, descripcion = "se perdio la mita")
     )
     MainView(
         userName = "Usuario prueba",
