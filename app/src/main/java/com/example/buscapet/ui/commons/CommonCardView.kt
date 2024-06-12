@@ -27,8 +27,8 @@ import com.example.buscapet.ui.theme.BuscaPetTheme
 @Composable
 fun CommonCardView(
     modifier: Modifier = Modifier,
-    title: String = "no title",
-    subtitle: String = "no subtitle",
+    title: String? = "no title",
+    subtitle: String? = "no subtitle",
     testUri: Uri? = null,
     onClick: () -> Unit = {}
 ) {
@@ -65,13 +65,13 @@ fun CommonCardView(
                         .padding(14.dp)
                 ) {
                     Text(
-                        text = title,
+                        text = title!!,
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Normal,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = subtitle,
+                        text = subtitle!!,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Normal,
                         color = MaterialTheme.colorScheme.onSurfaceVariant

@@ -31,7 +31,6 @@ fun LastReportsScreen(
     val userName = FirebaseAuth.getInstance().currentUser?.displayName
     val allPets by viewModel.petsUiState.collectAsState()
     MainView(
-        userName = userName,
         petList = allPets.pets,
         navController = navController
     )
@@ -39,7 +38,6 @@ fun LastReportsScreen(
 
 @Composable
 fun MainView(
-    userName: String?,
     petList: List<Pet> = emptyList(),
     navController: NavController
 ) {
@@ -60,9 +58,9 @@ fun MainView(
                         modifier = Modifier
                             .padding(vertical = 8.dp),
                         title = pet.name,
-                        subtitle = pet.name ?: "no cover",
+                        subtitle = pet.name,
                         onClick = {
-                            navController.navigate(DetailReport(pet.name))
+                            navController.navigate(DetailReport(pet.id))
                         }
                     )
                 }
@@ -76,23 +74,26 @@ fun MainView(
 @Composable
 fun PreviewDark() {
     val petList = listOf(
-        Pet(name = "Neru"),
-        Pet(name = "Fuki"),
-        Pet(name = "Jota"),
-        Pet(name = "Crepu"),
-        Pet(name = "Mita"),
-        Pet(name = "Mita"),
-        Pet(name = "Mita"),
-        Pet(name = "Mita"),
-        Pet(name = "Mita"),
-        Pet(name = "Mita"),
-        Pet(name = "Mita"),
-        Pet(name = "Mita"),
-        Pet(name = "Mita"),
-        Pet(name = "Mita")
+        Pet(
+            name = "Perro prueba",
+            breed = "Raza pulenta",
+            age = "5 años",
+            description = "Descripción del perro prueba"
+        ),
+        Pet(
+            name = "Gato prueba",
+            breed = "Raza pulenta",
+            age = "5 años",
+            description = "Descripción del gato prueba"
+        ),
+        Pet(
+            name = "Pez prueba",
+            breed = "Raza pulenta",
+            age = "5 años",
+            description = "Descripción del pez prueba"
+        )
     )
     MainView(
-        userName = "Usuario prueba",
         petList = petList,
         rememberNavController()
     )

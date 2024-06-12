@@ -15,6 +15,9 @@ object LastReports
 object MyReports
 
 @Serializable
+object Report
+
+@Serializable
 data class DetailReport(
-    val nombre: String
+    val id: Int
 )

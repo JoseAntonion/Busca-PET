@@ -14,12 +14,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.R
@@ -27,20 +30,19 @@ import com.example.buscapet.ui.commons.AppBarWithBack
 import com.example.buscapet.ui.theme.BuscaPetTheme
 
 @Composable
-fun ReportDetailScreen(
+fun DetailReportScreen(
     modifier: Modifier = Modifier,
+    viewModel: DetailReportViewModel = hiltViewModel(),
     navController: NavHostController = rememberNavController(),
-    petName: String = "",
-    petImage: Int = R.drawable.dummy_puppy,
-    petAge: String = "",
-    petBreed: String = "",
-    petDescription: String = ""
+    petId: Int,
 ) {
+    viewModel.setPetId(petId)
+    val petDetail by viewModel.petDetails.collectAsState()
     BuscaPetTheme {
         Scaffold(
             topBar = {
                 AppBarWithBack(
-                    title = "Detalle de $petName"
+                    title = "Detalle de ${petDetail?.name}"
                 ) { navController.popBackStack() }
             }
         ) {
@@ -60,7 +62,7 @@ fun ReportDetailScreen(
                             .weight(1f)
                     ) {
                         Image(
-                            painter = painterResource(id = petImage),
+                            painter = painterResource(id = R.drawable.dummy_puppy),
                             contentDescription = "Pet detail image",
                             contentScale = ContentScale.FillHeight,
                             modifier = modifier
@@ -77,21 +79,21 @@ fun ReportDetailScreen(
                                 .padding(14.dp)
                         ) {
                             Text(
-                                text = petName,
+                                text = petDetail?.name ?: "no name",
                                 color = MaterialTheme.colorScheme.onBackground,
                                 style = MaterialTheme.typography.headlineMedium
                             )
                             InfoSection(
                                 title = "Edad",
-                                content = petAge
+                                content = petDetail?.age ?: "no age"
                             )
                             InfoSection(
                                 title = "Raza",
-                                content = petBreed
+                                content = petDetail?.breed ?: "no breed"
                             )
                             InfoSection(
                                 title = "Descripción",
-                                content = petDescription
+                                content = petDetail?.description ?: "no description"
                             )
                         }
                     }
@@ -138,11 +140,5 @@ fun InfoSection(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "PreviewLIGHT")
 @Composable
 private fun Preview() {
-    ReportDetailScreen(
-        petName = "Perro prueba",
-        petImage = R.drawable.dummy_puppy,
-        petDescription = "Descripción del perro prueba",
-        petBreed = "Raza pulenta",
-        petAge = "Shikitito"
-    )
+    DetailReportScreen(petId = 0)
 }

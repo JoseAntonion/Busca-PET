@@ -9,5 +9,11 @@ data class Pet(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     @ColumnInfo(name = "name")
-    val name: String
+    val name: String? = null,
+    @ColumnInfo(name = "breed")
+    val breed: String? = null,
+    @ColumnInfo(name = "age")
+    val age: String? = null,
+    @ColumnInfo(name = "description")
+    val description: String? = null
 )
