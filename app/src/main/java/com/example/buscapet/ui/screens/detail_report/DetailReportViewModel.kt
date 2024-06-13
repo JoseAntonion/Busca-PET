@@ -21,7 +21,6 @@ class DetailReportViewModel @Inject constructor(
     val petDetails: StateFlow<Pet?> = _petDetails
 
     private val _petId: MutableStateFlow<Int> = MutableStateFlow(0)
-    //val petId: StateFlow<Int> = _petId
 
     init {
         viewModelScope.launch {

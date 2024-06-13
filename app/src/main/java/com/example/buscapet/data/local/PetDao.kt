@@ -3,6 +3,7 @@ package com.example.buscapet.data.local
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
@@ -15,7 +16,8 @@ interface PetDao {
     fun getPet(id: Int): Pet
 
     @Insert
-    suspend fun insertPet(petsData: Pet)
+    //@Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPet(petsData: Pet): Long
 
     @Delete
     suspend fun deleteAllPets(allPets: List<Pet>)
