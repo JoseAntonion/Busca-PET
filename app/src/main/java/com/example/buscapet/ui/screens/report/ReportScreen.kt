@@ -65,7 +65,8 @@ fun ReportScreen(
             if (pet.name?.isEmpty() == true ||
                 pet.breed?.isEmpty() == true ||
                 pet.age?.isEmpty() == true ||
-                pet.description?.isEmpty() == true
+                pet.description?.isEmpty() == true ||
+                pet.owner?.isEmpty() == true
             ) {
                 Toast.makeText(lContext, "Debe llenar todos los campos", Toast.LENGTH_SHORT).show()
             } else {
@@ -161,6 +162,18 @@ fun MainContainter(
                         isValid = descriptionInputValidation,
                         keyOption = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        )
+                    )
+                    val ownerInputValidation = remember { mutableStateOf(true) }
+                    val ownerInput = remember { mutableStateOf("") }
+                    CommonFilledTextField(
+                        label = "Cuidador/a",
+                        inputText = ownerInput,
+                        enabled = state.inputEnable,
+                        isValid = ownerInputValidation,
+                        keyOption = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Done
                         )
                     )
@@ -177,7 +190,8 @@ fun MainContainter(
                                         name = nameInput.value,
                                         age = ageInput.value,
                                         breed = breedInput.value,
-                                        description = descriptionInput.value
+                                        description = descriptionInput.value,
+                                        owner = ownerInput.value
                                     )
                                 )
                             },

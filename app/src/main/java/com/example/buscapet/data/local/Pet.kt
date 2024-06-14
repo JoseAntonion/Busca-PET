@@ -15,5 +15,7 @@ data class Pet(
     @ColumnInfo(name = "age")
     val age: String? = null,
     @ColumnInfo(name = "description")
-    val description: String? = null
+    val description: String? = null,
+    @ColumnInfo(name = "owner")
+    val owner: String? = null
 )

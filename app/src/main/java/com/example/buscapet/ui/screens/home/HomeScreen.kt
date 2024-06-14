@@ -26,7 +26,7 @@ import com.example.buscapet.ui.commons.TabItem
 import com.example.buscapet.ui.navigation.Report
 import com.example.buscapet.ui.screens.last_reports.LastReportsScreen
 import com.example.buscapet.ui.ui.commons.CommonFloatingActionButton
-import com.example.buscapet.ui.ui.my_reports.MyReportsScreen
+import com.example.buscapet.ui.screens.my_pets.MyReportsScreen
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable

@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PetDao {
-    @Query("SELECT * FROM pet")
+    @Query("SELECT * FROM pet WHERE owner != 'me'")
     fun getAllPets(): Flow<List<Pet>>
 
     @Query("SELECT * FROM pet WHERE id = :id")
@@ -21,4 +21,6 @@ interface PetDao {
 
     @Delete
     suspend fun deleteAllPets(allPets: List<Pet>)
+    @Query("SELECT * FROM pet WHERE owner = 'me'")
+    fun getMyPets(): Flow<List<Pet>>
 }
