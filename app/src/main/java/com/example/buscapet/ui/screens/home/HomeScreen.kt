@@ -1,7 +1,8 @@
 package com.example.buscapet.ui.screens.home
 
+import android.content.res.Configuration
 import android.net.Uri
-import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -9,35 +10,43 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.FabPosition
 import androidx.compose.material.Scaffold
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pets
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.R
+import com.example.buscapet.ui.commons.CommonFloatingActionButton
 import com.example.buscapet.ui.commons.CommonTabBar
 import com.example.buscapet.ui.commons.CommonTopAppBar
+import com.example.buscapet.ui.commons.ReportAlertDialog
 import com.example.buscapet.ui.commons.TabItem
 import com.example.buscapet.ui.navigation.Report
 import com.example.buscapet.ui.screens.last_reports.LastReportsScreen
-import com.example.buscapet.ui.ui.commons.CommonFloatingActionButton
 import com.example.buscapet.ui.screens.my_pets.MyReportsScreen
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    navController: NavController,
+    viewModel: HomeViewModel = hiltViewModel()
+) {
     val currentUser = FirebaseAuth.getInstance().currentUser
     val name = currentUser?.displayName?.split(" ")?.get(0)
     val photo = currentUser?.photoUrl
+    val uiState by viewModel.uiState.collectAsState()
+
     val tabItems = listOf(
         TabItem(
             title = "Ultimos reportes",
-            icon = Icons.Default.Pets
+            icon = ImageVector.vectorResource(id = R.drawable.ic_dog_paw)
         ),
         TabItem(
             title = "Mis reportes",
@@ -47,23 +56,44 @@ fun HomeScreen(navController: NavController) {
 
     HomeContainer(
         navController = navController,
+        uiState = uiState,
         currentUserName = name,
         profilePhoto = photo,
-        tabItems = tabItems
+        tabItems = tabItems,
+        onReportClick = { viewModel.showReportDialog() },
+        onLostMyOwnClick = { viewModel.onLostMyOwnClick(name) },
+        onReportLostClick = { navController.navigate(Report) },
+        onReportDialogDismiss = { viewModel.dismissReportDialog() }
     )
 }
 
 @Composable
 fun HomeContainer(
     navController: NavController = rememberNavController(),
+    uiState: HomeViewModel.UiState = HomeViewModel.UiState(),
     currentUserName: String?,
     profilePhoto: Uri? = null,
-    tabItems: List<TabItem> = listOf()
+    tabItems: List<TabItem> = listOf(),
+    onReportClick: () -> Unit = {},
+    onLostMyOwnClick: () -> Unit = {},
+    onReportLostClick: () -> Unit = {},
+    onReportDialogDismiss: () -> Unit = {},
 ) {
     val pagerState = rememberPagerState(0, 0f) { tabItems.size }
     val scope = rememberCoroutineScope()
-    val currentScreen = navController.currentBackStackEntry?.destination?.route
-    Log.d("TAG", "HomeContainer: currentScreen $currentScreen")
+
+    if (uiState.reportDialog) {
+        ReportAlertDialog(
+            onDismiss = { onReportDialogDismiss() },
+            onReportLostClick = { onReportLostClick() },
+            onLostMyOwnClick = { onLostMyOwnClick() }
+        )
+    }
+
+    if(uiState.myPets.isEmpty()){
+        Toast.makeText(LocalContext.current, "Primero debes agregar alguna mascota", Toast.LENGTH_SHORT).show()
+    }
+
     Scaffold(
         topBar = {
             Column(
@@ -79,8 +109,8 @@ fun HomeContainer(
             }
         },
         floatingActionButton = {
-            CommonFloatingActionButton() {
-                navController.navigate(Report)
+            CommonFloatingActionButton {
+                onReportClick()
             }
         },
         floatingActionButtonPosition = FabPosition.Center,
@@ -100,8 +130,11 @@ fun HomeContainer(
 }
 
 
-@Preview(showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "PreviewDARK")
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "PreviewLIGHT")
 @Composable
 fun PreviewMainView() {
-    HomeContainer(currentUserName = "John Johnson")
+    HomeContainer(
+        currentUserName = "John Johnson"
+    )
 }

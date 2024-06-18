@@ -9,7 +9,8 @@ class PetsRepositoryImpl @Inject constructor(
     override suspend fun insertPet(pet: Pet) = petDao.insertPet(pet)
 
     override fun getAllPets(): Flow<List<Pet>> = petDao.getAllPets()
-    override fun getMyPets(): Flow<List<Pet>> = petDao.getMyPets()
+
+    override fun getPetsByOwner(owner: String): List<Pet> = petDao.getPetsByOwner(owner)
 
     override fun getPetById(id: Int): Pet = petDao.getPet(id)
 

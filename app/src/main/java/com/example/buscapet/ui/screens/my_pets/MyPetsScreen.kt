@@ -29,9 +29,9 @@ fun MyReportsScreen(
     viewModel: MyPetsViewModel = hiltViewModel()
 ) {
     val userName = FirebaseAuth.getInstance().currentUser?.displayName
-    val myPets by viewModel.petsUiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     MainView(
-        petList = myPets.myPets,
+        petList = uiState.myPets,
         navController = navController
     )
 }
