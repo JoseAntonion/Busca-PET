@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.buscapet.data.local.Pet
+import com.example.buscapet.domain.model.Pet
 import com.example.buscapet.ui.commons.CommonCardView
 import com.example.buscapet.ui.navigation.DetailReport
 import com.example.buscapet.ui.theme.BuscaPetTheme

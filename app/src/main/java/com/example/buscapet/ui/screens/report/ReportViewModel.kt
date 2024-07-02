@@ -2,7 +2,7 @@ package com.example.buscapet.ui.screens.report
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.buscapet.data.local.Pet
+import com.example.buscapet.domain.model.Pet
 import com.example.buscapet.data.local.PetsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

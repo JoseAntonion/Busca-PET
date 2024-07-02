@@ -1,5 +1,5 @@
 [versions]
-agp = "8.4.2"
+agp = "8.5.0"
 coilCompose = "2.2.2"
 firebaseBom = "33.0.0"
 kotlin = "1.9.23"
@@ -17,7 +17,7 @@ navigationRuntimeKtx = "2.7.7"
 playServicesAuth = "20.3.0"
 runtimeLivedata = "1.6.7"
 materialVersion = "1.6.7"
-androidLibrary = "8.4.2"
+androidLibrary = "8.5.0"
 google-services-version = "4.3.13"
 serializationJson = "1.6.3"
 ## ROOM

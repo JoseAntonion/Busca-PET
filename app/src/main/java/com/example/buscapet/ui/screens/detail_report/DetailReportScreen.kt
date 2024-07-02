@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.R
@@ -33,7 +34,7 @@ import com.example.buscapet.ui.theme.BuscaPetTheme
 fun DetailReportScreen(
     modifier: Modifier = Modifier,
     viewModel: DetailReportViewModel = hiltViewModel(),
-    navController: NavHostController = rememberNavController(),
+    navController: NavController = rememberNavController(),
     petId: Int,
 ) {
     viewModel.setPetId(petId)
@@ -43,7 +44,7 @@ fun DetailReportScreen(
             topBar = {
                 AppBarWithBack(
                     title = "Detalle de ${petDetail?.name}"
-                ) { navController.popBackStack() }
+                ) { navController.navigateUp() }
             }
         ) {
             Surface(

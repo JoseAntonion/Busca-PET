@@ -1,7 +1,6 @@
 package com.example.buscapet.ui.screens.report
 
 import android.content.res.Configuration
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -35,11 +34,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.buscapet.data.local.Pet
+import com.example.buscapet.domain.model.Pet
 import com.example.buscapet.ui.commons.AppBarWithBack
 import com.example.buscapet.ui.commons.CommonFilledTextField
-import com.example.buscapet.ui.navigation.LastReports
 import com.example.buscapet.ui.theme.BuscaPetTheme
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -48,19 +47,23 @@ fun ReportScreen(
     navController: NavController = rememberNavController(),
     viewModel: ReportViewModel = hiltViewModel()
 ) {
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val currentUserName = currentUser?.displayName?.split(" ")?.get(0)
     val coroutineScope = rememberCoroutineScope()
     val state by viewModel.state.collectAsState()
     val lContext = LocalContext.current
+
     LaunchedEffect(key1 = state.inserted) {
-        if(state.inserted) {
+        if (state.inserted) {
             delay(2000L)
             Toast.makeText(lContext, "Reporte guardado", Toast.LENGTH_SHORT).show()
-            navController.popBackStack()
+            navController.navigateUp()
         }
     }
     MainContainter(
         navController = navController,
         state = state,
+        currentUserName = currentUserName,
         onReportClick = { pet ->
             if (pet.name?.isEmpty() == true ||
                 pet.breed?.isEmpty() == true ||
@@ -83,15 +86,16 @@ fun ReportScreen(
 fun MainContainter(
     modifier: Modifier = Modifier,
     navController: NavController,
-    onReportClick: (pet: Pet) -> Unit = {},
     state: ReportViewModel.UiState,
+    currentUserName: String? = null,
+    onReportClick: (pet: Pet) -> Unit = {},
 ) {
     BuscaPetTheme {
         Scaffold(
             topBar = {
                 AppBarWithBack(
                     title = "Reportar mascota perdida",
-                    onBackClick = { navController.popBackStack() }
+                    onBackClick = { navController.navigateUp() }
                 )
             }
         ) {
@@ -165,18 +169,7 @@ fun MainContainter(
                             imeAction = ImeAction.Next
                         )
                     )
-                    val ownerInputValidation = remember { mutableStateOf(true) }
-                    val ownerInput = remember { mutableStateOf("") }
-                    CommonFilledTextField(
-                        label = "Cuidador/a",
-                        inputText = ownerInput,
-                        enabled = state.inputEnable,
-                        isValid = ownerInputValidation,
-                        keyOption = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Done
-                        )
-                    )
+
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -191,7 +184,7 @@ fun MainContainter(
                                         age = ageInput.value,
                                         breed = breedInput.value,
                                         description = descriptionInput.value,
-                                        owner = ownerInput.value
+                                        reporter = currentUserName
                                     )
                                 )
                             },

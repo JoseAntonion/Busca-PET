@@ -30,7 +30,8 @@ import com.example.buscapet.ui.commons.ReportAlertDialog
 import com.example.buscapet.ui.commons.TabItem
 import com.example.buscapet.ui.navigation.Report
 import com.example.buscapet.ui.screens.last_reports.LastReportsScreen
-import com.example.buscapet.ui.screens.my_pets.MyReportsScreen
+import com.example.buscapet.ui.screens.my_pets.MyPetsScreen
+import com.example.buscapet.ui.screens.my_reports.MyReportsScreen
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -38,8 +39,9 @@ fun HomeScreen(
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
+    val currentContext = LocalContext.current
     val currentUser = FirebaseAuth.getInstance().currentUser
-    val name = currentUser?.displayName?.split(" ")?.get(0)
+    val currentUserName = currentUser?.displayName?.split(" ")?.get(0)
     val photo = currentUser?.photoUrl
     val uiState by viewModel.uiState.collectAsState()
 
@@ -51,17 +53,31 @@ fun HomeScreen(
         TabItem(
             title = "Mis reportes",
             icon = ImageVector.vectorResource(id = R.drawable.ic_dog)
+        ),
+        TabItem(
+            title = "Mis Mascotas",
+            icon = ImageVector.vectorResource(id = R.drawable.ic_my_pets)
         )
     )
 
     HomeContainer(
         navController = navController,
         uiState = uiState,
-        currentUserName = name,
+        currentUserName = currentUserName,
         profilePhoto = photo,
         tabItems = tabItems,
         onReportClick = { viewModel.showReportDialog() },
-        onLostMyOwnClick = { viewModel.onLostMyOwnClick(name) },
+        onLostMyOwnClick = {
+            if (uiState.myPets.isEmpty()) {
+                Toast.makeText(
+                    currentContext,
+                    "Primero debes agregar alguna mascota",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                viewModel.onLostMyOwnClick(currentUserName)
+            }
+        },
         onReportLostClick = { navController.navigate(Report) },
         onReportDialogDismiss = { viewModel.dismissReportDialog() }
     )
@@ -88,10 +104,6 @@ fun HomeContainer(
             onReportLostClick = { onReportLostClick() },
             onLostMyOwnClick = { onLostMyOwnClick() }
         )
-    }
-
-    if(uiState.myPets.isEmpty()){
-        Toast.makeText(LocalContext.current, "Primero debes agregar alguna mascota", Toast.LENGTH_SHORT).show()
     }
 
     Scaffold(
@@ -124,6 +136,10 @@ fun HomeContainer(
             when (index) {
                 0 -> LastReportsScreen(navController = navController)
                 1 -> MyReportsScreen()
+                2 -> MyPetsScreen(
+                    navController = navController,
+                    currentUserName = currentUserName
+                )
             }
         }
     }

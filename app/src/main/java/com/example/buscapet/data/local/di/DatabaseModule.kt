@@ -2,7 +2,6 @@ package com.example.buscapet.data.local.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.buscapet.data.local.PetDao
 import com.example.buscapet.data.local.PetsDatabase
 import dagger.Module
 import dagger.Provides
@@ -15,18 +14,18 @@ import javax.inject.Singleton
 @Module
 object DatabaseModule {
 
+    private const val DATABASE_NAME = "pets_database"
+
     @Provides
-    fun providePetDao(petDatabase: PetsDatabase): PetDao {
-        return petDatabase.petsDao()
-    }
+    fun providePetDao(petDatabase: PetsDatabase) = petDatabase.petsDao()
 
     @Provides
     @Singleton
     fun providePetDatabase(@ApplicationContext context: Context): PetsDatabase {
         return Room.databaseBuilder(
             context = context,
-            PetsDatabase::class.java,
-            "pets_database"
+            klass = PetsDatabase::class.java,
+            name = DATABASE_NAME
         )
             .fallbackToDestructiveMigration()
             .build()

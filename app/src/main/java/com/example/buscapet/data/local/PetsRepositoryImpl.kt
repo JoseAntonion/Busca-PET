@@ -1,5 +1,6 @@
 package com.example.buscapet.data.local
 
+import com.example.buscapet.domain.model.Pet
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -10,10 +11,11 @@ class PetsRepositoryImpl @Inject constructor(
 
     override fun getAllPets(): Flow<List<Pet>> = petDao.getAllPets()
 
-    override fun getPetsByOwner(owner: String): List<Pet> = petDao.getPetsByOwner(owner)
+    override suspend fun getPetsByOwner(owner: String): List<Pet> = petDao.getPetsByOwner(owner)
 
     override fun getPetById(id: Int): Pet = petDao.getPet(id)
 
     override suspend fun deleteAllPets(allPets: List<Pet>) = petDao.deleteAllPets(allPets)
+    override suspend fun getPetsByReporter(reporter: String): List<Pet> = petDao.getPetsByReporter(reporter)
 
 }
