@@ -96,6 +96,14 @@ fun DetailReportScreen(
                                 title = "Descripción",
                                 content = petDetail?.description ?: "no description"
                             )
+                            InfoSection(
+                                title = "Dueña/o",
+                                content = petDetail?.owner ?: "sin dueña/o"
+                            )
+                            InfoSection(
+                                title = "Reportante",
+                                content = petDetail?.reporter ?: "sin reportante"
+                            )
                         }
                     }
                 }

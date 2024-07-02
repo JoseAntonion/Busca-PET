@@ -12,5 +12,5 @@ interface PetsRepository {
     fun getPetById(id: Int): Pet
 
     suspend fun deleteAllPets(allPets: List<Pet>)
-    suspend fun getPetsByReporter(reporter: String): List<Pet>
+    fun getPetsByReporter(reporter: String): Flow<List<Pet>>
 }

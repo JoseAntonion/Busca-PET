@@ -27,9 +27,7 @@ import com.example.buscapet.ui.theme.BuscaPetTheme
 fun MyPetsScreen(
     navController: NavController = rememberNavController(),
     viewModel: MyPetsViewModel = hiltViewModel(),
-    currentUserName: String?
 ) {
-    viewModel.setCurrentUserName(currentUserName)
     val uiState by viewModel.uiState.collectAsState()
 
     ViewContainer(
@@ -60,8 +58,8 @@ fun ViewContainer(
                         CommonCardView(
                             modifier = Modifier
                                 .padding(vertical = 8.dp),
-                            title = "Registrar nueva mascota",
-                            subtitle = "Crea una nueva mascota",
+                            title = "Registra tu primera mascota",
+                            isEmpty = true,
                             onClick = {
                                 navController.navigate(Report)
                             }

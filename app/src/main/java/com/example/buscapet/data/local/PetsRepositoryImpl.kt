@@ -16,6 +16,6 @@ class PetsRepositoryImpl @Inject constructor(
     override fun getPetById(id: Int): Pet = petDao.getPet(id)
 
     override suspend fun deleteAllPets(allPets: List<Pet>) = petDao.deleteAllPets(allPets)
-    override suspend fun getPetsByReporter(reporter: String): List<Pet> = petDao.getPetsByReporter(reporter)
+    override fun getPetsByReporter(reporter: String): Flow<List<Pet>> = petDao.getPetsByReporter(reporter)
 
 }

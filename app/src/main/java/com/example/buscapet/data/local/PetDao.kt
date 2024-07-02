@@ -26,5 +26,5 @@ interface PetDao {
     suspend fun getPetsByOwner(owner: String): List<Pet>
 
     @Query("SELECT * FROM pet WHERE reporter = :reporter")
-    suspend fun getPetsByReporter(reporter: String): List<Pet>
+    fun getPetsByReporter(reporter: String): Flow<List<Pet>>
 }

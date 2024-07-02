@@ -135,11 +135,8 @@ fun HomeContainer(
         ) { index ->
             when (index) {
                 0 -> LastReportsScreen(navController = navController)
-                1 -> MyReportsScreen()
-                2 -> MyPetsScreen(
-                    navController = navController,
-                    currentUserName = currentUserName
-                )
+                1 -> MyReportsScreen(navController = navController)
+                2 -> MyPetsScreen(navController = navController)
             }
         }
     }

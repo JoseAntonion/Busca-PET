@@ -48,7 +48,7 @@ fun ReportScreen(
     viewModel: ReportViewModel = hiltViewModel()
 ) {
     val currentUser = FirebaseAuth.getInstance().currentUser
-    val currentUserName = currentUser?.displayName?.split(" ")?.get(0)
+    val currentUserName = currentUser?.displayName
     val coroutineScope = rememberCoroutineScope()
     val state by viewModel.state.collectAsState()
     val lContext = LocalContext.current
@@ -69,7 +69,7 @@ fun ReportScreen(
                 pet.breed?.isEmpty() == true ||
                 pet.age?.isEmpty() == true ||
                 pet.description?.isEmpty() == true ||
-                pet.owner?.isEmpty() == true
+                pet.reporter?.isEmpty() == true
             ) {
                 Toast.makeText(lContext, "Debe llenar todos los campos", Toast.LENGTH_SHORT).show()
             } else {
@@ -169,6 +169,30 @@ fun MainContainter(
                             imeAction = ImeAction.Next
                         )
                     )
+                    val ownerInputValidation = remember { mutableStateOf(true) }
+                    val ownerInput = remember { mutableStateOf("") }
+                    CommonFilledTextField(
+                        label = "Dueño",
+                        inputText = ownerInput,
+                        enabled = state.inputEnable,
+                        isValid = ownerInputValidation,
+                        keyOption = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        )
+                    )
+                    val reporterInputValidation = remember { mutableStateOf(true) }
+                    val reporterInput = remember { mutableStateOf("") }
+                    CommonFilledTextField(
+                        label = "Reportante",
+                        inputText = reporterInput,
+                        enabled = state.inputEnable,
+                        isValid = reporterInputValidation,
+                        keyOption = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Done
+                        )
+                    )
 
                     Box(
                         modifier = Modifier
@@ -184,7 +208,8 @@ fun MainContainter(
                                         age = ageInput.value,
                                         breed = breedInput.value,
                                         description = descriptionInput.value,
-                                        reporter = currentUserName
+                                        reporter = reporterInput.value.ifEmpty { currentUserName },
+                                        petState = "perdido",
                                     )
                                 )
                             },

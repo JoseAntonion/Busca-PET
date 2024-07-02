@@ -3,10 +3,10 @@ package com.example.buscapet.ui.commons
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,8 +30,8 @@ import com.example.buscapet.ui.theme.BuscaPetTheme
 @Composable
 fun CommonCardView(
     modifier: Modifier = Modifier,
-    title: String? = "no title",
-    subtitle: String? = "no subtitle",
+    title: String? = "",
+    subtitle: String? = "",
     isEmpty: Boolean = false,
     onClick: () -> Unit = {}
 ) {
@@ -46,6 +46,8 @@ fun CommonCardView(
             onClick = { onClick() }
         ) {
             Row(
+                modifier = modifier
+                    .padding(14.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Absolute.Center
             ) {
@@ -55,7 +57,7 @@ fun CommonCardView(
                             .height(60.dp)
                             .width(60.dp)
                             .padding(14.dp, 0.dp, 0.dp, 0.dp),
-                        painter = painterResource(id = R.drawable.ic_new_pet),
+                        painter = painterResource(id = R.drawable.ic_add),
                         contentDescription = "Card image",
                         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
                     )
@@ -71,23 +73,27 @@ fun CommonCardView(
 //                            .padding(0.dp)
 //                    )
                 }
+                Spacer(modifier = Modifier.width(28.dp))
                 Column(
                     modifier = modifier
                         .fillMaxWidth()
-                        .padding(14.dp)
                 ) {
-                    Text(
-                        text = title!!,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Normal,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = subtitle!!,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Normal,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    if (title?.isNotEmpty() == true) {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Normal,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    if (subtitle?.isNotEmpty() == true) {
+                        Text(
+                            text = subtitle,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Normal,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         }
