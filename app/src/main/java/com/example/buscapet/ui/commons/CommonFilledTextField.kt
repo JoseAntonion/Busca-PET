@@ -19,9 +19,9 @@ fun CommonFilledTextField(
     modifier: Modifier = Modifier,
     label: String = "no label",
     inputText: MutableState<String> = mutableStateOf(""),
-    enabled: Boolean,
+    enabled: Boolean = true,
     isValid: MutableState<Boolean> = mutableStateOf(true),
-    keyOption: KeyboardOptions
+    keyOption: KeyboardOptions = KeyboardOptions.Default
 ) {
     var text by remember { inputText }
     var validity by remember { isValid }
