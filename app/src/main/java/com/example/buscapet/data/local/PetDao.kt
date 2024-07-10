@@ -3,6 +3,7 @@ package com.example.buscapet.data.local
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.buscapet.domain.model.Pet
 import kotlinx.coroutines.flow.Flow
@@ -15,8 +16,8 @@ interface PetDao {
     @Query("SELECT * FROM pet WHERE id = :id")
     fun getPet(id: Int): Pet
 
-    @Insert
-    //@Insert(onConflict = OnConflictStrategy.REPLACE)
+    //@Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPet(petsData: Pet): Long
 
     @Delete

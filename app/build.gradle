@@ -103,6 +103,7 @@ dependencies {
     ksp(libs.hilt.compiler)
     // hilt navigation compose
     implementation(libs.androidx.hilt.navigation.compose)
-
+    // Spash screen
+    implementation libs.androidx.core.splashscreen
 
 }

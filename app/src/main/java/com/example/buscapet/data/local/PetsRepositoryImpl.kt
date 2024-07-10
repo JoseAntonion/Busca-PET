@@ -7,6 +7,7 @@ import javax.inject.Inject
 class PetsRepositoryImpl @Inject constructor(
     private val petDao: PetDao
 ) : PetsRepository {
+
     override suspend fun insertPet(pet: Pet) = petDao.insertPet(pet)
 
     override fun getAllPets(): Flow<List<Pet>> = petDao.getAllPets()
@@ -16,6 +17,8 @@ class PetsRepositoryImpl @Inject constructor(
     override fun getPetById(id: Int): Pet = petDao.getPet(id)
 
     override suspend fun deleteAllPets(allPets: List<Pet>) = petDao.deleteAllPets(allPets)
-    override fun getPetsByReporter(reporter: String): Flow<List<Pet>> = petDao.getPetsByReporter(reporter)
+
+    override fun getPetsByReporter(reporter: String): Flow<List<Pet>> =
+        petDao.getPetsByReporter(reporter)
 
 }
