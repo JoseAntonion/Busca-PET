@@ -1,6 +1,7 @@
 package com.example.buscapet.data.local
 
-import com.example.buscapet.domain.model.Pet
+import com.example.buscapet.core.data.local.PetDao
+import com.example.buscapet.core.domain.model.Pet
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
