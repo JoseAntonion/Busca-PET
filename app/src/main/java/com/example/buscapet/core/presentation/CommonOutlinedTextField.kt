@@ -5,8 +5,7 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -22,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.example.buscapet.ui.theme.BuscaPetTheme
 
 @Composable
-fun CommonFilledTextField(
+fun CommonOutlinedTextField(
     modifier: Modifier = Modifier,
     label: String = "no label",
     inputText: MutableState<String> = mutableStateOf(""),
@@ -32,7 +31,7 @@ fun CommonFilledTextField(
 ) {
     var text by remember { inputText }
     var validity by remember { isValid }
-    TextField(
+    OutlinedTextField(
         modifier = modifier
             .fillMaxWidth()
             .padding(0.dp, 14.dp, 0.dp, 0.dp),
@@ -45,15 +44,14 @@ fun CommonFilledTextField(
         enabled = enabled,
         isError = !validity,
         keyboardOptions = keyOption,
-        colors = TextFieldDefaults.colors()
     )
 }
 
 @Preview(uiMode = UI_MODE_NIGHT_YES, name = "PreviewDARK")
 @Preview(uiMode = UI_MODE_NIGHT_NO, name = "PreviewLIGHT")
 @Composable
-fun CommonFilledTextFieldPreview() {
+fun CommonOutlinedTextFieldPreview() {
     BuscaPetTheme {
-        CommonFilledTextField()
+        CommonOutlinedTextField()
     }
 }

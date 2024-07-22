@@ -36,7 +36,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.core.domain.model.Pet
 import com.example.buscapet.core.presentation.AppBarWithBack
-import com.example.buscapet.core.presentation.CommonFilledTextField
+import com.example.buscapet.core.presentation.CommonOutlinedTextField
 import com.example.buscapet.ui.theme.BuscaPetTheme
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
@@ -120,7 +120,7 @@ fun MainContainter(
 
                     val nameInputValidation = remember { mutableStateOf(true) }
                     val nameInput = remember { mutableStateOf("") }
-                    CommonFilledTextField(
+                    CommonOutlinedTextField(
                         label = "Nombre de la mascota",
                         inputText = nameInput,
                         enabled = state.inputEnable,
@@ -133,7 +133,7 @@ fun MainContainter(
 
                     val ageInputValidation = remember { mutableStateOf(true) }
                     val ageInput = remember { mutableStateOf("") }
-                    CommonFilledTextField(
+                    CommonOutlinedTextField(
                         label = "Edad de la mascota",
                         inputText = ageInput,
                         enabled = state.inputEnable,
@@ -146,7 +146,7 @@ fun MainContainter(
 
                     val breedInputValidation = remember { mutableStateOf(true) }
                     val breedInput = remember { mutableStateOf("") }
-                    CommonFilledTextField(
+                    CommonOutlinedTextField(
                         label = "Raza de la mascota",
                         inputText = breedInput,
                         enabled = state.inputEnable,
@@ -159,7 +159,7 @@ fun MainContainter(
 
                     val descriptionInputValidation = remember { mutableStateOf(true) }
                     val descriptionInput = remember { mutableStateOf("") }
-                    CommonFilledTextField(
+                    CommonOutlinedTextField(
                         label = "Descripcion",
                         inputText = descriptionInput,
                         enabled = state.inputEnable,
@@ -171,7 +171,7 @@ fun MainContainter(
                     )
                     val ownerInputValidation = remember { mutableStateOf(true) }
                     val ownerInput = remember { mutableStateOf("") }
-                    CommonFilledTextField(
+                    CommonOutlinedTextField(
                         label = "Dueño",
                         inputText = ownerInput,
                         enabled = state.inputEnable,
@@ -183,7 +183,7 @@ fun MainContainter(
                     )
                     val reporterInputValidation = remember { mutableStateOf(true) }
                     val reporterInput = remember { mutableStateOf("") }
-                    CommonFilledTextField(
+                    CommonOutlinedTextField(
                         label = "Reportante",
                         inputText = reporterInput,
                         enabled = state.inputEnable,
