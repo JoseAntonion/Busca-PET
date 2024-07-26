@@ -35,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.core.domain.model.Pet
+import com.example.buscapet.core.domain.model.PetState
 import com.example.buscapet.core.presentation.AppBarWithBack
 import com.example.buscapet.core.presentation.CommonOutlinedTextField
 import com.example.buscapet.ui.theme.BuscaPetTheme
@@ -209,7 +210,7 @@ fun MainContainter(
                                         breed = breedInput.value,
                                         description = descriptionInput.value,
                                         reporter = reporterInput.value.ifEmpty { currentUserName },
-                                        petState = "perdido",
+                                        petState = PetState.LOST,
                                     )
                                 )
                             },

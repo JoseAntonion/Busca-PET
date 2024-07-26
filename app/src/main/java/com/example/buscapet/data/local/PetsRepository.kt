@@ -7,9 +7,9 @@ interface PetsRepository {
 
     suspend fun insertPet(pet: Pet): Long
 
-    fun getAllPets(): Flow<List<Pet>>
+    fun getLostPets(): Flow<List<Pet>>
 
-    suspend fun getPetsByOwner(owner: String): List<Pet>
+    fun getPetsByOwner(owner: String): Flow<List<Pet>>
 
     fun getPetById(id: Int): Pet
 

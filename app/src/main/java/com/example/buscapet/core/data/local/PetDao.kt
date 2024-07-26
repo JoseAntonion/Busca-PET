@@ -6,17 +6,20 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.buscapet.core.domain.model.Pet
+import com.example.buscapet.core.domain.model.PetState
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PetDao {
-    @Query("SELECT * FROM pet")
-    fun getAllPets(): Flow<List<Pet>>
+    @Query("SELECT * FROM pet WHERE pet_state = :perdido OR pet_state = :aSalvoPerdido")
+    fun getLostPets(
+        perdido: PetState = PetState.LOST,
+        aSalvoPerdido: PetState = PetState.SAFE_LOST
+    ): Flow<List<Pet>>
 
     @Query("SELECT * FROM pet WHERE id = :id")
     fun getPet(id: Int): Pet
 
-    //@Insert
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPet(petsData: Pet): Long
 
@@ -24,7 +27,7 @@ interface PetDao {
     suspend fun deleteAllPets(allPets: List<Pet>)
 
     @Query("SELECT * FROM pet WHERE owner = :owner")
-    suspend fun getPetsByOwner(owner: String): List<Pet>
+    fun getPetsByOwner(owner: String): Flow<List<Pet>>
 
     @Query("SELECT * FROM pet WHERE reporter = :reporter")
     fun getPetsByReporter(reporter: String): Flow<List<Pet>>

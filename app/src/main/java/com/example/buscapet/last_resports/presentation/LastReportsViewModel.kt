@@ -3,7 +3,7 @@ package com.example.buscapet.last_resports.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.buscapet.core.domain.model.Pet
-import com.example.buscapet.data.local.PetsRepository
+import com.example.buscapet.last_resports.domain.use_case.GetLostPetsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LastReportsViewModel @Inject constructor(
-    petsRepository: PetsRepository
+    getLostPetsUseCase: GetLostPetsUseCase
 ) : ViewModel() {
     companion object {
         private const val MILLIS = 5_000L
@@ -24,7 +24,7 @@ class LastReportsViewModel @Inject constructor(
     )
 
     val petsUiState: StateFlow<PetUiState> =
-        petsRepository.getAllPets()
+        getLostPetsUseCase()
             .map { PetUiState(it) }
             .stateIn(
                 scope = viewModelScope,

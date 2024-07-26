@@ -28,7 +28,7 @@ fun MyPetsScreen(
     navController: NavController = rememberNavController(),
     viewModel: MyPetsViewModel = hiltViewModel(),
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.lostPets.collectAsState()
 
     ViewContainer(
         petList = uiState.petList,

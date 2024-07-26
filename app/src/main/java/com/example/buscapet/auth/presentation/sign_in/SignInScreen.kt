@@ -26,7 +26,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.buscapet.R
 import com.example.buscapet.core.presentation.SignInButton
-import com.example.buscapet.core.navigation.Home
 import com.example.buscapet.ui.theme.BuscaPetTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -40,8 +39,9 @@ fun SignInScreen(
     val activity = LocalContext.current as Activity
     val bussy = viewModel.progress.observeAsState(false)
     val activityResult =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(it.data)
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { intent ->
+            val task: Task<GoogleSignInAccount> =
+                GoogleSignIn.getSignedInAccountFromIntent(intent.data)
             viewModel.finishLogin(task, navController)
             Log.d("TAG", "LoginScreen:  viewModel.finishLogin")
         }
@@ -49,10 +49,11 @@ fun SignInScreen(
     MainLoginContainer(
         signInProgress = bussy.value,
         signInButton = {
-            navController.navigate(Home)
-            //viewModel.loginWithGoogle(activity) {
-            //    activityResult.launch(it)
-            //}
+            viewModel.loginWithGoogle(activity) {
+                activityResult.launch(it)
+            }
+            // TEST ONLY
+            //navController.navigate(Home)
         },
         vModel = viewModel
     )

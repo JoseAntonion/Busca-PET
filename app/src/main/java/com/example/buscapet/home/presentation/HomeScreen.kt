@@ -75,7 +75,11 @@ fun HomeScreen(
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
-                viewModel.onLostMyOwnClick(currentUserName)
+                Toast.makeText(
+                    currentContext,
+                    "Implementar funcionalidad con mascotas ya agregadas",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         },
         onReportLostClick = { navController.navigate(Report) },

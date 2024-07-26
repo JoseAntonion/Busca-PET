@@ -21,5 +21,9 @@ data class Pet(
     @ColumnInfo(name = "reporter")
     val reporter: String? = null,
     @ColumnInfo(name = "pet_state")
-    val petState: String? = null
+    val petState: PetState? = null,
+    @ColumnInfo(name = "birthday")
+    val birthday: String? = null,
+    @ColumnInfo(name = "last_seen")
+    val lastSeen: String? = null
 )

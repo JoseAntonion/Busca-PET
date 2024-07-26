@@ -33,11 +33,11 @@ class HomeViewModel @Inject constructor(
         _uiState.value = UiState(reportDialog = false)
     }
 
-    fun onLostMyOwnClick(owner: String?) {
-        viewModelScope.launch {
-            val myPets = petsRepository.getPetsByOwner(owner ?: "")
-            _uiState.value = UiState(myPets = myPets)
-        }
-    }
+    //fun onLostMyOwnClick(owner: String?) {
+    //    viewModelScope.launch {
+    //        val myPets = petsRepository.getPetsByOwner(owner ?: "")
+    //        _uiState.value = UiState(myPets = myPets)
+    //    }
+    //}
 
 }
