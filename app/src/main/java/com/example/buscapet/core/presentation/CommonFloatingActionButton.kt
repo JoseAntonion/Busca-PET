@@ -43,7 +43,7 @@ fun CommonFloatingActionButton(
                 )
                 Text(
                     fontSize = 12.sp,
-                    text = stringResource(R.string.report_button_text),
+                    text = stringResource(R.string.report_from_submit_button_label),
                     letterSpacing = 0.sp,
                 )
             }

@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -43,6 +41,35 @@ fun CommonOutlinedTextField(
         label = { Text(text = label) },
         enabled = enabled,
         isError = !validity,
+        keyboardOptions = keyOption,
+    )
+}
+
+@Composable
+fun CommonOutlinedTextFieldWithValidation(
+    modifier: Modifier = Modifier,
+    label: String?,
+    value: String?,
+    enabled: Boolean = true,
+    isError: Boolean = false,
+    errorMessage: String? = null,
+    keyOption: KeyboardOptions = KeyboardOptions.Default,
+    onValueChange: (String) -> Unit
+) {
+    OutlinedTextField(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(0.dp, 14.dp, 0.dp, 0.dp),
+        value = value.orEmpty(),
+        onValueChange = { input ->
+            onValueChange(input)
+        },
+        label = { Text(text = label.orEmpty()) },
+        enabled = enabled,
+        isError = isError,
+        supportingText = {
+            if (isError) Text(text = errorMessage.orEmpty())
+        },
         keyboardOptions = keyOption,
     )
 }

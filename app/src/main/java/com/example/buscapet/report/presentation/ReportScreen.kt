@@ -21,12 +21,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,52 +32,48 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.buscapet.core.domain.model.Pet
-import com.example.buscapet.core.domain.model.PetState
+import com.example.buscapet.R
 import com.example.buscapet.core.presentation.AppBarWithBack
-import com.example.buscapet.core.presentation.CommonOutlinedTextField
+import com.example.buscapet.core.presentation.CommonOutlinedTextFieldWithValidation
 import com.example.buscapet.ui.theme.BuscaPetTheme
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun ReportScreen(
     navController: NavController = rememberNavController(),
     viewModel: ReportViewModel = hiltViewModel()
 ) {
-    val currentUser = FirebaseAuth.getInstance().currentUser
-    val currentUserName = currentUser?.displayName
-    val coroutineScope = rememberCoroutineScope()
-    val state by viewModel.state.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val formState = viewModel.formState
     val lContext = LocalContext.current
 
-    LaunchedEffect(key1 = state.inserted) {
-        if (state.inserted) {
+    LaunchedEffect(key1 = lContext) {
+        viewModel.validationEvents.collect { event ->
+            when (event) {
+                is ReportViewModel.ValidationEvent.Success -> {
+                    Toast.makeText(
+                        lContext,
+                        "Reporte Válido",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(key1 = uiState.inserted) {
+        if (uiState.inserted) {
             delay(2000L)
             Toast.makeText(lContext, "Reporte guardado", Toast.LENGTH_SHORT).show()
             navController.navigateUp()
         }
     }
+
     MainContainter(
         navController = navController,
-        state = state,
-        currentUserName = currentUserName,
-        onReportClick = { pet ->
-            if (pet.name?.isEmpty() == true ||
-                pet.breed?.isEmpty() == true ||
-                pet.age?.isEmpty() == true ||
-                pet.description?.isEmpty() == true ||
-                pet.reporter?.isEmpty() == true
-            ) {
-                Toast.makeText(lContext, "Debe llenar todos los campos", Toast.LENGTH_SHORT).show()
-            } else {
-                viewModel.toggleInputEnableState()
-                coroutineScope.launch {
-                    viewModel.savePet(pet)
-                }
-            }
-        }
+        uiState = uiState,
+        viewModel = viewModel,
+        formState = formState
     )
 }
 
@@ -87,9 +81,9 @@ fun ReportScreen(
 fun MainContainter(
     modifier: Modifier = Modifier,
     navController: NavController,
-    state: ReportViewModel.UiState,
-    currentUserName: String? = null,
-    onReportClick: (pet: Pet) -> Unit = {},
+    uiState: ReportViewModel.UiState,
+    formState: ReportPetFormState = ReportPetFormState(),
+    viewModel: ReportViewModel = hiltViewModel(),
 ) {
     BuscaPetTheme {
         Scaffold(
@@ -119,76 +113,60 @@ fun MainContainter(
                         color = MaterialTheme.colorScheme.onBackground
                     )
 
-                    val nameInputValidation = remember { mutableStateOf(true) }
-                    val nameInput = remember { mutableStateOf("") }
-                    CommonOutlinedTextField(
-                        label = "Nombre de la mascota",
-                        inputText = nameInput,
-                        enabled = state.inputEnable,
-                        isValid = nameInputValidation,
+                    CommonOutlinedTextFieldWithValidation(
+                        label = stringResource(id = R.string.report_form_pet_name_label),
+                        value = formState.petName,
+                        onValueChange = { text: String ->
+                            viewModel.onEvent(ReportEvent.PetNameChanged(text))
+                        },
+                        enabled = uiState.inputEnable,
+                        isError = formState.petNameError != null,
+                        errorMessage = formState.petNameError,
                         keyOption = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Next
                         )
                     )
 
-                    val ageInputValidation = remember { mutableStateOf(true) }
-                    val ageInput = remember { mutableStateOf("") }
-                    CommonOutlinedTextField(
-                        label = "Edad de la mascota",
-                        inputText = ageInput,
-                        enabled = state.inputEnable,
-                        isValid = ageInputValidation,
+                    CommonOutlinedTextFieldWithValidation(
+                        label = stringResource(id = R.string.report_form_pet_age_label),
+                        value = formState.petAge,
+                        onValueChange = { text: String ->
+                            viewModel.onEvent(ReportEvent.PetAgeChanged(text))
+                        },
+                        enabled = uiState.inputEnable,
+                        isError = formState.petAgeError != null,
+                        errorMessage = formState.petAgeError,
                         keyOption = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Next
                         )
                     )
 
-                    val breedInputValidation = remember { mutableStateOf(true) }
-                    val breedInput = remember { mutableStateOf("") }
-                    CommonOutlinedTextField(
-                        label = "Raza de la mascota",
-                        inputText = breedInput,
-                        enabled = state.inputEnable,
-                        isValid = breedInputValidation,
+                    CommonOutlinedTextFieldWithValidation(
+                        label = stringResource(id = R.string.report_form_pet_breed_label),
+                        value = formState.petBreed,
+                        onValueChange = { text: String ->
+                            viewModel.onEvent(ReportEvent.PetBreedChanged(text))
+                        },
+                        enabled = uiState.inputEnable,
+                        isError = formState.petBreedError != null,
+                        errorMessage = formState.petBreedError,
                         keyOption = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Next
                         )
                     )
 
-                    val descriptionInputValidation = remember { mutableStateOf(true) }
-                    val descriptionInput = remember { mutableStateOf("") }
-                    CommonOutlinedTextField(
-                        label = "Descripcion",
-                        inputText = descriptionInput,
-                        enabled = state.inputEnable,
-                        isValid = descriptionInputValidation,
-                        keyOption = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        )
-                    )
-                    val ownerInputValidation = remember { mutableStateOf(true) }
-                    val ownerInput = remember { mutableStateOf("") }
-                    CommonOutlinedTextField(
-                        label = "Dueño",
-                        inputText = ownerInput,
-                        enabled = state.inputEnable,
-                        isValid = ownerInputValidation,
-                        keyOption = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        )
-                    )
-                    val reporterInputValidation = remember { mutableStateOf(true) }
-                    val reporterInput = remember { mutableStateOf("") }
-                    CommonOutlinedTextField(
-                        label = "Reportante",
-                        inputText = reporterInput,
-                        enabled = state.inputEnable,
-                        isValid = reporterInputValidation,
+                    CommonOutlinedTextFieldWithValidation(
+                        label = stringResource(id = R.string.report_form_pet_desc_label),
+                        value = formState.petDescription,
+                        onValueChange = { text: String ->
+                            viewModel.onEvent(ReportEvent.PetDescriptionChanged(text))
+                        },
+                        enabled = uiState.inputEnable,
+                        isError = formState.petDescriptionError != null,
+                        errorMessage = formState.petDescriptionError,
                         keyOption = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Done
@@ -202,24 +180,13 @@ fun MainContainter(
                         contentAlignment = Alignment.BottomEnd
                     ) {
                         Button(
-                            onClick = {
-                                onReportClick(
-                                    Pet(
-                                        name = nameInput.value,
-                                        age = ageInput.value,
-                                        breed = breedInput.value,
-                                        description = descriptionInput.value,
-                                        reporter = reporterInput.value.ifEmpty { currentUserName },
-                                        petState = PetState.LOST,
-                                    )
-                                )
-                            },
-                            enabled = !state.loading,
+                            onClick = { viewModel.onEvent(ReportEvent.Submit) },
+                            enabled = !uiState.loading,
                             modifier = Modifier
                                 .height(50.dp)
                                 .width(120.dp)
                         ) {
-                            if (state.loading) {
+                            if (uiState.loading) {
                                 CircularProgressIndicator(
                                     modifier = Modifier.width(35.dp),
                                     color = MaterialTheme.colorScheme.onPrimary,
@@ -244,7 +211,6 @@ fun MainContainter(
 private fun Preview() {
     MainContainter(
         navController = rememberNavController(),
-        onReportClick = {},
-        state = ReportViewModel.UiState(loading = false)
+        uiState = ReportViewModel.UiState(loading = false)
     )
 }

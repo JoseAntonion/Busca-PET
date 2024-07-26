@@ -1,4 +1,13 @@
 <resources>
     <string name="app_name">BuscaPet</string>
-    <string name="report_button_text">Reportar</string>
+
+    <string name="report_view_model_field_error">field error</string>
+    <string name="report_form_pet_name_label">Nombre</string>
+    <string name="report_form_pet_age_label">Edad</string>
+    <string name="report_form_pet_breed_label">Raza</string>
+    <string name="report_form_pet_desc_label">Descripción</string>
+    <string name="report_form_pet_owner_label">Dueño</string>
+    <string name="report_form_pet_reporter_label">Quien reporta</string>
+    <string name="report_from_submit_button_label">Reportar</string>
+
 </resources>
