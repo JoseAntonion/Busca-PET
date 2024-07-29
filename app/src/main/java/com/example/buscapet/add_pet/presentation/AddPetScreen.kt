@@ -2,7 +2,6 @@ package com.example.buscapet.add_pet.presentation
 
 import android.content.res.Configuration
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -31,13 +30,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -46,25 +40,16 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.buscapet.R
-import com.example.buscapet.core.domain.model.Pet
-import com.example.buscapet.core.domain.model.PetState
 import com.example.buscapet.core.presentation.AppBarWithBack
-import com.example.buscapet.core.presentation.CommonOutlinedTextField
+import com.example.buscapet.core.presentation.CommonOutlinedTextFieldWithValidation
 import com.example.buscapet.ui.theme.BuscaPetTheme
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
-var petBirthInput: MutableState<String> = mutableStateOf("")
-var petAgeInput: MutableState<String> = mutableStateOf("")
-var petBreedInput: MutableState<String> = mutableStateOf("")
-var petNameInput: MutableState<String> = mutableStateOf("")
 var pickMedia: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>? = null
 
 @Composable
@@ -72,61 +57,53 @@ fun AddPetScreen(
     navController: NavController = rememberNavController(),
     viewModel: AddPetViewModel = hiltViewModel(),
 ) {
-    val currentUser = FirebaseAuth.getInstance().currentUser
-    val currentUserName = currentUser?.displayName
-    var petImage by remember { mutableStateOf<Uri?>(null) }
     val lContext = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    val state by viewModel.state.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val formState = viewModel.formState
 
-    pickMedia =
-        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            // Callback is invoked after the user selects a media item or closes the
-            // photo picker.
-            if (uri != null) {
-                petImage = uri
-                Log.d("PhotoPicker", "Selected URI: $uri")
-            } else {
-                Log.d("PhotoPicker", "No media selected")
-            }
-        }
+    // Capture channel emits
+//    LaunchedEffect(key1 = lContext) {
+//        viewModel.validationEvents.collect { event ->
+//            when (event) {
+//                is ValidationEvent.Success -> {
+//                    Toast.makeText(
+//                        lContext,
+//                        "Reporte Válido",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                }
+//            }
+//        }
+//    }
 
-    LaunchedEffect(key1 = state.inserted) {
-        if (state.inserted) {
+    LaunchedEffect(key1 = uiState.inserted) {
+        if (uiState.inserted) {
             delay(2000L)
-            Toast.makeText(lContext, "Reporte guardado", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(lContext, "Reporte guardado", Toast.LENGTH_SHORT).show()
             navController.navigateUp()
         }
     }
 
+    pickMedia =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            if (uri != null)
+                viewModel.onEvent(AddPetEvent.OnImageChanged(uri))
+        }
+
     MainContainter(
         navController = navController,
-        petImage = petImage,
-        onSavePet = { pet ->
-            if (pet.name?.isEmpty() == true ||
-                pet.breed?.isEmpty() == true ||
-                pet.age?.isEmpty() == true ||
-                pet.birthday?.isEmpty() == true
-            ) {
-                Toast.makeText(lContext, "Debe llenar todos los campos", Toast.LENGTH_SHORT).show()
-            } else {
-                coroutineScope.launch {
-                    viewModel.savePet(pet)
-                }
-            }
-        },
-        currentUser = currentUserName,
-        state = state
+        uiState = uiState,
+        formState = formState,
+        viewModel = viewModel,
     )
 }
 
 @Composable
 fun MainContainter(
     navController: NavController = rememberNavController(),
-    petImage: Uri?,
-    onSavePet: (Pet) -> Unit = {},
-    currentUser: String?,
-    state: AddPetViewModel.UiState,
+    uiState: AddPetViewModel.UiState,
+    formState: AddPetFormState,
+    viewModel: AddPetViewModel = hiltViewModel(),
 ) {
     BuscaPetTheme {
         Scaffold(
@@ -163,7 +140,7 @@ fun MainContainter(
                     }
                     Spacer(modifier = Modifier.padding(8.dp))
                     //}
-                    if (petImage != null) {
+                    if (formState.addPetImage != null) {
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -178,7 +155,7 @@ fun MainContainter(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .wrapContentHeight(Alignment.CenterVertically),
-                                    model = petImage,
+                                    model = formState.addPetImage,
                                     placeholder = painterResource(R.drawable.dummy_puppy),
                                     contentDescription = "imagen de la mascota"
                                 )
@@ -187,56 +164,77 @@ fun MainContainter(
                                         .padding(14.dp)
                                 ) {
                                     Column {
-                                        petNameInput = remember { mutableStateOf("") }
-                                        CommonOutlinedTextField(
+                                        CommonOutlinedTextFieldWithValidation(
                                             label = "Nombre",
-                                            inputText = petNameInput,
+                                            value = formState.addPetName,
+                                            enabled = uiState.inputEnable,
+                                            isError = formState.addPetNameError != null,
+                                            errorMessage = formState.addPetNameError,
                                             keyOption = KeyboardOptions(
                                                 keyboardType = KeyboardType.Text,
                                                 imeAction = ImeAction.Next
-                                            )
+                                            ),
+                                            onValueChange = { text ->
+                                                viewModel.onEvent(AddPetEvent.OnNameChanged(text))
+                                            }
                                         )
-                                        Spacer(modifier = Modifier.padding(14.dp))
-                                        petBreedInput = remember { mutableStateOf("") }
-                                        CommonOutlinedTextField(
+
+                                        CommonOutlinedTextFieldWithValidation(
                                             label = "Raza",
-                                            inputText = petBreedInput
+                                            value = formState.addPetBreed,
+                                            enabled = uiState.inputEnable,
+                                            isError = formState.addPetBreedError != null,
+                                            errorMessage = formState.addPetBreedError,
+                                            keyOption = KeyboardOptions(
+                                                keyboardType = KeyboardType.Text,
+                                                imeAction = ImeAction.Next
+                                            ),
+                                            onValueChange = { text ->
+                                                viewModel.onEvent(AddPetEvent.OnBreedChanged(text))
+                                            }
                                         )
-                                        Spacer(modifier = Modifier.padding(14.dp))
-                                        petAgeInput = remember { mutableStateOf("") }
-                                        CommonOutlinedTextField(
+
+                                        CommonOutlinedTextFieldWithValidation(
                                             label = "Edad",
-                                            inputText = petAgeInput
+                                            value = formState.addPetAge,
+                                            enabled = uiState.inputEnable,
+                                            isError = formState.addPetAgeError != null,
+                                            errorMessage = formState.addPetAgeError,
+                                            keyOption = KeyboardOptions(
+                                                keyboardType = KeyboardType.Number,
+                                                imeAction = ImeAction.Next
+                                            ),
+                                            onValueChange = { text ->
+                                                viewModel.onEvent(AddPetEvent.OnAgeChanged(text))
+                                            }
                                         )
-                                        Spacer(modifier = Modifier.padding(14.dp))
-                                        petBirthInput = remember { mutableStateOf("") }
-                                        CommonOutlinedTextField(
-                                            label = "Fecha de nacimiento",
-                                            inputText = petBirthInput
+
+                                        CommonOutlinedTextFieldWithValidation(
+                                            label = "Fecha de Nacimiento",
+                                            value = formState.addPetBirth,
+                                            enabled = uiState.inputEnable,
+                                            isError = formState.addPetBirthError != null,
+                                            errorMessage = formState.addPetBirthError,
+                                            keyOption = KeyboardOptions(
+                                                keyboardType = KeyboardType.Text,
+                                                imeAction = ImeAction.Done
+                                            ),
+                                            onValueChange = { text ->
+                                                viewModel.onEvent(AddPetEvent.OnBirthChanged(text))
+                                            }
                                         )
-                                        Spacer(modifier = Modifier.padding(14.dp))
                                     }
                                 }
                             }
                         }
-                        Spacer(modifier = Modifier.padding(14.dp))
+
                         Button(
                             modifier = Modifier
                                 .padding(bottom = 14.dp)
                                 .align(Alignment.End),
-                            onClick = {
-                                onSavePet(
-                                    Pet(
-                                        name = petNameInput.value,
-                                        breed = petBreedInput.value,
-                                        age = petAgeInput.value,
-                                        birthday = petBirthInput.value,
-                                        owner = currentUser,
-                                        petState = PetState.HOME
-                                    )
-                                )
-                            }) {
-                            if (state.loading) {
+                            onClick = { viewModel.onEvent(AddPetEvent.Submit) }
+                        ) {
+                            if (uiState.loading) {
                                 CircularProgressIndicator(
                                     modifier = Modifier.width(35.dp),
                                     color = MaterialTheme.colorScheme.onPrimary,
@@ -260,8 +258,7 @@ fun MainContainter(
 @Composable
 private fun PreviewAddPet() {
     MainContainter(
-        petImage = "https://getdummyimage.com/200/200".toUri(),
-        currentUser = "test user",
-        state = AddPetViewModel.UiState(loading = false)
+        formState = AddPetFormState(),
+        uiState = AddPetViewModel.UiState(loading = false),
     )
 }

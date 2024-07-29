@@ -1,6 +1,6 @@
 package com.example.buscapet.report.presentation
 
-data class ReportPetFormState(
+data class ReportFormState(
     var petName: String? = null,
     val petNameError: String? = null,
     val petAge: String? = null,

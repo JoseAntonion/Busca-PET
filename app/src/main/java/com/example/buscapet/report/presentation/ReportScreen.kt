@@ -33,6 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.R
+import com.example.buscapet.core.domain.model.ValidationEvent
 import com.example.buscapet.core.presentation.AppBarWithBack
 import com.example.buscapet.core.presentation.CommonOutlinedTextFieldWithValidation
 import com.example.buscapet.ui.theme.BuscaPetTheme
@@ -50,7 +51,7 @@ fun ReportScreen(
     LaunchedEffect(key1 = lContext) {
         viewModel.validationEvents.collect { event ->
             when (event) {
-                is ReportViewModel.ValidationEvent.Success -> {
+                is ValidationEvent.Success -> {
                     Toast.makeText(
                         lContext,
                         "Reporte Válido",
@@ -82,7 +83,7 @@ fun MainContainter(
     modifier: Modifier = Modifier,
     navController: NavController,
     uiState: ReportViewModel.UiState,
-    formState: ReportPetFormState = ReportPetFormState(),
+    formState: ReportFormState = ReportFormState(),
     viewModel: ReportViewModel = hiltViewModel(),
 ) {
     BuscaPetTheme {

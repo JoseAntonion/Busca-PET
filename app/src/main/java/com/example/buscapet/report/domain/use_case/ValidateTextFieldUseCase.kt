@@ -1,7 +1,6 @@
 package com.example.buscapet.report.domain.use_case
 
 class ValidateTextFieldUseCase {
-
     operator fun invoke(text: String?): FormValidationResult {
         if (text.isNullOrEmpty() || text.isBlank()) return FormValidationResult(
             isValid = false,
@@ -9,5 +8,4 @@ class ValidateTextFieldUseCase {
         )
         return FormValidationResult(isValid = true)
     }
-
 }

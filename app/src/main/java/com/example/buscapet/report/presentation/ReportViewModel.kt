@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.buscapet.core.domain.model.Pet
 import com.example.buscapet.core.domain.model.PetState
+import com.example.buscapet.core.domain.model.ValidationEvent
 import com.example.buscapet.data.local.PetsRepository
 import com.example.buscapet.report.domain.use_case.ValidateTextFieldUseCase
 import com.google.firebase.auth.FirebaseAuth
@@ -27,36 +28,19 @@ class ReportViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val currentUser = FirebaseAuth.getInstance().currentUser?.displayName
-    var formState by mutableStateOf(ReportPetFormState())
+
+    var formState by mutableStateOf(ReportFormState())
 
     private val validationReportFormChannel = Channel<ValidationEvent> { }
     val validationEvents = validationReportFormChannel.receiveAsFlow()
 
-    sealed class ValidationEvent {
-        data object Success : ValidationEvent()
-    }
-
     fun onEvent(event: ReportEvent) {
         when (event) {
-            is ReportEvent.PetNameChanged -> {
-                formState = formState.copy(petName = event.name)
-            }
-
-            is ReportEvent.PetBreedChanged -> {
-                formState = formState.copy(petBreed = event.breed)
-            }
-
-            is ReportEvent.PetAgeChanged -> {
-                formState = formState.copy(petAge = event.age)
-            }
-
-            is ReportEvent.PetDescriptionChanged -> {
-                formState = formState.copy(petDescription = event.desc)
-            }
-
-            is ReportEvent.Submit -> {
-                submitData()
-            }
+            is ReportEvent.PetNameChanged -> formState = formState.copy(petName = event.name)
+            is ReportEvent.PetBreedChanged -> formState = formState.copy(petBreed = event.breed)
+            is ReportEvent.PetAgeChanged -> formState = formState.copy(petAge = event.age)
+            is ReportEvent.PetDescriptionChanged -> formState = formState.copy(petDescription = event.desc)
+            is ReportEvent.Submit -> submitData()
         }
     }
 

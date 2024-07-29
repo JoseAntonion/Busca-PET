@@ -25,5 +25,7 @@ data class Pet(
     @ColumnInfo(name = "birthday")
     val birthday: String? = null,
     @ColumnInfo(name = "last_seen")
-    val lastSeen: String? = null
+    val lastSeen: String? = null,
+    @ColumnInfo(name = "image")
+    val image: String? = null
 )

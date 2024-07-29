@@ -58,7 +58,8 @@ fun ViewContainer(
                         CommonCardView(
                             modifier = Modifier
                                 .padding(vertical = 8.dp),
-                            title = "Registra tu primera mascota",
+                            title = "Agregar mascota",
+                            subtitle = "Agrega una nueva mascota",
                             isEmpty = true,
                             onClick = {
                                 navController.navigate(AddPet)
