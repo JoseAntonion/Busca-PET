@@ -65,8 +65,6 @@ fun MainLoginContainer(
     signInButton: () -> Unit,
     vModel: SignInViewModel
 ) {
-    val signInStatus = vModel.signInName.observeAsState("test")
-
     Box(
         modifier = Modifier
             .fillMaxSize(),

@@ -18,21 +18,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.R
+import com.example.buscapet.core.navigation.Profile
+import com.example.buscapet.core.navigation.Report
 import com.example.buscapet.core.presentation.CommonFloatingActionButton
 import com.example.buscapet.core.presentation.CommonTabBar
 import com.example.buscapet.core.presentation.CommonTopAppBar
 import com.example.buscapet.core.presentation.ReportAlertDialog
 import com.example.buscapet.core.presentation.TabItem
-import com.example.buscapet.core.navigation.Report
 import com.example.buscapet.last_resports.presentation.LastReportsScreen
 import com.example.buscapet.my_pets.presentation.MyPetsScreen
 import com.example.buscapet.my_reports.presentation.MyReportsScreen
-import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun HomeScreen(
@@ -40,10 +42,14 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val currentContext = LocalContext.current
-    val currentUser = FirebaseAuth.getInstance().currentUser
-    val currentUserName = currentUser?.displayName?.split(" ")?.get(0)
-    val photo = currentUser?.photoUrl
     val uiState by viewModel.uiState.collectAsState()
+    val photo = uiState.currentUser?.photoUrl
+    val nameSplited = uiState.currentUser?.displayName?.split(" ")
+    val displayName = nameSplited
+        ?.filterIndexed { index, _ -> index % 2 == 0 }
+        ?.joinToString(" ") {
+            it.capitalize(Locale.current)
+        }
 
     val tabItems = listOf(
         TabItem(
@@ -61,9 +67,8 @@ fun HomeScreen(
     )
 
     HomeContainer(
+        displayName = displayName,
         navController = navController,
-        uiState = uiState,
-        currentUserName = currentUserName,
         profilePhoto = photo,
         tabItems = tabItems,
         onReportClick = { viewModel.showReportDialog() },
@@ -90,8 +95,8 @@ fun HomeScreen(
 @Composable
 fun HomeContainer(
     navController: NavController = rememberNavController(),
-    uiState: HomeViewModel.UiState = HomeViewModel.UiState(),
-    currentUserName: String?,
+    reportDialog: Boolean = false,
+    displayName: String?,
     profilePhoto: Uri? = null,
     tabItems: List<TabItem> = listOf(),
     onReportClick: () -> Unit = {},
@@ -102,7 +107,7 @@ fun HomeContainer(
     val pagerState = rememberPagerState(0, 0f) { tabItems.size }
     val scope = rememberCoroutineScope()
 
-    if (uiState.reportDialog) {
+    if (reportDialog) {
         ReportAlertDialog(
             onDismiss = { onReportDialogDismiss() },
             onReportLostClick = { onReportLostClick() },
@@ -116,7 +121,16 @@ fun HomeContainer(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                CommonTopAppBar(currentUserName, profilePhoto)
+                CommonTopAppBar(
+                    userName = displayName,
+                    photo = profilePhoto,
+                    onIconClick = {
+                        navController.navigate(Profile)
+                    },
+                    onMenuClick = {
+
+                    }
+                )
                 CommonTabBar(
                     pagerState = pagerState,
                     scope = scope,
@@ -152,6 +166,6 @@ fun HomeContainer(
 @Composable
 fun PreviewMainView() {
     HomeContainer(
-        currentUserName = "John Johnson"
+        displayName = "John Johnson"
     )
 }

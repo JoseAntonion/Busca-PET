@@ -94,11 +94,11 @@ class AddPetViewModel @Inject constructor(
     )
 
     private fun toggleLoadingState() =
-        _uiState.update { state -> state.copy(loading = !state.loading) }
+        _uiState.update { it.copy(loading = !it.loading) }
 
 
     private fun dataAreInserted(value: Boolean) =
-        _uiState.update { state -> state.copy(inserted = value) }
+        _uiState.update { it.copy(inserted = value) }
 
     private fun toggleInputEnableState() =
         _uiState.update { it.copy(inputEnable = !it.inputEnable) }

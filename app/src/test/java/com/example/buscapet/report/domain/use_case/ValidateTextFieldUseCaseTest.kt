@@ -1,7 +1,6 @@
 package com.example.buscapet.report.domain.use_case
 
 import org.junit.Assert.*
-
 import org.junit.Before
 import org.junit.Test
 

@@ -1,14 +1,19 @@
-package com.example.buscapet.detail_report.presentation
+package com.example.buscapet.profile.presentation
 
 import android.content.res.Configuration
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -18,100 +23,99 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.example.buscapet.R
-import com.example.buscapet.core.domain.model.Pet
 import com.example.buscapet.core.presentation.AppBarWithBack
 
 @Composable
-fun DetailReportScreen(
-    modifier: Modifier = Modifier,
-    viewModel: DetailReportViewModel = hiltViewModel(),
-    navController: NavController = rememberNavController(),
-    petId: Int,
+fun ProfileScreen(
+    navController: NavController,
+    viewModel: ProfileViewModel = hiltViewModel()
 ) {
-    viewModel.setPetId(petId)
-    val petDetail by viewModel.petDetails.collectAsState()
+    // init values
+    val uiState by viewModel.uiState.collectAsState()
+
+    // Main Container
     MainContainer(
         navController = navController,
-        petDetail = petDetail
+        userName = uiState.name,
+        userEmail = uiState.email,
+        userImage = uiState.photo
     )
 }
 
 @Composable
 fun MainContainer(
-    navController: NavController = rememberNavController(),
-    petDetail: Pet? = null
+    navController: NavController,
+    userName: String? = "noUser",
+    userEmail: String? = "noEmail",
+    userImage: Uri? = null,
 ) {
     Scaffold(
         topBar = {
             AppBarWithBack(
-                title = "Detalle de ${petDetail?.name}"
-            ) { navController.navigateUp() }
+                title = stringResource(id = R.string.profile_topbar_title),
+                onBackClick = { navController.navigateUp() }
+            )
         }
     ) {
         Surface(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(it)
+                .padding(it),
+            color = MaterialTheme.colorScheme.background
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .fillMaxSize()
+                    .padding(14.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.dummy_puppy),
-                        contentDescription = "Pet detail image",
-                        contentScale = ContentScale.FillHeight,
-                        modifier = Modifier
-                            .fillMaxSize()
-                    )
+                    val imageModifier = Modifier
+                        .height(220.dp)
+                        .width(220.dp)
+                        .clip(CircleShape)
+
+                    if (userImage != null)
+                        AsyncImage(
+                            model = userImage,
+                            contentDescription = stringResource(id = R.string.profile_user_image_content_description),
+                            contentScale = ContentScale.FillBounds,
+                            modifier = imageModifier,
+                        )
+                    else
+                        Icon(
+                            modifier = imageModifier,
+                            imageVector = Icons.Default.AccountCircle,
+                            contentDescription = stringResource(id = R.string.profile_user_image_content_description),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                 }
-                Box(
-                    modifier = Modifier
-                        .weight(2f)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(14.dp)
-                    ) {
-                        Text(
-                            text = petDetail?.name ?: "no name",
-                            color = MaterialTheme.colorScheme.onBackground,
-                            style = MaterialTheme.typography.headlineMedium
+                Box {
+                    Column {
+                        InfoSection(
+                            title = stringResource(id = R.string.profile_user_name),
+                            content = userName!!
+                        )
+                        HorizontalDivider(
+                            modifier = Modifier
+                                .padding(0.dp, 14.dp, 0.dp, 0.dp)
                         )
                         InfoSection(
-                            title = "Edad",
-                            content = petDetail?.age ?: "no age"
-                        )
-                        InfoSection(
-                            title = "Raza",
-                            content = petDetail?.breed ?: "no breed"
-                        )
-                        InfoSection(
-                            title = "Descripción",
-                            content = petDetail?.description ?: "no description"
-                        )
-                        InfoSection(
-                            title = "Dueña/o",
-                            content = petDetail?.owner ?: "sin dueña/o"
-                        )
-                        InfoSection(
-                            title = "Reportante",
-                            content = petDetail?.reporter ?: "sin reportante"
+                            title = stringResource(id = R.string.profile_user_email),
+                            content = userEmail!!
                         )
                     }
                 }
@@ -131,10 +135,6 @@ fun InfoSection(
             modifier = modifier
                 .fillMaxWidth()
         ) {
-            HorizontalDivider(
-                modifier = Modifier
-                    .padding(0.dp, 14.dp, 0.dp, 0.dp)
-            )
             Text(
                 modifier = modifier
                     .padding(0.dp, 14.dp, 0.dp, 0.dp),
@@ -157,5 +157,5 @@ fun InfoSection(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "PreviewLIGHT")
 @Composable
 private fun Preview() {
-    MainContainer()
+    MainContainer(navController = rememberNavController())
 }

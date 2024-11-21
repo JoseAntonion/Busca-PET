@@ -12,6 +12,9 @@ object Home
 object LastReports
 
 @Serializable
+object Profile
+
+@Serializable
 object AddPet
 
 @Serializable

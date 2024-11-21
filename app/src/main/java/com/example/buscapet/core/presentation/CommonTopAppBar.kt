@@ -3,6 +3,8 @@ package com.example.buscapet.core.presentation
 import android.content.res.Configuration
 import android.net.Uri
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -11,56 +13,77 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.buscapet.R
-import com.example.buscapet.ui.theme.BuscaPetTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommonTopAppBar(
-    userName: String?,
-    photo: Uri? = null
+    userName: String? = "noUser",
+    photo: Uri? = null,
+    onIconClick: () -> Unit = {},
+    onMenuClick: () -> Unit = {}
 ) {
-    BuscaPetTheme {
-        TopAppBar(
-            backgroundColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-            title = {
-                Text(
-                    text = "Hola $userName",
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            actions = {
-                IconButton(onClick = { /* do something */ }) {
-                    if (photo != null) {
-                        AsyncImage(
-                            model = photo,
-                            contentDescription = "Profile photo",
-                            modifier = Modifier.clip(CircleShape)
-                        )
-                    } else {
-                        Icon(Icons.Default.AccountCircle, contentDescription = null)
-                    }
-                }
-                //AppBarAction(Icons.Default.Search) { /*TODO*/ }// Agregar Boton de accion a la derecha
-                //AppBarAction(Icons.Default.Share) { /*TODO*/ }// Agregar Boton de accion a la derecha
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary
+        ),
+        title = {
+            Text(
+                text = "Hola, ${userName!!}",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+        },
+        actions = {
+            IconButton(onClick = { onIconClick() }) {
+                val modifier = Modifier
+                    .height(45.dp)
+                    .width(45.dp)
+                    .clip(CircleShape)
+
+                if (photo != null)
+                    AsyncImage(
+                        model = photo,
+                        contentDescription = "Profile image",
+                        contentScale = ContentScale.FillBounds,
+                        modifier = modifier,
+                    )
+                else
+                    Icon(
+                        modifier = modifier,
+                        imageVector = Icons.Default.AccountCircle,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+
             }
-        )
-    }
+        },
+        navigationIcon = {
+            AppBarAction(Icons.Default.Menu) {
+                onMenuClick()
+            }
+        }
+    )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "PreviewDARK")
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "PreviewLIGHT")
 @Composable
-fun Preview(modifier: Modifier = Modifier) {
+fun PreviewWithoutBack() {
     CommonTopAppBar(userName = "Usuario Prueba")
 }
 
@@ -69,32 +92,30 @@ fun AppBarWithBack(
     title: String = stringResource(id = R.string.app_name),
     onBackClick: () -> Unit
 ) {
-    BuscaPetTheme {
-        TopAppBar(
-            backgroundColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-            title = {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            navigationIcon = {
-                AppBarAction(Icons.Default.ArrowBack) { onBackClick() }// Agregar Boton de accion a la izquierda
-            },
-            actions = {
-                //AppBarAction(Icons.Default.Search) { /*TODO*/ }// Agregar Boton de accion a la derecha
-                //AppBarAction(Icons.Default.Share) { /*TODO*/ }// Agregar Boton de accion a la derecha
-            }
-        )
-    }
+    TopAppBar(
+        backgroundColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        title = {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelMedium,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        navigationIcon = {
+            AppBarAction(Icons.Default.ArrowBack) { onBackClick() }// Agregar Boton de accion a la izquierda
+        },
+        actions = {
+            //AppBarAction(Icons.Default.Search) { /*TODO*/ }// Agregar Boton de accion a la derecha
+            //AppBarAction(Icons.Default.Share) { /*TODO*/ }// Agregar Boton de accion a la derecha
+        }
+    )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "PreviewDARK")
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "PreviewLIGHT")
 @Composable
-fun PreviewWithBack(modifier: Modifier = Modifier) {
+fun PreviewWithBack() {
     AppBarWithBack(
         title = "titulo prueba",
         onBackClick = {}
@@ -140,7 +161,8 @@ private fun AppBarAction(
     IconButton(onClick = onClick) {
         Icon(
             imageVector = imageVector,// Agregar Boton de accion a la izquierda
-            contentDescription = null
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimary
         )
     }
 }

@@ -10,4 +10,9 @@
     <string name="report_form_pet_reporter_label">Quien reporta</string>
     <string name="report_from_submit_button_label">Reportar</string>
 
+    <string name="profile_topbar_title">Perfil</string>
+    <string name="profile_user_image_content_description">Imagen de perfil</string>
+    <string name="profile_user_name">Nombre</string>
+    <string name="profile_user_email">Email</string>
+
 </resources>
