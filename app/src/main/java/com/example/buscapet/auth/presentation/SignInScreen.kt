@@ -1,8 +1,9 @@
-package com.example.buscapet.auth.presentation.sign_in
+package com.example.buscapet.auth.presentation
 
 import android.app.Activity
 import android.content.res.Configuration
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -14,17 +15,18 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.buscapet.R
+import com.example.buscapet.core.navigation.Home
 import com.example.buscapet.core.presentation.SignInButton
 import com.example.buscapet.ui.theme.BuscaPetTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -36,41 +38,57 @@ fun SignInScreen(
     navController: NavController,
     viewModel: SignInViewModel = hiltViewModel()
 ) {
-    val activity = LocalContext.current as Activity
-    val bussy = viewModel.progress.observeAsState(false)
+    val context = LocalContext.current
+    val activity = context as Activity
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val activityResult =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { intent ->
             val task: Task<GoogleSignInAccount> =
                 GoogleSignIn.getSignedInAccountFromIntent(intent.data)
-            viewModel.finishLogin(task, navController)
+            viewModel.onEvent(SignInEvent.SignInWithData(task))
+            //viewModel.finishLogin(task, navController)
             Log.d("TAG", "LoginScreen:  viewModel.finishLogin")
         }
 
-    MainLoginContainer(
-        signInProgress = bussy.value,
-        signInButton = {
-            viewModel.loginWithGoogle(activity) {
-                activityResult.launch(it)
+    LaunchedEffect(context) {
+        viewModel.signInChannel.collect { event ->
+            when (event) {
+                is SignInEventResult.OnAccountSelectorIntent -> activityResult.launch(event.intent)
+                is SignInEventResult.OnSignInSuccess -> navController.navigate(Home)
+                is SignInEventResult.OnSignInFail -> {
+                    Toast.makeText(context, "", Toast.LENGTH_SHORT).show()
+                }
+                is SignInEventResult.OnSignInError -> {
+                    Log.d("TAG", "LoginScreen:  OnSignInError")
+                }
             }
+        }
+    }
+
+    MainLoginContainer(
+        uiState = uiState,
+        signInButton = {
+            viewModel.onEvent(SignInEvent.SignInButtonPressed(activity))
+//            viewModel.loginWithGoogle(activity) {
+//                activityResult.launch(it)
+//            }
             // TEST ONLY
             //navController.navigate(Home)
-        },
-        vModel = viewModel
+        }
     )
 }
 
 @Composable
 fun MainLoginContainer(
-    signInProgress: Boolean,
-    signInButton: () -> Unit,
-    vModel: SignInViewModel
+    uiState: SignInState,
+    signInButton: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        if (signInProgress) {
+        if (uiState.loading) {
             CircularProgressIndicator()
         }
         Column(
@@ -82,7 +100,6 @@ fun MainLoginContainer(
         ) {
             Text(
                 text = "BuscaPet",
-                fontSize = 24.sp,
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.onBackground
             )
@@ -90,11 +107,9 @@ fun MainLoginContainer(
                 text = "Ingresar con Google",
                 loadingText = "Ingresando...",
                 borderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                isLoading = signInProgress,
+                isLoading = uiState.loading,
                 icon = painterResource(id = R.drawable.btn_google_light_normal_ios),
-                onClick = {
-                    signInButton()
-                }
+                onClick = { signInButton() }
             )
         }
     }
@@ -106,10 +121,8 @@ fun MainLoginContainer(
 fun Preview() {
     BuscaPetTheme {
         MainLoginContainer(
-            signInProgress = false,
-            {},
-            viewModel()
-        )
+            uiState = SignInState(loading = false),
+        ) {}
     }
 
 }

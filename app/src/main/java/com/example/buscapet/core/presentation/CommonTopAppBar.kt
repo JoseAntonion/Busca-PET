@@ -1,39 +1,35 @@
 package com.example.buscapet.core.presentation
 
 import android.content.res.Configuration
-import android.net.Uri
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.example.buscapet.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommonTopAppBar(
     userName: String? = "noUser",
-    photo: Uri? = null,
     onIconClick: () -> Unit = {},
     onMenuClick: () -> Unit = {}
 ) {
@@ -43,7 +39,7 @@ fun CommonTopAppBar(
         ),
         title = {
             Text(
-                text = "Hola, ${userName!!}",
+                text = "Hola, ${userName ?: "noUser"}",
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onPrimary
             )
@@ -54,22 +50,12 @@ fun CommonTopAppBar(
                     .height(45.dp)
                     .width(45.dp)
                     .clip(CircleShape)
-
-                if (photo != null)
-                    AsyncImage(
-                        model = photo,
-                        contentDescription = "Profile image",
-                        contentScale = ContentScale.FillBounds,
-                        modifier = modifier,
-                    )
-                else
-                    Icon(
-                        modifier = modifier,
-                        imageVector = Icons.Default.AccountCircle,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary
-                    )
-
+                Icon(
+                    modifier = modifier,
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
             }
         },
         navigationIcon = {
@@ -87,14 +73,15 @@ fun PreviewWithoutBack() {
     CommonTopAppBar(userName = "Usuario Prueba")
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBarWithBack(
     title: String = stringResource(id = R.string.app_name),
     onBackClick: () -> Unit
 ) {
     TopAppBar(
-        backgroundColor = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimary,
+//        backgroundColor = MaterialTheme.colorScheme.primary,
+//        contentColor = MaterialTheme.colorScheme.onPrimary,
         title = {
             Text(
                 text = title,

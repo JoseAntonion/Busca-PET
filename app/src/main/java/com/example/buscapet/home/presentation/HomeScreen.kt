@@ -3,13 +3,14 @@ package com.example.buscapet.home.presentation
 import android.content.res.Configuration
 import android.net.Uri
 import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.FabPosition
-import androidx.compose.material.Scaffold
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -92,6 +93,7 @@ fun HomeScreen(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeContainer(
     navController: NavController = rememberNavController(),
@@ -123,7 +125,7 @@ fun HomeContainer(
             ) {
                 CommonTopAppBar(
                     userName = displayName,
-                    photo = profilePhoto,
+                    //photo = profilePhoto,
                     onIconClick = {
                         navController.navigate(Profile)
                     },
