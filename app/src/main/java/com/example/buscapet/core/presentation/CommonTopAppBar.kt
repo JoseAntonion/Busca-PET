@@ -1,6 +1,7 @@
 package com.example.buscapet.core.presentation
 
 import android.content.res.Configuration
+import android.net.Uri
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -29,9 +30,10 @@ import com.example.buscapet.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommonTopAppBar(
-    userName: String? = "noUser",
+    userName: String,
     onIconClick: () -> Unit = {},
-    onMenuClick: () -> Unit = {}
+    onMenuClick: () -> Unit = {},
+    photo: Uri? = null
 ) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -39,7 +41,7 @@ fun CommonTopAppBar(
         ),
         title = {
             Text(
-                text = "Hola, ${userName ?: "noUser"}",
+                text = "Hola, $userName",
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onPrimary
             )
@@ -85,7 +87,7 @@ fun AppBarWithBack(
         title = {
             Text(
                 text = title,
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.fillMaxWidth()
             )
         },

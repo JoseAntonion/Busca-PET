@@ -2,10 +2,8 @@ package com.example.buscapet.home.presentation
 
 import android.app.Activity
 import android.content.res.Configuration
-import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,21 +12,21 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.R
-import com.example.buscapet.core.navigation.Profile
 import com.example.buscapet.core.navigation.Report
 import com.example.buscapet.core.presentation.CommonFloatingActionButton
 import com.example.buscapet.core.presentation.CommonTabBar
@@ -42,20 +40,38 @@ import com.example.buscapet.my_reports.presentation.MyReportsScreen
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val currentContext = LocalContext.current
-    val uiState by viewModel.uiState.collectAsState()
-    val photo = uiState.currentUser?.photoUrl
-    val nameSplited = uiState.currentUser?.displayName?.split(" ")
-    val displayName = nameSplited
-        ?.filterIndexed { index, _ -> index % 2 == 0 }
-        ?.joinToString(" ") {
-            it.capitalize(Locale.current)
-        }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var openDialog by remember { mutableStateOf(false) }
 
     BackHandler(enabled = true) {
         (currentContext as Activity).finish()
+    }
+
+    when {
+        openDialog -> {
+            ReportAlertDialog(
+                onDismiss = { openDialog = false },
+                onReportLostClick = { navController.navigate(Report) },
+                onLostMyOwnClick = {
+                    if (uiState.myPets.isEmpty()) {
+                        Toast.makeText(
+                            currentContext,
+                            "Primero debes agregar alguna mascota",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            currentContext,
+                            "Implementar funcionalidad con mascotas ya agregadas",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            )
+        }
     }
 
     val tabItems = listOf(
@@ -74,54 +90,24 @@ fun HomeScreen(
     )
 
     HomeContainer(
-        displayName = displayName,
+        uiState = uiState,
         navController = navController,
-        profilePhoto = photo,
         tabItems = tabItems,
-        onReportClick = { viewModel.showReportDialog() },
-        onLostMyOwnClick = {
-            if (uiState.myPets.isEmpty()) {
-                Toast.makeText(
-                    currentContext,
-                    "Primero debes agregar alguna mascota",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                Toast.makeText(
-                    currentContext,
-                    "Implementar funcionalidad con mascotas ya agregadas",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        },
-        onReportLostClick = { navController.navigate(Report) },
-        onReportDialogDismiss = { viewModel.dismissReportDialog() }
+        onReportClick = { openDialog = true },
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeContainer(
-    navController: NavController = rememberNavController(),
-    reportDialog: Boolean = false,
-    displayName: String?,
-    profilePhoto: Uri? = null,
+    uiState: HomeState,
+    navController: NavController,
     tabItems: List<TabItem> = listOf(),
     onReportClick: () -> Unit = {},
-    onLostMyOwnClick: () -> Unit = {},
-    onReportLostClick: () -> Unit = {},
-    onReportDialogDismiss: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
+    onMenuClick: () -> Unit = {},
 ) {
     val pagerState = rememberPagerState(0, 0f) { tabItems.size }
     val scope = rememberCoroutineScope()
-
-    if (reportDialog) {
-        ReportAlertDialog(
-            onDismiss = { onReportDialogDismiss() },
-            onReportLostClick = { onReportLostClick() },
-            onLostMyOwnClick = { onLostMyOwnClick() }
-        )
-    }
 
     Scaffold(
         topBar = {
@@ -130,14 +116,10 @@ fun HomeContainer(
                     .fillMaxWidth()
             ) {
                 CommonTopAppBar(
-                    userName = displayName,
-                    //photo = profilePhoto,
-                    onIconClick = {
-                        navController.navigate(Profile)
-                    },
-                    onMenuClick = {
-
-                    }
+                    userName = uiState.currentUser ?: "",
+                    photo = uiState.photo,
+                    onIconClick = { onProfileClick() },
+                    onMenuClick = { onMenuClick() }
                 )
                 CommonTabBar(
                     pagerState = pagerState,
@@ -174,6 +156,7 @@ fun HomeContainer(
 @Composable
 fun PreviewMainView() {
     HomeContainer(
-        displayName = "John Johnson"
+        uiState = HomeState(currentUser = "Usuario Preview"),
+        navController = rememberNavController(),
     )
 }

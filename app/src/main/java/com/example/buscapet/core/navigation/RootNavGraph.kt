@@ -9,6 +9,9 @@ import com.example.buscapet.auth.presentation.SignInScreen
 import com.example.buscapet.add_pet.presentation.AddPetScreen
 import com.example.buscapet.detail_report.presentation.DetailReportScreen
 import com.example.buscapet.home.presentation.HomeScreen
+import com.example.buscapet.last_resports.presentation.LastReportsScreen
+import com.example.buscapet.my_pets.presentation.MyPetsScreen
+import com.example.buscapet.my_reports.presentation.MyReportsScreen
 import com.example.buscapet.profile.presentation.ProfileScreen
 import com.example.buscapet.report.presentation.ReportScreen
 
@@ -24,6 +27,9 @@ fun RootNavGraph() {
         composable<Report> { ReportScreen(navController = navController) }
         composable<AddPet> { AddPetScreen(navController = navController) }
         composable<Profile> { ProfileScreen(navController = navController) }
+        composable<LastReports> { LastReportsScreen(navController = navController) }
+        composable<MyReports> { MyReportsScreen(navController = navController) }
+        composable<MyPets> { MyPetsScreen(navController = navController) }
         composable<DetailReport> { backStackEntry ->
             val pet = backStackEntry.toRoute<DetailReport>()
             DetailReportScreen(
