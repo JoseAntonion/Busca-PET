@@ -2,10 +2,12 @@ package com.example.buscapet.auth.presentation
 
 import android.app.Activity
 import android.content.res.Configuration
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,8 +48,6 @@ fun SignInScreen(
             val task: Task<GoogleSignInAccount> =
                 GoogleSignIn.getSignedInAccountFromIntent(intent.data)
             viewModel.onEvent(SignInEvent.SignInWithData(task))
-            //viewModel.finishLogin(task, navController)
-            Log.d("TAG", "LoginScreen:  viewModel.finishLogin")
         }
 
     LaunchedEffect(context) {
@@ -55,26 +55,19 @@ fun SignInScreen(
             when (event) {
                 is SignInEventResult.OnAccountSelectorIntent -> activityResult.launch(event.intent)
                 is SignInEventResult.OnSignInSuccess -> navController.navigate(Home)
-                is SignInEventResult.OnSignInFail -> {
-                    Toast.makeText(context, "", Toast.LENGTH_SHORT).show()
-                }
-                is SignInEventResult.OnSignInError -> {
-                    Log.d("TAG", "LoginScreen:  OnSignInError")
-                }
+                is SignInEventResult.OnSignInError -> Toast.makeText(
+                    context,
+                    event.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+
             }
         }
     }
 
     MainLoginContainer(
         uiState = uiState,
-        signInButton = {
-            viewModel.onEvent(SignInEvent.SignInButtonPressed(activity))
-//            viewModel.loginWithGoogle(activity) {
-//                activityResult.launch(it)
-//            }
-            // TEST ONLY
-            //navController.navigate(Home)
-        }
+        signInButton = { viewModel.onEvent(SignInEvent.SignInButtonPressed(activity)) }
     )
 }
 
@@ -85,32 +78,34 @@ fun MainLoginContainer(
 ) {
     Box(
         modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        if (uiState.loading) {
+        AnimatedVisibility(visible = uiState.frontLoading, enter = fadeIn(), exit = fadeOut()) {
             CircularProgressIndicator()
         }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceEvenly,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "BuscaPet",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            SignInButton(
-                text = "Ingresar con Google",
-                loadingText = "Ingresando...",
-                borderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                isLoading = uiState.loading,
-                icon = painterResource(id = R.drawable.btn_google_light_normal_ios),
-                onClick = { signInButton() }
-            )
+        AnimatedVisibility(visible = !uiState.frontLoading, enter = fadeIn(), exit = fadeOut()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "BuscaPet",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                SignInButton(
+                    text = "Ingresar con Google",
+                    loadingText = "Ingresando...",
+                    borderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    isLoading = uiState.loading,
+                    icon = painterResource(id = R.drawable.btn_google_light_normal_ios),
+                    onClick = { signInButton() }
+                )
+            }
         }
     }
 }
@@ -121,7 +116,7 @@ fun MainLoginContainer(
 fun Preview() {
     BuscaPetTheme {
         MainLoginContainer(
-            uiState = SignInState(loading = false),
+            uiState = SignInState(loading = true),
         ) {}
     }
 

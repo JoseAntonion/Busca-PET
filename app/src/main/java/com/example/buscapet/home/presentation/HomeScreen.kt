@@ -1,8 +1,10 @@
 package com.example.buscapet.home.presentation
 
+import android.app.Activity
 import android.content.res.Configuration
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -51,6 +53,10 @@ fun HomeScreen(
         ?.joinToString(" ") {
             it.capitalize(Locale.current)
         }
+
+    BackHandler(enabled = true) {
+        (currentContext as Activity).finish()
+    }
 
     val tabItems = listOf(
         TabItem(
