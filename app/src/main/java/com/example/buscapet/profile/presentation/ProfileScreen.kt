@@ -2,8 +2,11 @@ package com.example.buscapet.profile.presentation
 
 import android.content.res.Configuration
 import android.net.Uri
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,7 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -34,6 +38,8 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.buscapet.R
 import com.example.buscapet.core.presentation.AppBarWithBack
+import com.example.buscapet.core.presentation.CommonLongButton
+import com.example.buscapet.ui.theme.BuscaPetTheme
 
 @Composable
 fun ProfileScreen(
@@ -70,13 +76,14 @@ fun MainContainer(
         Surface(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
                 .padding(it),
-            color = MaterialTheme.colorScheme.background
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(14.dp)
+                    .padding(14.dp),
+                verticalArrangement = Arrangement.SpaceAround
             ) {
                 Box(
                     modifier = Modifier
@@ -103,15 +110,14 @@ fun MainContainer(
                             tint = MaterialTheme.colorScheme.primary
                         )
                 }
-                Box {
-                    Column {
+                Card {
+                    Column(
+                        modifier = Modifier
+                            .padding(14.dp)
+                    ) {
                         InfoSection(
                             title = stringResource(id = R.string.profile_user_name),
                             content = userName!!
-                        )
-                        HorizontalDivider(
-                            modifier = Modifier
-                                .padding(0.dp, 14.dp, 0.dp, 0.dp)
                         )
                         InfoSection(
                             title = stringResource(id = R.string.profile_user_email),
@@ -119,6 +125,13 @@ fun MainContainer(
                         )
                     }
                 }
+                CommonLongButton(
+                    text = "Cerrar sesión",
+                    textColor = MaterialTheme.colorScheme.onErrorContainer,
+                    customButtonColors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                )
             }
         }
     }
@@ -130,21 +143,20 @@ fun InfoSection(
     title: String = "",
     content: String = ""
 ) {
-    Box {
+    Box(
+        modifier = Modifier.padding(14.dp)
+    ) {
         Column(
             modifier = modifier
                 .fillMaxWidth()
         ) {
             Text(
-                modifier = modifier
-                    .padding(0.dp, 14.dp, 0.dp, 0.dp),
                 text = title,
                 color = MaterialTheme.colorScheme.onBackground,
-                style = MaterialTheme.typography.titleSmall
+                style = MaterialTheme.typography.titleMedium
             )
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
-                modifier = modifier
-                    .padding(0.dp, 8.dp, 0.dp, 0.dp),
                 text = content,
                 color = MaterialTheme.colorScheme.onBackground,
                 style = MaterialTheme.typography.titleLarge
@@ -157,5 +169,7 @@ fun InfoSection(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "PreviewLIGHT")
 @Composable
 private fun Preview() {
-    MainContainer(navController = rememberNavController())
+    BuscaPetTheme {
+        MainContainer(navController = rememberNavController())
+    }
 }

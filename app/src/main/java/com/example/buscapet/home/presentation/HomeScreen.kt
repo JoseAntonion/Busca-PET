@@ -27,6 +27,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.R
+import com.example.buscapet.core.navigation.Profile
 import com.example.buscapet.core.navigation.Report
 import com.example.buscapet.core.presentation.CommonFloatingActionButton
 import com.example.buscapet.core.presentation.CommonTabBar
@@ -36,6 +37,7 @@ import com.example.buscapet.core.presentation.TabItem
 import com.example.buscapet.last_resports.presentation.LastReportsScreen
 import com.example.buscapet.my_pets.presentation.MyPetsScreen
 import com.example.buscapet.my_reports.presentation.MyReportsScreen
+import com.example.buscapet.ui.theme.BuscaPetTheme
 
 @Composable
 fun HomeScreen(
@@ -94,6 +96,7 @@ fun HomeScreen(
         navController = navController,
         tabItems = tabItems,
         onReportClick = { openDialog = true },
+        onProfileClick = { navController.navigate(Profile)}
     )
 }
 
@@ -118,7 +121,7 @@ fun HomeContainer(
                 CommonTopAppBar(
                     userName = uiState.currentUser ?: "",
                     photo = uiState.photo,
-                    onIconClick = { onProfileClick() },
+                    onAccountClick = { onProfileClick() },
                     onMenuClick = { onMenuClick() }
                 )
                 CommonTabBar(
@@ -155,8 +158,10 @@ fun HomeContainer(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "PreviewLIGHT")
 @Composable
 fun PreviewMainView() {
-    HomeContainer(
-        uiState = HomeState(currentUser = "Usuario Preview"),
-        navController = rememberNavController(),
-    )
+    BuscaPetTheme {
+        HomeContainer(
+            uiState = HomeState(currentUser = "Usuario Preview"),
+            navController = rememberNavController(),
+        )
+    }
 }
