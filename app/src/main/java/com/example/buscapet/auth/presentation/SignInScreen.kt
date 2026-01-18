@@ -5,15 +5,11 @@ import android.content.res.Configuration
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.buscapet.R
 import com.example.buscapet.core.navigation.Home
+import com.example.buscapet.core.presentation.CommonLoadingOverlay
 import com.example.buscapet.core.presentation.SignInButton
 import com.example.buscapet.ui.theme.BuscaPetTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -65,10 +62,18 @@ fun SignInScreen(
         }
     }
 
-    MainLoginContainer(
-        uiState = uiState,
-        signInButton = { viewModel.onEvent(SignInEvent.SignInButtonPressed(activity)) }
-    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        MainLoginContainer(
+            uiState = uiState,
+            signInButton = { viewModel.onEvent(SignInEvent.SignInButtonPressed(activity)) }
+        )
+        
+        // Show overlay if loading (manual login) or frontLoading (silent login check)
+        CommonLoadingOverlay(
+            isLoading = uiState.loading || uiState.frontLoading,
+            message = "Ingresando..."
+        )
+    }
 }
 
 @Composable
@@ -82,30 +87,25 @@ fun MainLoginContainer(
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        AnimatedVisibility(visible = uiState.frontLoading, enter = fadeIn(), exit = fadeOut()) {
-            CircularProgressIndicator()
-        }
-        AnimatedVisibility(visible = !uiState.frontLoading, enter = fadeIn(), exit = fadeOut()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceEvenly,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "BuscaPet",
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                SignInButton(
-                    text = "Ingresar con Google",
-                    loadingText = "Ingresando...",
-                    borderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    isLoading = uiState.loading,
-                    icon = painterResource(id = R.drawable.btn_google_light_normal_ios),
-                    onClick = { signInButton() }
-                )
-            }
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "BuscaPet",
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            SignInButton(
+                text = "Ingresar con Google",
+                loadingText = "Ingresando...",
+                borderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                isLoading = false, // We use the global overlay now
+                icon = painterResource(id = R.drawable.btn_google_light_normal_ios),
+                onClick = { signInButton() }
+            )
         }
     }
 }

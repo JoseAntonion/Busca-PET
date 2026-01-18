@@ -8,7 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.buscapet.add_pet.domain.use_case.ValidatePetImageUseCase
 import com.example.buscapet.core.domain.model.Pet
 import com.example.buscapet.core.domain.model.PetState
-import com.example.buscapet.core.domain.model.ValidationEvent
+import com.example.buscapet.core.presentation.model.UiText
+import com.example.buscapet.core.presentation.util.CoreUiEvent
 import com.example.buscapet.data.local.PetsRepository
 import com.example.buscapet.report.domain.use_case.ValidateTextFieldUseCase
 import com.google.firebase.auth.FirebaseAuth
@@ -29,14 +30,20 @@ class AddPetViewModel @Inject constructor(
     private val validateImage: ValidatePetImageUseCase
 ) : ViewModel() {
 
-    private val currentUser = FirebaseAuth.getInstance().currentUser?.displayName
+    private val currentUser = FirebaseAuth.getInstance().currentUser
+    private val currentUserId = currentUser?.uid
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
     var formState by mutableStateOf(AddPetFormState())
 
-    private val validationFormChannel = Channel<ValidationEvent>()
-    val validationEvents = validationFormChannel.receiveAsFlow()
+    sealed interface AddPetUiEvent {
+        data class ShowCoreEvent(val event: CoreUiEvent) : AddPetUiEvent
+        object SuccessNavigate : AddPetUiEvent
+    }
+
+    private val _uiEvent = Channel<AddPetUiEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     fun onEvent(event: AddPetEvent) {
         when (event) {
@@ -80,46 +87,43 @@ class AddPetViewModel @Inject constructor(
                 addPetImageError = imageResult.error
             )
         } else {
-            viewModelScope.launch {
-                //validationFormChannel.send(ValidationEvent.Success)
-                savePet()
-            }
+            savePet()
         }
     }
 
     data class UiState(
         val loading: Boolean = false,
-        val inputEnable: Boolean = true,
-        val inserted: Boolean = false
+        val inputEnable: Boolean = true
     )
 
-    private fun toggleLoadingState() =
-        _uiState.update { it.copy(loading = !it.loading) }
+    private fun toggleLoadingState(isLoading: Boolean) =
+        _uiState.update { it.copy(loading = isLoading, inputEnable = !isLoading) }
 
-
-    private fun dataAreInserted(value: Boolean) =
-        _uiState.update { it.copy(inserted = value) }
-
-    private fun toggleInputEnableState() =
-        _uiState.update { it.copy(inputEnable = !it.inputEnable) }
-
-
-    private suspend fun savePet() {
+    private fun savePet() {
         val pet = Pet(
             name = formState.addPetName,
             breed = formState.addPetBreed,
             age = formState.addPetAge,
-            birthday = formState.addPetBirth,
+            birthDate = formState.addPetBirth,
             image = formState.addPetImage,
             petState = PetState.HOME,
-            owner = currentUser
+            ownerId = currentUserId
         )
-        toggleLoadingState()
-        toggleInputEnableState()
+        toggleLoadingState(true)
         viewModelScope.launch {
             val response = petRepository.insertPet(pet)
-            if (response > 0)
-                dataAreInserted(true)
+            if (response) {
+                _uiEvent.send(AddPetUiEvent.SuccessNavigate)
+            } else {
+                toggleLoadingState(false)
+                _uiEvent.send(
+                    AddPetUiEvent.ShowCoreEvent(
+                        CoreUiEvent.ShowSnackbar(
+                            UiText.DynamicString("Error al guardar la mascota")
+                        )
+                    )
+                )
+            }
         }
     }
 

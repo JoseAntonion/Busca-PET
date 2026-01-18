@@ -68,6 +68,7 @@ fun MainView(
                                 .padding(vertical = 8.dp),
                             title = pet.name,
                             subtitle = pet.name,
+                            image = pet.image,
                             onClick = {
                                 navController.navigate(DetailReport(pet.id))
                             }
@@ -86,20 +87,20 @@ fun Preview() {
     val petList = listOf(
         Pet(
             name = "Perro prueba",
-            breed = "Raza pulenta",
-            age = "5 años",
+//            breed = "Raza pulenta",
+//            age = "5 años",
             description = "Descripción del perro prueba"
         ),
         Pet(
             name = "Gato prueba",
-            breed = "Raza pulenta",
-            age = "5 años",
+//            breed = "Raza pulenta",
+//            age = "5 años",
             description = "Descripción del gato prueba"
         ),
         Pet(
             name = "Pez prueba",
-            breed = "Raza pulenta",
-            age = "5 años",
+//            breed = "Raza pulenta",
+//            age = "5 años",
             description = "Descripción del pez prueba"
         )
     )

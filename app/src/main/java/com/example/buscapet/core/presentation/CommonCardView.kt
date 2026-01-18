@@ -20,11 +20,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.buscapet.R
+import com.example.buscapet.core.presentation.util.rememberBitmapFromBase64
 import com.example.buscapet.ui.theme.BuscaPetTheme
 
 @Composable
@@ -32,9 +34,12 @@ fun CommonCardView(
     modifier: Modifier = Modifier,
     title: String? = "",
     subtitle: String? = "",
+    image: String? = null,
     isEmpty: Boolean = false,
     onClick: () -> Unit = {}
 ) {
+    val imageBitmap = rememberBitmapFromBase64(image)
+
     BuscaPetTheme {
         Card(
             modifier = modifier,
@@ -62,16 +67,25 @@ fun CommonCardView(
                         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
                     )
                 } else {
-                    Image(
-                        painter = painterResource(id = R.drawable.dummy_puppy),
-                        contentDescription = "Card image"
-                    )
-//                    AsyncImage(
-//                        model = "https://getdummyimage.com/300/300",
-//                        contentDescription = "Profile photo",
-//                        modifier = modifier
-//                            .padding(0.dp)
-//                    )
+                    if (imageBitmap != null) {
+                        Image(
+                            bitmap = imageBitmap,
+                            contentDescription = "Card image",
+                            modifier = Modifier
+                                .height(60.dp)
+                                .width(60.dp),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = R.drawable.dummy_puppy),
+                            contentDescription = "Card image",
+                            modifier = Modifier
+                                .height(60.dp)
+                                .width(60.dp),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.width(28.dp))
                 Column(

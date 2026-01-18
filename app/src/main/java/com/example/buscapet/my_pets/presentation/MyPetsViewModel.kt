@@ -17,14 +17,14 @@ class MyPetsViewModel @Inject constructor(
     petsRepository: PetsRepository
 ) : ViewModel() {
 
-    private val currentUser = FirebaseAuth.getInstance().currentUser?.displayName
+    private val currentUser = FirebaseAuth.getInstance().currentUser
 
     data class UiState(
         val petList: List<Pet> = emptyList()
     )
 
     val lostPets: StateFlow<UiState> =
-        petsRepository.getPetsByOwner(currentUser ?: "")
+        petsRepository.getPetsByOwner(currentUser?.uid ?: "")
             .map { UiState(petList = it) }
             .stateIn(
                 scope = viewModelScope,

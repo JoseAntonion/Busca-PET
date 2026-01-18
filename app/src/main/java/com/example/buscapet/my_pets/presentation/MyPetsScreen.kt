@@ -30,14 +30,14 @@ fun MyPetsScreen(
 ) {
     val uiState by viewModel.lostPets.collectAsState()
 
-    ViewContainer(
+    MainContainer(
         petList = uiState.petList,
         navController = navController
     )
 }
 
 @Composable
-fun ViewContainer(
+fun MainContainer(
     petList: List<Pet> = emptyList(),
     navController: NavController = rememberNavController()
 ) {
@@ -53,31 +53,30 @@ fun ViewContainer(
                     .padding(14.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                if (petList.isEmpty()) {
-                    item {
-                        CommonCardView(
-                            modifier = Modifier
-                                .padding(vertical = 8.dp),
-                            title = "Agregar mascota",
-                            subtitle = "Agrega una nueva mascota",
-                            isEmpty = true,
-                            onClick = {
-                                navController.navigate(AddPet)
-                            }
-                        )
-                    }
-                } else {
-                    items(petList) { pet ->
-                        CommonCardView(
-                            modifier = Modifier
-                                .padding(vertical = 8.dp),
-                            title = pet.name,
-                            subtitle = pet.name,
-                            onClick = {
-                                navController.navigate(DetailReport(pet.id))
-                            }
-                        )
-                    }
+                item {
+                    CommonCardView(
+                        modifier = Modifier
+                            .padding(vertical = 8.dp),
+                        title = "Agregar mascota",
+                        subtitle = "Agrega una nueva mascota",
+                        isEmpty = true,
+                        onClick = {
+                            navController.navigate(AddPet)
+                        }
+                    )
+                }
+
+                items(petList) { pet ->
+                    CommonCardView(
+                        modifier = Modifier
+                            .padding(vertical = 8.dp),
+                        title = pet.name,
+                        subtitle = pet.name,
+                        image = pet.image,
+                        onClick = {
+                            navController.navigate(DetailReport(pet.id))
+                        }
+                    )
                 }
             }
         }
@@ -88,9 +87,8 @@ fun ViewContainer(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "PreviewLIGHT")
 @Composable
 fun PreviewDark() {
-    val emptyList = emptyList<Pet>()
-    ViewContainer(
-        petList = emptyList,
+    MainContainer(
+        petList = emptyList<Pet>(),
         rememberNavController()
     )
 }

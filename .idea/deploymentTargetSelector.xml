@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-08-12T23:45:50.169412500Z">
+        <DropdownSelection timestamp="2026-01-18T16:57:04.779054200Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="Default" identifier="serial=192.168.1.129:39997;connection=12430dd9" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\josem\.android\avd\Pixel_9_API_33.avd" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -15,10 +15,10 @@
       </SelectionState>
       <SelectionState runConfigName="Busca-PET.BuscaPet.app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-06-13T01:14:43.475859200Z">
+        <DropdownSelection timestamp="2025-12-06T23:09:32.806880700Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="Default" identifier="serial=192.168.1.94:46009;connection=9419c878" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\josem\.android\avd\Pixel_9_API_33.avd" />
             </handle>
           </Target>
         </DropdownSelection>

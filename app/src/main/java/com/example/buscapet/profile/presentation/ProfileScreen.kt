@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -22,9 +24,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,7 +44,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.buscapet.R
+import com.example.buscapet.core.navigation.SignIn
 import com.example.buscapet.core.presentation.AppBarWithBack
+import com.example.buscapet.core.presentation.CommonLoadingOverlay
 import com.example.buscapet.core.presentation.CommonLongButton
 import com.example.buscapet.ui.theme.BuscaPetTheme
 
@@ -48,14 +57,55 @@ fun ProfileScreen(
 ) {
     // init values
     val uiState by viewModel.uiState.collectAsState()
+    val isLoggingOut by viewModel.isLoggingOut.collectAsState()
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
-    // Main Container
-    MainContainer(
-        navController = navController,
-        userName = uiState.name,
-        userEmail = uiState.email,
-        userImage = uiState.photo
-    )
+    LaunchedEffect(Unit) {
+        viewModel.logoutEvent.collect {
+            navController.navigate(SignIn) {
+                popUpTo(0)
+            }
+        }
+    }
+
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text("Cerrar Sesión") },
+            text = { Text("¿Estás seguro de que deseas cerrar sesión?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showLogoutDialog = false
+                        viewModel.onLogout()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Cerrar Sesión")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Main Container
+        MainContainer(
+            navController = navController,
+            userName = uiState.name,
+            userEmail = uiState.email,
+            userImage = uiState.photo,
+            onLogoutClick = { showLogoutDialog = true }
+        )
+        CommonLoadingOverlay(
+            isLoading = isLoggingOut,
+            message = "Cerrando sesión..."
+        )
+    }
 }
 
 @Composable
@@ -64,6 +114,7 @@ fun MainContainer(
     userName: String? = "noUser",
     userEmail: String? = "noEmail",
     userImage: Uri? = null,
+    onLogoutClick: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -95,14 +146,15 @@ fun MainContainer(
                         .width(220.dp)
                         .clip(CircleShape)
 
-                    if (userImage != null)
+                    if (userImage != null) {
+                        val highResUrl = userImage.toString().replace("s96-c", "s400-c")
                         AsyncImage(
-                            model = userImage,
+                            model = highResUrl,
                             contentDescription = stringResource(id = R.string.profile_user_image_content_description),
-                            contentScale = ContentScale.FillBounds,
+                            contentScale = ContentScale.Crop,
                             modifier = imageModifier,
                         )
-                    else
+                    } else
                         Icon(
                             modifier = imageModifier,
                             imageVector = Icons.Default.AccountCircle,
@@ -117,11 +169,11 @@ fun MainContainer(
                     ) {
                         InfoSection(
                             title = stringResource(id = R.string.profile_user_name),
-                            content = userName!!
+                            content = userName ?: "Sin Nombre"
                         )
                         InfoSection(
                             title = stringResource(id = R.string.profile_user_email),
-                            content = userEmail!!
+                            content = userEmail ?: "Sin Email"
                         )
                     }
                 }
@@ -130,7 +182,8 @@ fun MainContainer(
                     textColor = MaterialTheme.colorScheme.onErrorContainer,
                     customButtonColors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.errorContainer
-                    )
+                    ),
+                    onClick = onLogoutClick
                 )
             }
         }

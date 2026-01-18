@@ -1,8 +1,9 @@
 {
   "project_info": {
     "project_number": "493811003769",
+    "firebase_url": "https://buscapet-464b5-default-rtdb.firebaseio.com",
     "project_id": "buscapet-464b5",
-    "storage_bucket": "buscapet-464b5.appspot.com"
+    "storage_bucket": "buscapet-464b5.firebasestorage.app"
   },
   "client": [
     {
@@ -13,6 +14,22 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "493811003769-562h3o3q10q34s4cridv8ksh3vji9qgd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.buscapet",
+            "certificate_hash": "d62b54445773ea5318b8dabee9c83ea0ab294792"
+          }
+        },
+        {
+          "client_id": "493811003769-db443r0vnc3kcvl9elfv4or2bsjsqp6e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.buscapet",
+            "certificate_hash": "e04522a85d2ea3363ec11bd3eee87908e28fafea"
+          }
+        },
         {
           "client_id": "493811003769-9n3nn17e6fverv04pkuvqjl8t9i4nka4.apps.googleusercontent.com",
           "client_type": 3
