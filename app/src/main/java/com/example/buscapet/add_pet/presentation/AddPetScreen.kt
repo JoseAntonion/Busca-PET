@@ -2,7 +2,6 @@ package com.example.buscapet.add_pet.presentation
 
 import android.content.res.Configuration
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,18 +21,18 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -46,9 +44,10 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.buscapet.R
 import com.example.buscapet.core.presentation.AppBarWithBack
+import com.example.buscapet.core.presentation.CommonLoadingOverlay
 import com.example.buscapet.core.presentation.CommonOutlinedTextFieldWithValidation
+import com.example.buscapet.core.presentation.util.ObserveAsEvents
 import com.example.buscapet.ui.theme.BuscaPetTheme
-import kotlinx.coroutines.delay
 
 var pickMedia: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>? = null
 
@@ -57,30 +56,25 @@ fun AddPetScreen(
     navController: NavController = rememberNavController(),
     viewModel: AddPetViewModel = hiltViewModel(),
 ) {
-    val lContext = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     val formState = viewModel.formState
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    // Capture channel emits
-//    LaunchedEffect(key1 = lContext) {
-//        viewModel.validationEvents.collect { event ->
-//            when (event) {
-//                is ValidationEvent.Success -> {
-//                    Toast.makeText(
-//                        lContext,
-//                        "Reporte Válido",
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                }
-//            }
-//        }
-//    }
-
-    LaunchedEffect(key1 = uiState.inserted) {
-        if (uiState.inserted) {
-            delay(2000L)
-            //Toast.makeText(lContext, "Reporte guardado", Toast.LENGTH_SHORT).show()
-            navController.navigateUp()
+    ObserveAsEvents(
+        flow = viewModel.uiEvent,
+        snackbarHostState = snackbarHostState
+    ) { event ->
+        when (event) {
+            is AddPetViewModel.AddPetUiEvent.SuccessNavigate -> {
+                navController.previousBackStackEntry?.savedStateHandle?.set(
+                    "user_message",
+                    "Mascota guardada exitosamente"
+                )
+                navController.popBackStack()
+            }
+            is AddPetViewModel.AddPetUiEvent.ShowCoreEvent -> {
+                // Handled automatically
+            }
         }
     }
 
@@ -90,12 +84,19 @@ fun AddPetScreen(
                 viewModel.onEvent(AddPetEvent.OnImageChanged(uri))
         }
 
-    MainContainter(
-        navController = navController,
-        uiState = uiState,
-        formState = formState,
-        viewModel = viewModel,
-    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        MainContainter(
+            navController = navController,
+            uiState = uiState,
+            formState = formState,
+            viewModel = viewModel,
+            snackbarHostState = snackbarHostState
+        )
+        CommonLoadingOverlay(
+            isLoading = uiState.loading,
+            message = "Guardando mascota..."
+        )
+    }
 }
 
 @Composable
@@ -104,9 +105,11 @@ fun MainContainter(
     uiState: AddPetViewModel.UiState,
     formState: AddPetFormState,
     viewModel: AddPetViewModel = hiltViewModel(),
+    snackbarHostState: SnackbarHostState
 ) {
     BuscaPetTheme {
         Scaffold(
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             topBar = {
                 AppBarWithBack(
                     title = "Agregar nueva mascota",
@@ -128,7 +131,6 @@ fun MainContainter(
                         .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    //if (petImage == null) {
                     Button(onClick = {
                         pickMedia?.launch(
                             PickVisualMediaRequest(
@@ -139,7 +141,7 @@ fun MainContainter(
                         Text(text = "Seleccione una imagen de tu mascota")
                     }
                     Spacer(modifier = Modifier.padding(8.dp))
-                    //}
+                    
                     if (formState.addPetImage != null) {
                         Card(
                             modifier = Modifier
@@ -232,19 +234,13 @@ fun MainContainter(
                             modifier = Modifier
                                 .padding(bottom = 14.dp)
                                 .align(Alignment.End),
-                            onClick = { viewModel.onEvent(AddPetEvent.Submit) }
+                            onClick = { viewModel.onEvent(AddPetEvent.Submit) },
+                            enabled = !uiState.loading
                         ) {
-                            if (uiState.loading) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.width(35.dp),
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                    trackColor = MaterialTheme.colorScheme.primary,
-                                )
-                            } else
-                                androidx.compose.material.Text(
-                                    text = "Guardar",
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
+                             Text(
+                                 text = "Guardar",
+                                 color = MaterialTheme.colorScheme.onPrimary
+                             )
                         }
                     }
                 }
@@ -260,5 +256,6 @@ private fun PreviewAddPet() {
     MainContainter(
         formState = AddPetFormState(),
         uiState = AddPetViewModel.UiState(loading = false),
+        snackbarHostState = SnackbarHostState()
     )
 }

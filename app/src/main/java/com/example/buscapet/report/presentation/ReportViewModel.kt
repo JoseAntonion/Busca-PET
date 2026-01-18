@@ -1,17 +1,24 @@
 package com.example.buscapet.report.presentation
 
+import android.app.Application
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.util.Base64
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.buscapet.core.domain.model.Pet
 import com.example.buscapet.core.domain.model.PetState
-import com.example.buscapet.core.domain.model.ValidationEvent
+import com.example.buscapet.core.presentation.model.UiText
+import com.example.buscapet.core.presentation.util.CoreUiEvent
 import com.example.buscapet.data.local.PetsRepository
-import com.example.buscapet.report.domain.use_case.ValidateTextFieldUseCase
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,92 +26,210 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class ReportViewModel @Inject constructor(
     private val petsRepository: PetsRepository,
-    private val validateTextField: ValidateTextFieldUseCase
-) : ViewModel() {
+    private val application: Application,
+    private val savedStateHandle: SavedStateHandle
+) : AndroidViewModel(application) {
 
-    private val currentUser = FirebaseAuth.getInstance().currentUser?.displayName
+    private val currentUser = FirebaseAuth.getInstance().currentUser
+    private val currentUserId = currentUser?.uid
 
     var formState by mutableStateOf(ReportFormState())
 
-    private val validationReportFormChannel = Channel<ValidationEvent> { }
-    val validationEvents = validationReportFormChannel.receiveAsFlow()
+    val isEditing: Boolean = savedStateHandle.get<String>("petId") != null
+
+    sealed interface ReportUiEvent {
+        data class ShowCoreEvent(val event: CoreUiEvent) : ReportUiEvent
+        object SuccessNavigate : ReportUiEvent
+    }
+
+    private val _uiEvent = Channel<ReportUiEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
+
+    private val _uiState = MutableStateFlow(UiState())
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    init {
+        val petId = savedStateHandle.get<String>("petId")
+        if (petId != null) {
+            viewModelScope.launch {
+                val pet = petsRepository.getPetById(petId)
+                if (pet != null) {
+                    val imageUri = if (!pet.image.isNullOrBlank()) {
+                         saveBase64ToCache(pet.image)
+                    } else null
+                    
+                    formState = formState.copy(
+                        petId = pet.id,
+                        petImage = imageUri?.toString(),
+                        name = pet.name ?: "",
+                        description = pet.description ?: "",
+                        currentLatitude = pet.latitude,
+                        currentLongitude = pet.longitude
+                    )
+                }
+            }
+        }
+    }
 
     fun onEvent(event: ReportEvent) {
         when (event) {
-            is ReportEvent.PetNameChanged -> formState = formState.copy(petName = event.name)
-            is ReportEvent.PetBreedChanged -> formState = formState.copy(petBreed = event.breed)
-            is ReportEvent.PetAgeChanged -> formState = formState.copy(petAge = event.age)
-            is ReportEvent.PetDescriptionChanged -> formState = formState.copy(petDescription = event.desc)
+            is ReportEvent.OnImageChanged -> {
+                val imageString = event.image.toString()
+                formState = formState.copy(petImage = imageString)
+            }
+            is ReportEvent.OnLocationRetrieved -> {
+                formState = formState.copy(
+                    currentLatitude = event.latitude,
+                    currentLongitude = event.longitude
+                )
+            }
+            is ReportEvent.OnNameChanged -> {
+                formState = formState.copy(name = event.name)
+            }
+            is ReportEvent.OnDescriptionChanged -> {
+                formState = formState.copy(description = event.description)
+            }
             is ReportEvent.Submit -> submitData()
         }
     }
 
     private fun submitData() {
-        val nameResult = validateTextField(formState.petName)
-        val ageResult = validateTextField(formState.petAge)
-        val breedResult = validateTextField(formState.petBreed)
-        val descriptionResult = validateTextField(formState.petDescription)
-
-        val hasError = listOf(
-            nameResult,
-            ageResult,
-            breedResult,
-            descriptionResult
-        ).any { !it.isValid }
-
-        if (hasError) {
-            formState = formState.copy(
-                petNameError = nameResult.error,
-                petAgeError = ageResult.error,
-                petBreedError = breedResult.error,
-                petDescriptionError = descriptionResult.error,
-            )
-        } else {
-            viewModelScope.launch {
-                validationReportFormChannel.send(ValidationEvent.Success)
-                toggleLoadingState()
-                toggleInputEnableState()
-                savePetReport()
-            }
+        if (formState.petImage.isNullOrBlank()) {
+            formState = formState.copy(petImageError = "La imagen es obligatoria")
+            return
+        }
+        
+        if (formState.currentLatitude == null || formState.currentLongitude == null) {
+             viewModelScope.launch {
+                 _uiEvent.send(
+                     ReportUiEvent.ShowCoreEvent(
+                         CoreUiEvent.ShowSnackbar(
+                             UiText.DynamicString("Ubicación no disponible")
+                         )
+                     )
+                 )
+             }
+             return
         }
 
+        savePetReport()
     }
-
-    private val _uiState = MutableStateFlow(UiState())
-    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     data class UiState(
         val loading: Boolean = false,
-        val inputEnable: Boolean = true,
-        var isValid: Boolean = true,
-        val inserted: Boolean = false
+        val inputEnable: Boolean = true
     )
 
-    private fun toggleLoadingState() =
-        _uiState.update { it.copy(loading = !it.loading) }
+    private fun toggleLoadingState(isLoading: Boolean) =
+        _uiState.update { it.copy(loading = isLoading, inputEnable = !isLoading) }
 
-    private fun toggleInputEnableState() =
-        _uiState.update { it.copy(inputEnable = !it.inputEnable) }
-
-    private suspend fun savePetReport() {
-        val newPet = Pet(
-            name = formState.petName,
-            breed = formState.petBreed,
-            age = formState.petAge,
-            description = formState.petDescription,
-            reporter = currentUser,
-            petState = PetState.LOST
-        )
+    private fun savePetReport() {
+        toggleLoadingState(true)
         viewModelScope.launch {
-            val response = petsRepository.insertPet(newPet)
-            if (response > 0)
-                _uiState.update { it.copy(inserted = true) }
+            try {
+                val imageUriString = formState.petImage
+                if (imageUriString != null) {
+                    val base64Image = convertUriToBase64(Uri.parse(imageUriString))
+                    if (base64Image != null) {
+                        val petId = formState.petId ?: UUID.randomUUID().toString()
+                        val pet = Pet(
+                            id = petId,
+                            image = base64Image,
+                            petState = PetState.LOST,
+                            reporterId = currentUserId,
+                            latitude = formState.currentLatitude,
+                            longitude = formState.currentLongitude,
+                            name = formState.name,
+                            description = formState.description
+                        )
+                        val response = petsRepository.insertPet(pet)
+                        if (response) {
+                            _uiEvent.send(ReportUiEvent.SuccessNavigate)
+                        } else {
+                            toggleLoadingState(false)
+                            showError("Error al guardar el reporte en Firebase")
+                        }
+                    } else {
+                        toggleLoadingState(false)
+                        showError("Error al procesar la imagen")
+                    }
+                } else {
+                    toggleLoadingState(false)
+                    showError("Imagen no seleccionada")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                toggleLoadingState(false)
+                showError("Error inesperado: ${e.localizedMessage}")
+            }
         }
     }
+    
+    private suspend fun saveBase64ToCache(base64String: String): Uri? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val imageBytes = Base64.decode(base64String, Base64.DEFAULT)
+                val file = java.io.File(application.cacheDir, "temp_edit_${System.currentTimeMillis()}.jpg")
+                val fos = java.io.FileOutputStream(file)
+                fos.write(imageBytes)
+                fos.close()
+                androidx.core.content.FileProvider.getUriForFile(
+                    application,
+                    "${application.packageName}.fileprovider",
+                    file
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+    }
+    
+    private suspend fun convertUriToBase64(uri: Uri): String? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val inputStream = application.contentResolver.openInputStream(uri)
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream?.close()
+                
+                if (bitmap == null) return@withContext null
 
+                // Resize if too big (max 800x800)
+                val maxDimension = 800
+                val ratio = Math.min(
+                    maxDimension.toDouble() / bitmap.width,
+                    maxDimension.toDouble() / bitmap.height
+                )
+                val width = (bitmap.width * ratio).toInt()
+                val height = (bitmap.height * ratio).toInt()
+                val resizedBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true)
+
+                val outputStream = ByteArrayOutputStream()
+                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+                val byteArray = outputStream.toByteArray()
+                Base64.encodeToString(byteArray, Base64.DEFAULT)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+    }
+    
+    private suspend fun showError(message: String) {
+        _uiEvent.send(
+            ReportUiEvent.ShowCoreEvent(
+                CoreUiEvent.ShowSnackbar(
+                    UiText.DynamicString(message)
+                )
+            )
+        )
+    }
 }

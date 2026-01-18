@@ -1,6 +1,7 @@
 package com.example.buscapet.core.presentation
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
@@ -49,12 +50,14 @@ fun CommonLongButton(
     text: String = "",
     textColor: Color = Color.Unspecified,
     customButtonColors: ButtonColors = ButtonDefaults.buttonColors(),
+    stroke: BorderStroke = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
     enabled: Boolean = true,
     onClick: () -> Unit = {},
 ) {
     Button(
         onClick = { onClick() },
         enabled = enabled,
+        border = stroke,
         modifier = Modifier
             .fillMaxWidth(),
         colors = customButtonColors,

@@ -38,6 +38,8 @@ class SignInUseCase @Inject constructor() {
             }
         } catch (e: Exception) {
             Log.e("TAG", "SignInUseCase: Error signin ${e.message}")
+            Log.e("TAG", "SignInUseCase: Error signin ${e.cause}")
+            Log.e("TAG", "SignInUseCase: Error signin ${e.stackTrace}")
             result(
                 SignInResult(
                     success = false,
