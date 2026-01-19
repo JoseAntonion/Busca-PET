@@ -113,4 +113,8 @@ dependencies {
     implementation libs.androidx.core.splashscreen
     // Gson
     implementation(libs.gson)
+
+    // TensorFlow Lite (Interpreter + Support)
+    implementation libs.tensorflow.lite
+    implementation libs.tensorflow.lite.support
 }

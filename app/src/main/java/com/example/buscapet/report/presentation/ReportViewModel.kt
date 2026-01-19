@@ -11,6 +11,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.example.buscapet.add_pet.domain.use_case.AnalyzePetImageUseCase
+import com.example.buscapet.core.data.util.BitmapUtils
 import com.example.buscapet.core.domain.model.Pet
 import com.example.buscapet.core.domain.model.PetState
 import com.example.buscapet.core.presentation.model.UiText
@@ -35,7 +37,9 @@ import javax.inject.Inject
 class ReportViewModel @Inject constructor(
     private val petsRepository: PetsRepository,
     private val application: Application,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val analyzePetImage: AnalyzePetImageUseCase,
+    private val bitmapUtils: BitmapUtils
 ) : AndroidViewModel(application) {
 
     private val currentUser = FirebaseAuth.getInstance().currentUser
@@ -84,6 +88,7 @@ class ReportViewModel @Inject constructor(
             is ReportEvent.OnImageChanged -> {
                 val imageString = event.image.toString()
                 formState = formState.copy(petImage = imageString)
+                analyzeImage(imageString)
             }
             is ReportEvent.OnLocationRetrieved -> {
                 formState = formState.copy(
@@ -98,6 +103,23 @@ class ReportViewModel @Inject constructor(
                 formState = formState.copy(description = event.description)
             }
             is ReportEvent.Submit -> submitData()
+        }
+    }
+
+    private fun analyzeImage(uriString: String) {
+        viewModelScope.launch {
+            val bitmap = bitmapUtils.getBitmapFromUri(uriString)
+            if (bitmap != null) {
+                val results = analyzePetImage(bitmap)
+                if (results.isNotEmpty()) {
+                    val topResult = results.first()
+                    val predictionText = "Posible raza: ${topResult.label}"
+                    if (!formState.description.contains("Posible raza:")) {
+                         val newDescription = if (formState.description.isBlank()) predictionText else "${formState.description}\n$predictionText"
+                         formState = formState.copy(description = newDescription)
+                    }
+                }
+            }
         }
     }
 
