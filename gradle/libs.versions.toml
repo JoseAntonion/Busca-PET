@@ -1,24 +1,28 @@
 [versions]
-agp = "8.5.0"
+agp = "8.13.2"
 coilCompose = "2.2.2"
 coreSplashscreen = "1.0.1"
-firebaseBom = "33.0.0"
-kotlin = "1.9.23"
+firebaseBom = "34.6.0"
+gson = "2.10.1"
+kotlin = "2.1.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.7.0"
 activityCompose = "1.9.0"
-composeBom = "2024.05.00"
+composeBom = "2025.12.00"
 lifecycleViewmodelCompose = "2.5.1"
 material3 = "1.2.1"
-navigationCompose = "2.8.0-alpha08"
+navigationCompose = "2.8.0-beta07"
 navigationRuntimeKtx = "2.7.7"
 playServicesAuth = "20.3.0"
+playServicesLocation = "21.0.1"
+playServicesMaps = "19.0.0"
+mapsCompose = "6.2.1"
 runtimeLivedata = "1.6.7"
 materialVersion = "1.6.7"
-androidLibrary = "8.5.0"
+androidLibrary = "8.13.2"
 google-services-version = "4.3.13"
 serializationJson = "1.6.3"
 ## ROOM
@@ -26,21 +30,28 @@ roomCompiler = "2.6.1"
 roomKtx = "2.6.1"
 roomRuntime = "2.6.1"
 ## Hilt
-ksp-version = "1.9.23-1.0.19"
-hilt-version = "2.49"
-hiltAndroidGradlePlugin = "2.48"
+ksp-version = "2.1.0-1.0.29"
+hilt-version = "2.53"
+hiltAndroidGradlePlugin = "2.53"
 hiltNavigationCompose = "1.0.0"
+firebaseFirestore = "26.0.2"
+## Tensorflow
+tensorflowLite = "2.14.0"
+tensorflowLiteSupport = "0.4.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata", version.ref = "runtimeLivedata" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
-firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
-firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-auth = { module = "com.google.firebase:firebase-auth" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-storage = { module = "com.google.firebase:firebase-storage" }
+
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -56,6 +67,9 @@ material3 = { group = "androidx.compose.material3", name = "material3", version.
 material = { group = "androidx.compose.material", name = "material", version.ref = "materialVersion" }
 navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
+maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
 serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serializationJson" }
 material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 ## ROOM
@@ -67,7 +81,10 @@ hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt-version" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 hilt-android-gradle-plugin = { group = "com.google.dagger", name = "hilt-android-gradle-plugin", version.ref = "hilt-version" }
-
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+## Tensorflow
+tensorflow-lite = { module = "org.tensorflow:tensorflow-lite", version.ref = "tensorflowLite" }
+tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", version.ref = "tensorflowLiteSupport" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -77,6 +94,7 @@ google-services = { id = "com.google.gms.google-services", version.ref = "google
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp-version" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt-version" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 
 [bundles]

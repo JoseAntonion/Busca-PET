@@ -8,6 +8,6 @@
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground" tools:targetApi="upside_down_cake">@android:color/system_background_dark</item>
         <item name="postSplashScreenTheme">@style/Theme.BuscaPet</item>
-        <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="s">@drawable/ic_dog_rounded</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/buscapet_icon_splash</item>
     </style>
 </resources>

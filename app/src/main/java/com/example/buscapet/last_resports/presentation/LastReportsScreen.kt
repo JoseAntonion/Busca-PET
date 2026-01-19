@@ -68,8 +68,9 @@ fun MainView(
                         CommonCardView(
                             modifier = Modifier
                                 .padding(vertical = 8.dp),
-                            title = pet.name,
-                            subtitle = pet.name,
+                            title = pet.name ?: "Sin Nombre",
+                            subtitle = pet.description ?: "Sin Descripción",
+                            image = pet.image,
                             onClick = {
                                 navController.navigate(DetailReport(pet.id))
                             }
@@ -88,20 +89,20 @@ fun PreviewDark() {
     val petList = listOf(
         Pet(
             name = "Perro prueba",
-            breed = "Raza pulenta",
-            age = "5 años",
+            //breed = "Raza pulenta",
+            //age = "5 años",
             description = "Descripción del perro prueba"
         ),
         Pet(
             name = "Gato prueba",
-            breed = "Raza pulenta",
-            age = "5 años",
+            //breed = "Raza pulenta",
+            //age = "5 años",
             description = "Descripción del gato prueba"
         ),
         Pet(
             name = "Pez prueba",
-            breed = "Raza pulenta",
-            age = "5 años",
+//            breed = "Raza pulenta",
+//            age = "5 años",
             description = "Descripción del pez prueba"
         )
     )

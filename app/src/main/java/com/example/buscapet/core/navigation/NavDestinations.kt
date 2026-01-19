@@ -9,18 +9,24 @@ object SignIn
 object Home
 
 @Serializable
-object LastReports
-
-@Serializable
 object Profile
 
 @Serializable
 object AddPet
 
 @Serializable
-object Report
+data class Report(
+    val petId: String? = null
+)
 
 @Serializable
 data class DetailReport(
-    val id: Int
+    val id: String
+)
+
+@Serializable
+data class ReportMap(
+    val latitude: String,
+    val longitude: String,
+    val petName: String
 )

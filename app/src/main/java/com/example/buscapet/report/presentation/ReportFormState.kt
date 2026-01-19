@@ -1,12 +1,11 @@
 package com.example.buscapet.report.presentation
 
 data class ReportFormState(
-    var petName: String? = null,
-    val petNameError: String? = null,
-    val petAge: String? = null,
-    val petAgeError: String? = null,
-    val petBreed: String? = null,
-    val petBreedError: String? = null,
-    val petDescription: String? = null,
-    val petDescriptionError: String? = null,
+    val petId: String? = null,
+    val petImage: String? = null,
+    val petImageError: String? = null,
+    val name: String = "",
+    val description: String = "",
+    val currentLatitude: Double? = null,
+    val currentLongitude: Double? = null
 )

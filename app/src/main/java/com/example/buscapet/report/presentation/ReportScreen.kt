@@ -1,217 +1,377 @@
 package com.example.buscapet.report.presentation
 
-import android.content.res.Configuration
-import android.widget.Toast
-import androidx.compose.foundation.background
+import android.Manifest
+import android.annotation.SuppressLint
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.buscapet.R
-import com.example.buscapet.core.domain.model.ValidationEvent
+import coil.compose.AsyncImage
 import com.example.buscapet.core.presentation.AppBarWithBack
-import com.example.buscapet.core.presentation.CommonOutlinedTextFieldWithValidation
+import com.example.buscapet.core.presentation.CommonLoadingOverlay
+import com.example.buscapet.core.presentation.util.CoreUiEvent
+import com.example.buscapet.core.presentation.util.ObserveAsEvents
 import com.example.buscapet.ui.theme.BuscaPetTheme
-import kotlinx.coroutines.delay
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
+import kotlinx.coroutines.launch
+import java.io.File
 
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("MissingPermission")
 @Composable
 fun ReportScreen(
-    navController: NavController = rememberNavController(),
-    viewModel: ReportViewModel = hiltViewModel()
+    navController: NavController,
+    viewModel: ReportViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     val formState = viewModel.formState
-    val lContext = LocalContext.current
+    val isEditing = viewModel.isEditing
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    
+    // Image selection state
+    var showImageSourceOption by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState()
+    
+    var tempUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
-    LaunchedEffect(key1 = lContext) {
-        viewModel.validationEvents.collect { event ->
-            when (event) {
-                is ValidationEvent.Success -> {
-                    Toast.makeText(
-                        lContext,
-                        "Reporte Válido",
-                        Toast.LENGTH_SHORT
-                    ).show()
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && tempUri != null) {
+            viewModel.onEvent(ReportEvent.OnImageChanged(tempUri!!))
+        }
+        showImageSourceOption = false
+    }
+    
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+             viewModel.onEvent(ReportEvent.OnImageChanged(uri))
+        }
+        showImageSourceOption = false
+    }
+
+    fun launchCamera() {
+        val file = File(context.cacheDir, "report_pet_image_${System.currentTimeMillis()}.jpg")
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+        tempUri = uri
+        cameraLauncher.launch(uri)
+    }
+
+    fun fetchLocation() {
+        try {
+            fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token)
+                .addOnSuccessListener { location ->
+                    if (location != null) {
+                        viewModel.onEvent(ReportEvent.OnLocationRetrieved(location.latitude, location.longitude))
+                    }
+                }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val cameraGranted = permissions[Manifest.permission.CAMERA] ?: false
+        val locationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false || 
+                              permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+        
+        if (locationGranted) {
+            fetchLocation()
+        }
+        
+        // Auto-launch camera ONLY if NOT editing and image is empty
+        if (cameraGranted && formState.petImage == null && !isEditing) {
+             launchCamera()
+        }
+    }
+
+    ObserveAsEvents(
+        flow = viewModel.uiEvent,
+        snackbarHostState = snackbarHostState
+    ) { event ->
+        when (event) {
+            is ReportViewModel.ReportUiEvent.SuccessNavigate -> {
+                navController.previousBackStackEntry?.savedStateHandle?.set(
+                    "user_message",
+                    if (isEditing) "Reporte actualizado exitosamente" else "Reporte enviado exitosamente"
+                )
+                navController.popBackStack()
+            }
+            is ReportViewModel.ReportUiEvent.ShowCoreEvent -> {
+                val coreEvent = event.event
+                if (coreEvent is CoreUiEvent.ShowSnackbar) {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = coreEvent.message.asString(context)
+                        )
+                    }
                 }
             }
         }
     }
 
-    LaunchedEffect(key1 = uiState.inserted) {
-        if (uiState.inserted) {
-            delay(2000L)
-            Toast.makeText(lContext, "Reporte guardado", Toast.LENGTH_SHORT).show()
-            navController.navigateUp()
-        }
+    LaunchedEffect(Unit) {
+        permissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
     }
 
-    MainContainter(
-        navController = navController,
-        uiState = uiState,
-        viewModel = viewModel,
-        formState = formState
-    )
-}
-
-@Composable
-fun MainContainter(
-    modifier: Modifier = Modifier,
-    navController: NavController,
-    uiState: ReportViewModel.UiState,
-    formState: ReportFormState = ReportFormState(),
-    viewModel: ReportViewModel = hiltViewModel(),
-) {
     BuscaPetTheme {
         Scaffold(
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             topBar = {
                 AppBarWithBack(
-                    title = "Reportar mascota perdida",
+                    title = if (isEditing) "Editar Reporte" else "Reportar Mascota Perdida",
                     onBackClick = { navController.navigateUp() }
                 )
             }
-        ) {
-            Surface(
-                modifier = modifier
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(it)
+                    .padding(paddingValues)
             ) {
                 Column(
-                    modifier = modifier
+                    modifier = Modifier
                         .fillMaxSize()
-                        .padding(14.dp),
-                    horizontalAlignment = Alignment.Start,
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Spacer(modifier = Modifier.padding(8.dp))
-                    Text(
-                        text = "Datos de la mascota",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-
-                    CommonOutlinedTextFieldWithValidation(
-                        label = stringResource(id = R.string.report_form_pet_name_label),
-                        value = formState.petName,
-                        onValueChange = { text: String ->
-                            viewModel.onEvent(ReportEvent.PetNameChanged(text))
-                        },
-                        enabled = uiState.inputEnable,
-                        isError = formState.petNameError != null,
-                        errorMessage = formState.petNameError,
-                        keyOption = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        )
-                    )
-
-                    CommonOutlinedTextFieldWithValidation(
-                        label = stringResource(id = R.string.report_form_pet_age_label),
-                        value = formState.petAge,
-                        onValueChange = { text: String ->
-                            viewModel.onEvent(ReportEvent.PetAgeChanged(text))
-                        },
-                        enabled = uiState.inputEnable,
-                        isError = formState.petAgeError != null,
-                        errorMessage = formState.petAgeError,
-                        keyOption = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
-                        )
-                    )
-
-                    CommonOutlinedTextFieldWithValidation(
-                        label = stringResource(id = R.string.report_form_pet_breed_label),
-                        value = formState.petBreed,
-                        onValueChange = { text: String ->
-                            viewModel.onEvent(ReportEvent.PetBreedChanged(text))
-                        },
-                        enabled = uiState.inputEnable,
-                        isError = formState.petBreedError != null,
-                        errorMessage = formState.petBreedError,
-                        keyOption = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        )
-                    )
-
-                    CommonOutlinedTextFieldWithValidation(
-                        label = stringResource(id = R.string.report_form_pet_desc_label),
-                        value = formState.petDescription,
-                        onValueChange = { text: String ->
-                            viewModel.onEvent(ReportEvent.PetDescriptionChanged(text))
-                        },
-                        enabled = uiState.inputEnable,
-                        isError = formState.petDescriptionError != null,
-                        errorMessage = formState.petDescriptionError,
-                        keyOption = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Done
-                        )
-                    )
-
-                    Box(
+                    
+                    // Main Image Card
+                    Card(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(0.dp, 0.dp, 14.dp, 14.dp),
-                        contentAlignment = Alignment.BottomEnd
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .clickable { showImageSourceOption = true },
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
-                        Button(
-                            onClick = { viewModel.onEvent(ReportEvent.Submit) },
-                            enabled = !uiState.loading,
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                            if (formState.petImage != null) {
+                                AsyncImage(
+                                    model = formState.petImage,
+                                    contentDescription = "Captured Image",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                                // Edit Icon Overlay
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(8.dp),
+                                    contentAlignment = Alignment.TopEnd
+                                ) {
+                                    IconButton(
+                                        onClick = { showImageSourceOption = true },
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(8.dp))
+                                            // .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f))
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Edit,
+                                            contentDescription = "Edit Image",
+                                            tint = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                            } else {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(
+                                        imageVector = Icons.Default.CameraAlt,
+                                        contentDescription = "Add Photo",
+                                        modifier = Modifier.size(48.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text("Agregar Foto")
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (formState.petImageError != null) {
+                         Text(
+                             text = formState.petImageError!!,
+                             color = MaterialTheme.colorScheme.error,
+                             modifier = Modifier.padding(top = 8.dp)
+                         )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    // Form Fields
+                    
+                    OutlinedTextField(
+                        value = formState.name,
+                        onValueChange = { viewModel.onEvent(ReportEvent.OnNameChanged(it)) },
+                        label = { Text("Nombre de la mascota (Opcional)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    OutlinedTextField(
+                        value = formState.description,
+                        onValueChange = { viewModel.onEvent(ReportEvent.OnDescriptionChanged(it)) },
+                        label = { Text("Descripción / Detalles adicionales") },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 3,
+                        maxLines = 5
+                    )
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Button(
+                        onClick = { viewModel.onEvent(ReportEvent.Submit) },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !uiState.loading
+                    ) {
+                        Text(if (isEditing) "Guardar Cambios" else "Confirmar y Enviar Reporte")
+                    }
+                    
+                    if (formState.currentLatitude != null) {
+                         Text(
+                             text = "Ubicación: ${formState.currentLatitude}, ${formState.currentLongitude}",
+                             style = MaterialTheme.typography.bodySmall,
+                             modifier = Modifier.padding(top = 16.dp)
+                         )
+                    } else {
+                         Text(
+                             text = "Obteniendo ubicación...",
+                             style = MaterialTheme.typography.bodySmall,
+                             modifier = Modifier.padding(top = 16.dp)
+                         )
+                    }
+                }
+                
+                CommonLoadingOverlay(
+                    isLoading = uiState.loading,
+                    message = if (isEditing) "Actualizando reporte..." else "Enviando reporte..."
+                )
+                
+                if (showImageSourceOption) {
+                    ModalBottomSheet(
+                        onDismissRequest = { showImageSourceOption = false },
+                        sheetState = sheetState
+                    ) {
+                        Column(
                             modifier = Modifier
-                                .height(50.dp)
-                                .width(120.dp)
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .padding(bottom = 32.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            if (uiState.loading) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.width(35.dp),
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                    trackColor = MaterialTheme.colorScheme.primary,
-                                )
-                            } else
-                                Text(
-                                    text = "Reportar",
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
+                            Text(
+                                text = "Seleccionar Imagen",
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            )
+                            
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.clickable { launchCamera() }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.CameraAlt,
+                                        contentDescription = "Camera",
+                                        modifier = Modifier
+                                            .size(64.dp)
+                                            .padding(8.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text("Cámara")
+                                }
+                                
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.clickable { galleryLauncher.launch("image/*") }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.PhotoLibrary,
+                                        contentDescription = "Gallery",
+                                        modifier = Modifier
+                                            .size(64.dp)
+                                            .padding(8.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text("Galería")
+                                }
+                            }
                         }
                     }
                 }
             }
         }
     }
-}
-
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "PreviewDARK")
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "PreviewLIGHT")
-@Composable
-private fun Preview() {
-    MainContainter(
-        navController = rememberNavController(),
-        uiState = ReportViewModel.UiState(loading = false)
-    )
 }
