@@ -5,7 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.buscapet.add_pet.domain.use_case.AnalyzePetImageUseCase
 import com.example.buscapet.add_pet.domain.use_case.ValidatePetImageUseCase
+import com.example.buscapet.core.data.util.BitmapUtils
 import com.example.buscapet.core.domain.model.Pet
 import com.example.buscapet.core.domain.model.PetState
 import com.example.buscapet.core.presentation.model.UiText
@@ -27,7 +29,9 @@ import javax.inject.Inject
 class AddPetViewModel @Inject constructor(
     private val petRepository: PetsRepository,
     private val validateTextField: ValidateTextFieldUseCase,
-    private val validateImage: ValidatePetImageUseCase
+    private val validateImage: ValidatePetImageUseCase,
+    private val analyzePetImage: AnalyzePetImageUseCase,
+    private val bitmapUtils: BitmapUtils
 ) : ViewModel() {
 
     private val currentUser = FirebaseAuth.getInstance().currentUser
@@ -50,6 +54,7 @@ class AddPetViewModel @Inject constructor(
             is AddPetEvent.OnImageChanged -> {
                 val imageString = event.image.toString()
                 formState = formState.copy(addPetImage = imageString)
+                analyzeImage(imageString)
             }
 
             is AddPetEvent.OnNameChanged -> formState = formState.copy(addPetName = event.name)
@@ -57,6 +62,22 @@ class AddPetViewModel @Inject constructor(
             is AddPetEvent.OnAgeChanged -> formState = formState.copy(addPetAge = event.age)
             is AddPetEvent.OnBirthChanged -> formState = formState.copy(addPetBirth = event.birth)
             is AddPetEvent.Submit -> submittData()
+        }
+    }
+
+    private fun analyzeImage(uriString: String) {
+        viewModelScope.launch {
+            val bitmap = bitmapUtils.getBitmapFromUri(uriString)
+            if (bitmap != null) {
+                val results = analyzePetImage(bitmap)
+                if (results.isNotEmpty()) {
+                    val topResult = results.first()
+                    // Auto-fill breed if empty
+                    if (formState.addPetBreed.isNullOrBlank()) {
+                         formState = formState.copy(addPetBreed = topResult.label)
+                    }
+                }
+            }
         }
     }
 
@@ -100,17 +121,38 @@ class AddPetViewModel @Inject constructor(
         _uiState.update { it.copy(loading = isLoading, inputEnable = !isLoading) }
 
     private fun savePet() {
-        val pet = Pet(
-            name = formState.addPetName,
-            breed = formState.addPetBreed,
-            age = formState.addPetAge,
-            birthDate = formState.addPetBirth,
-            image = formState.addPetImage,
-            petState = PetState.HOME,
-            ownerId = currentUserId
-        )
         toggleLoadingState(true)
         viewModelScope.launch {
+            // Convert URI to Base64 to persist it in Firestore
+            val imageUri = formState.addPetImage
+            val base64Image = if (imageUri != null) {
+                bitmapUtils.convertUriToBase64(imageUri)
+            } else {
+                null
+            }
+
+            if (base64Image == null && imageUri != null) {
+                toggleLoadingState(false)
+                _uiEvent.send(
+                    AddPetUiEvent.ShowCoreEvent(
+                        CoreUiEvent.ShowSnackbar(
+                            UiText.DynamicString("Error al procesar la imagen")
+                        )
+                    )
+                )
+                return@launch
+            }
+
+            val pet = Pet(
+                name = formState.addPetName,
+                breed = formState.addPetBreed,
+                age = formState.addPetAge,
+                birthDate = formState.addPetBirth,
+                image = base64Image, // Save the Base64 string, not the URI
+                petState = PetState.HOME,
+                ownerId = currentUserId
+            )
+            
             val response = petRepository.insertPet(pet)
             if (response) {
                 _uiEvent.send(AddPetUiEvent.SuccessNavigate)
