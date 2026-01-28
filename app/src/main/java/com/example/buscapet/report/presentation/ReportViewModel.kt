@@ -13,6 +13,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.buscapet.add_pet.domain.use_case.AnalyzePetImageUseCase
 import com.example.buscapet.core.data.util.BitmapUtils
+import com.example.buscapet.core.domain.classification.ModelType
 import com.example.buscapet.core.domain.model.Pet
 import com.example.buscapet.core.domain.model.PetState
 import com.example.buscapet.core.presentation.model.UiText
@@ -110,15 +111,23 @@ class ReportViewModel @Inject constructor(
         viewModelScope.launch {
             val bitmap = bitmapUtils.getBitmapFromUri(uriString)
             if (bitmap != null) {
-                val results = analyzePetImage(bitmap)
-                if (results.isNotEmpty()) {
-                    val topResult = results.first()
-                    val predictionText = "Posible raza: ${topResult.label}"
-                    if (!formState.description.contains("Posible raza:")) {
-                         val newDescription = if (formState.description.isBlank()) predictionText else "${formState.description}\n$predictionText"
-                         formState = formState.copy(description = newDescription)
-                    }
+                // Request ANIMAL_TYPE analysis
+                val results = analyzePetImage(bitmap, ModelType.ANIMAL_TYPE)
+                
+                val predictionText = if (results.isNotEmpty()) {
+                    results.first().label
+                } else {
+                    "Desconocido"
                 }
+                
+                // Append result to description
+                val currentDesc = formState.description
+                val newDescription = if (currentDesc.isBlank()) "Tipo: $predictionText" else "$currentDesc\nTipo: $predictionText"
+                
+                formState = formState.copy(description = newDescription)
+                
+                // Automatically submit the report as requested
+                submitData()
             }
         }
     }

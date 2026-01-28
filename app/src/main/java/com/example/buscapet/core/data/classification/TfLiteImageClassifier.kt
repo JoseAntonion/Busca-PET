@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.util.Log
 import com.example.buscapet.core.domain.classification.ClassificationResult
 import com.example.buscapet.core.domain.classification.ImageClassifier
+import com.example.buscapet.core.domain.classification.ModelType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,74 +17,51 @@ import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
-import java.io.IOException
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import java.util.PriorityQueue
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 class TfLiteImageClassifier @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ImageClassifier {
 
-    // Ensure this matches your file in assets
-    private val modelName: String = "mobilenet_v1_1.0_224.tflite"
-    private val labelFileName: String = "labels.txt" // We will create this file
+    private val modelFiles = mapOf(
+        ModelType.BREED to "mobilenet_v1_1.0_224.tflite",
+        ModelType.ANIMAL_TYPE to "animal_type_model.tflite"
+    )
 
-    private var interpreter: Interpreter? = null
-    private var labels: List<String> = emptyList()
+    private val labelFiles = mapOf(
+        ModelType.BREED to "labels.txt",
+        ModelType.ANIMAL_TYPE to "animal_labels.txt"
+    )
 
-    init {
-        setupClassifier()
-    }
+    // Cache interpreters to avoid reloading
+    private val interpreters = ConcurrentHashMap<ModelType, Interpreter>()
+    private val labelsCache = ConcurrentHashMap<ModelType, List<String>>()
 
-    private fun setupClassifier() {
-        try {
-            // Load labels
-            val assets = context.assets.list("")
-            if (assets?.contains(labelFileName) == true) {
-                 labels = FileUtil.loadLabels(context, labelFileName)
-            } else {
-                 Log.w("TfLiteImageClassifier", "Labels file not found. Results will be indices.")
-            }
-
-            // Load model
-            if (assets?.contains(modelName) == true) {
-                val modelFile = FileUtil.loadMappedFile(context, modelName)
-                val options = Interpreter.Options()
-                interpreter = Interpreter(modelFile, options)
-            } else {
-                Log.e("TfLiteImageClassifier", "Model file not found!")
-            }
-        } catch (e: Exception) {
-            Log.e("TfLiteImageClassifier", "Error initializing classifier", e)
-        }
-    }
-
-    override suspend fun classify(bitmap: Bitmap, maxResults: Int): List<ClassificationResult> {
+    override suspend fun classify(
+        bitmap: Bitmap, 
+        maxResults: Int, 
+        modelType: ModelType
+    ): List<ClassificationResult> {
         return withContext(Dispatchers.Default) {
-            val tflite = interpreter ?: return@withContext emptyList()
+            val tflite = getInterpreter(modelType) ?: return@withContext emptyList()
+            val labels = getLabels(modelType)
 
             try {
-                // 1. Get Input/Output Tensor details to adapt to ANY model
+                // 1. Get Input/Output Tensor details
                 val inputTensor = tflite.getInputTensor(0)
-                val inputShape = inputTensor.shape() // {1, 224, 224, 3} usually
+                val inputShape = inputTensor.shape() 
                 val inputDataType = inputTensor.dataType()
 
                 val imageSizeX = inputShape[1]
                 val imageSizeY = inputShape[2]
 
                 // 2. Preprocess Image
-                // Some models expect 0-1 (Float), others 0-255 (Quantized/Int)
                 val imageProcessorBuilder = ImageProcessor.Builder()
                     .add(ResizeOp(imageSizeX, imageSizeY, ResizeOp.ResizeMethod.BILINEAR))
 
-                // If model is Floating Point (not Int8), usually needs normalization
                 if (inputDataType == DataType.FLOAT32) {
-                    // Normalize [0, 255] -> [0, 1] or [-1, 1] depending on model. 
-                    // MobileNet often uses [0, 1] (div by 255) or [-1, 1] ( (x-127.5)/127.5 )
-                    // Let's assume standard [0, 1] for safety or use (127.5, 127.5) for [-1,1]
-                    // Adjust these values if your specific model results are weird.
                     imageProcessorBuilder.add(NormalizeOp(127.5f, 127.5f))
                 }
 
@@ -97,8 +75,6 @@ class TfLiteImageClassifier @Inject constructor(
                 val outputShape = outputTensor.shape() 
                 val outputDataType = outputTensor.dataType()
                 
-                // Handle different output shapes (1D or 3D)
-                // We flatten the output to 1D array of probabilities/scores
                 val outputBuffer = TensorBuffer.createFixedSize(outputShape, outputDataType)
 
                 // 4. Run Inference
@@ -111,8 +87,7 @@ class TfLiteImageClassifier @Inject constructor(
                 }
 
                 for (i in scores.indices) {
-                    // Filter low confidence to optimize
-                    if (scores[i] > 0.2f) { // 20% threshold
+                    if (scores[i] > 0.2f) { 
                         val label = if (labels.size > i) labels[i] else "Class $i"
                         pq.add(ClassificationResult(label, scores[i]))
                     }
@@ -125,9 +100,51 @@ class TfLiteImageClassifier @Inject constructor(
                 }
                 results
             } catch (e: Exception) {
-                Log.e("TfLiteImageClassifier", "Error during inference", e)
+                Log.e("TfLiteImageClassifier", "Error during inference with $modelType", e)
                 emptyList()
             }
+        }
+    }
+
+    private fun getInterpreter(modelType: ModelType): Interpreter? {
+        if (interpreters.containsKey(modelType)) return interpreters[modelType]
+
+        val modelName = modelFiles[modelType] ?: return null
+        return try {
+            val assets = context.assets.list("")
+            if (assets?.contains(modelName) == true) {
+                val modelFile = FileUtil.loadMappedFile(context, modelName)
+                val options = Interpreter.Options()
+                val interpreter = Interpreter(modelFile, options)
+                interpreters[modelType] = interpreter
+                interpreter
+            } else {
+                Log.e("TfLiteImageClassifier", "Model file $modelName not found for $modelType")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("TfLiteImageClassifier", "Error initializing interpreter for $modelType", e)
+            null
+        }
+    }
+
+    private fun getLabels(modelType: ModelType): List<String> {
+        if (labelsCache.containsKey(modelType)) return labelsCache[modelType]!!
+
+        val labelFile = labelFiles[modelType] ?: return emptyList()
+        return try {
+            val assets = context.assets.list("")
+            if (assets?.contains(labelFile) == true) {
+                val loadedLabels = FileUtil.loadLabels(context, labelFile)
+                labelsCache[modelType] = loadedLabels
+                loadedLabels
+            } else {
+                 Log.w("TfLiteImageClassifier", "Labels file $labelFile not found.")
+                 emptyList()
+            }
+        } catch (e: Exception) {
+             Log.w("TfLiteImageClassifier", "Error loading labels for $modelType", e)
+             emptyList()
         }
     }
 }
