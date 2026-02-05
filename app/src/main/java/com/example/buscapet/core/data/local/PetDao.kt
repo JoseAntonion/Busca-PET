@@ -22,6 +22,12 @@ interface PetDao {
     @Query("SELECT * FROM pet WHERE id = :id")
     fun getPet(id: String): Pet
 
+    @Query("SELECT * FROM pet WHERE id = :id")
+    suspend fun getPetById(id: String): Pet?
+
+    @Query("SELECT * FROM pet WHERE description = :description")
+    suspend fun getSimilarReports(description: String): List<Pet>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPet(petsData: Pet): Long
 
@@ -31,8 +37,8 @@ interface PetDao {
     @Query("SELECT * FROM pet WHERE owner_id = :ownerId")
     fun getPetsByOwner(ownerId: String): Flow<List<Pet>>
 
-    @Query("SELECT * FROM pet WHERE description = :reporter")
-    fun getPetsByReporter(reporter: String): Flow<List<Pet>>
+    @Query("SELECT * FROM pet WHERE reporter_id = :reporterId")
+    fun getPetsByReporter(reporterId: String): Flow<List<Pet>>
 
     // Treatment queries
     @Query("SELECT * FROM treatment WHERE pet_id = :petId")

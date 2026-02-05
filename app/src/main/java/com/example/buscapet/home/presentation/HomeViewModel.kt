@@ -14,7 +14,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -31,7 +32,6 @@ class HomeViewModel @Inject constructor(
     val uiState
         get() = _uiState.asStateFlow()
 
-    // Using CoreUiEvent to standardize messages
     private val _homeEvents = Channel<CoreUiEvent>()
     val homeEvents = _homeEvents.receiveAsFlow()
 
@@ -43,8 +43,7 @@ class HomeViewModel @Inject constructor(
         }
 
     init {
-        _uiState.update { it.copy(currentUser = displayName) }
-        _uiState.update { it.copy(photo = currentUser?.photoUrl) }
+        _uiState.update { it.copy(currentUser = displayName, photo = currentUser?.photoUrl) }
         getMyPets()
     }
 
@@ -52,9 +51,15 @@ class HomeViewModel @Inject constructor(
         val uid = currentUser?.uid
         if (uid != null) {
             viewModelScope.launch {
-                petsRepository.getPetsByOwner(uid).collectLatest { pets ->
-                    _uiState.update { it.copy(myPets = pets) }
-                }
+                petsRepository.getPetsByOwner(uid)
+                    .onStart { _uiState.update { it.copy(isLoading = true) } }
+                    .catch {
+                        _uiState.update { it.copy(isLoading = false) }
+                        // TODO: Handle error, maybe send a UI event
+                    }
+                    .collect { pets ->
+                        _uiState.update { it.copy(myPets = pets, isLoading = false) }
+                    }
             }
         }
     }
@@ -94,5 +99,4 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-
 }

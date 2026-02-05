@@ -41,17 +41,17 @@ fun CommonTopAppBar(
     userName: String,
     onAccountClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
-    photo: Uri? = null
+    photo: Uri? = null,
 ) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary
+            containerColor = MaterialTheme.colorScheme.onPrimary
         ),
         title = {
             Text(
                 text = "Hola, $userName",
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onPrimary
+                color = MaterialTheme.colorScheme.primary
             )
         },
         actions = {
@@ -73,7 +73,7 @@ fun CommonTopAppBar(
                         imageVector = Icons.Filled.NoAccounts,
                         contentDescription = null,
                         modifier = modifier,
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -81,7 +81,7 @@ fun CommonTopAppBar(
         navigationIcon = {
             AppBarAction(
                 imageVector = Icons.Default.Menu,
-                customColor = MaterialTheme.colorScheme.onPrimary
+                customColor = MaterialTheme.colorScheme.primary
             ) {
                 onMenuClick()
             }
@@ -107,14 +107,13 @@ fun AppBarWithBack(
             )
         },
         navigationIcon = {
-            AppBarAction(Icons.AutoMirrored.Filled.ArrowBack) { onBackClick() }// Agregar Boton de accion a la izquierda
+            AppBarAction(Icons.AutoMirrored.Filled.ArrowBack) { onBackClick() }
         },
         actions = {
             AppBarAction(
                 imageVector = Icons.Default.Search,
                 customColor = Color.Transparent
             )
-            //AppBarAction(Icons.Default.Share) { /*TODO*/ }// Agregar Boton de accion a la derecha
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
@@ -131,7 +130,7 @@ private fun AppBarAction(
 ) {
     IconButton(onClick = onClick) {
         Icon(
-            imageVector = imageVector,// Agregar Boton de accion a la izquierda
+            imageVector = imageVector,
             contentDescription = null,
             tint = customColor
         )
@@ -150,6 +149,7 @@ fun PreviewWithBack() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "PreviewDARK")
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "PreviewLIGHT")
 @Composable
@@ -158,34 +158,3 @@ fun PreviewWithoutBack() {
         CommonTopAppBar(userName = "Usuario Prueba")
     }
 }
-
-
-/*@Composable
-fun CollapsingToolbar(state: CollapsingToolbarScaffoldState) {
-    val textSize = (18 + (30 - 18) * state.toolbarState.progress).sp
-
-    Box(
-        modifier = Modifier
-            .background(MaterialTheme.colors.primary)
-            .fillMaxWidth()
-            .height(150.dp)
-        //.pin()
-    )
-
-    Text(
-        text = "Title",
-        modifier = Modifier
-            //.road(Alignment.CenterStart, Alignment.BottomEnd)
-            .padding(60.dp, 16.dp, 16.dp, 16.dp),
-        color = Color.White,
-        fontSize = textSize
-    )
-
-    Image(
-        painter = painterResource(id = R.drawable.ic_arrow_back),
-        contentDescription = null,
-        modifier = Modifier
-            .padding(16.dp)
-        //.pin()
-    )
-}*/

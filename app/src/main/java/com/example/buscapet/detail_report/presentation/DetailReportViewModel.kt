@@ -7,6 +7,7 @@ import com.example.buscapet.core.domain.model.Pet
 import com.example.buscapet.core.domain.model.Treatment
 import com.example.buscapet.data.local.PetsRepository
 import com.example.buscapet.my_reports.domain.use_case.DeleteReportUseCase
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -34,6 +35,9 @@ class DetailReportViewModel @Inject constructor(
 
     private val _petDetails = MutableStateFlow<Pet?>(null)
     val petDetails: StateFlow<Pet?> = _petDetails.asStateFlow()
+
+    private val _routeCoordinates = MutableStateFlow<List<LatLng>>(emptyList())
+    val routeCoordinates: StateFlow<List<LatLng>> = _routeCoordinates.asStateFlow()
 
     private val _treatments = petRepository.getTreatmentsForPet(petId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -73,6 +77,21 @@ class DetailReportViewModel @Inject constructor(
             val pet = petRepository.getPetById(petId)
             _petDetails.value = pet
             _isOwner.value = currentUserId != null && (pet?.reporterId == currentUserId || pet?.ownerId == currentUserId)
+
+            pet?.description?.let { description ->
+                if (description.isNotEmpty()) {
+                    val similarReports = petRepository.getSimilarReports(description)
+                    val coordinates = similarReports.mapNotNull { report ->
+                        if (report.latitude != null && report.longitude != null) {
+                            LatLng(report.latitude, report.longitude)
+                        } else {
+                            null
+                        }
+                    }
+                    _routeCoordinates.value = coordinates
+                }
+            }
+
             _isFetching.value = false
         }
     }

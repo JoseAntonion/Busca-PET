@@ -12,13 +12,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -72,7 +72,6 @@ fun HomeScreen(
         (currentContext as Activity).finish()
     }
 
-    // Logic to receive messages from other screens (Report/Detail)
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
     val successMessage = savedStateHandle?.get<String>("user_message")
 
@@ -86,7 +85,6 @@ fun HomeScreen(
         }
     }
 
-    // Observe global snackbars from ViewModel
     ObserveAsEvents(
         flow = viewModel.homeEvents,
         snackbarHostState = snackbarHostState
@@ -165,11 +163,12 @@ fun HomeScreen(
         navController = navController,
         tabItems = tabItems,
         onReportClick = { openDialog = true },
-        onProfileClick = { navController.navigate(Profile)},
+        onProfileClick = { navController.navigate(Profile) },
         snackbarHostState = snackbarHostState
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeContainer(
     uiState: HomeState,
@@ -184,11 +183,11 @@ fun HomeContainer(
     val scope = rememberCoroutineScope()
 
     Scaffold(
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 CommonTopAppBar(
                     userName = uiState.currentUser ?: "",

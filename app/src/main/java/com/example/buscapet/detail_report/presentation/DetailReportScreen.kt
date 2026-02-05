@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,14 +28,18 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -64,6 +69,7 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -99,6 +105,7 @@ fun DetailReportScreen(
     }
 
     val petDetail by viewModel.petDetails.collectAsState()
+    val routeCoordinates by viewModel.routeCoordinates.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val isFetching by viewModel.isFetching.collectAsState()
     val isOwner by viewModel.isOwner.collectAsState()
@@ -109,6 +116,7 @@ fun DetailReportScreen(
         MainContainer(
             navController = navController,
             currentPet = petDetail,
+            routeCoordinates = routeCoordinates,
             isFetching = isFetching,
             isOwner = isOwner,
             hasActiveTreatment = hasActiveTreatment,
@@ -132,6 +140,7 @@ fun DetailReportScreen(
 fun MainContainer(
     navController: NavController = rememberNavController(),
     currentPet: Pet? = null,
+    routeCoordinates: List<LatLng> = emptyList(),
     isFetching: Boolean = false,
     isOwner: Boolean = false,
     hasActiveTreatment: Boolean = false,
@@ -142,11 +151,13 @@ fun MainContainer(
     snackbarHostState: SnackbarHostState
 ) {
     Scaffold(
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             AppBarWithBack(
-                title = currentPet?.name ?: ""
-            ) { navController.navigateUp() }
+                title = currentPet?.name ?: "",
+                onBackClick = { navController.navigateUp() }
+            )
         }
     ) {
         Surface(
@@ -261,6 +272,7 @@ fun MainContainer(
                         MapPreview(
                             latitude = currentPet.latitude,
                             longitude = currentPet.longitude,
+                            routeCoordinates = routeCoordinates,
                             onMapClick = {
                                 navController.navigate(
                                     ReportMap(
@@ -347,44 +359,74 @@ private fun calculateNextCheckup(lastCheckup: Long, plan: Int?): String {
 fun MapPreview(
     latitude: Double,
     longitude: Double,
+    routeCoordinates: List<LatLng>,
     onMapClick: () -> Unit
 ) {
     val location = LatLng(latitude, longitude)
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(location, 15f)
+        position = CameraPosition.fromLatLngZoom(location, 12f)
+    }
+    var showAllCoordinates by remember { mutableStateOf(false) }
+
+    val pointsToShow = if (showAllCoordinates) {
+        routeCoordinates
+    } else {
+        routeCoordinates.takeLast(5)
     }
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp)
-            .padding(vertical = 16.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            GoogleMap(
-                modifier = Modifier.fillMaxSize(),
-                cameraPositionState = cameraPositionState,
-                uiSettings = MapUiSettings(
-                    zoomControlsEnabled = false,
-                    scrollGesturesEnabled = false,
-                    zoomGesturesEnabled = false,
-                    tiltGesturesEnabled = false,
-                    rotationGesturesEnabled = false,
-                    mapToolbarEnabled = false
-                )
-            ) {
-                Marker(
-                    state = MarkerState(position = location)
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Ruta de avistamientos",
+                style = MaterialTheme.typography.titleMedium
+            )
+            if (routeCoordinates.size > 5) {
+                TextButton(onClick = { showAllCoordinates = !showAllCoordinates }) {
+                    Text(if (showAllCoordinates) "Mostrar menos" else "Mostrar más")
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                GoogleMap(
+                    modifier = Modifier.fillMaxSize(),
+                    cameraPositionState = cameraPositionState,
+                    uiSettings = MapUiSettings(
+                        zoomControlsEnabled = false,
+                        scrollGesturesEnabled = false,
+                        zoomGesturesEnabled = false,
+                        tiltGesturesEnabled = false,
+                        rotationGesturesEnabled = false,
+                        mapToolbarEnabled = false
+                    )
+                ) {
+                    if (pointsToShow.isNotEmpty()) {
+                        Polyline(points = pointsToShow, color = MaterialTheme.colorScheme.primary)
+                        pointsToShow.forEach { pos ->
+                            Marker(state = MarkerState(position = pos))
+                        }
+                    } else {
+                        Marker(state = MarkerState(position = location))
+                    }
+                }
+                // Overlay to capture clicks
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable { onMapClick() }
                 )
             }
-            // Overlay to capture clicks
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable { onMapClick() }
-            )
         }
     }
 }

@@ -14,11 +14,15 @@ interface PetsRepository {
 
     suspend fun getPetById(id: String): Pet?
 
+    suspend fun getSimilarReports(description: String): List<Pet>
+
     suspend fun deleteAllPets(allPets: List<Pet>)
 
     suspend fun deletePet(petId: String): Boolean
 
     fun getPetsByReporter(reporter: String): Flow<List<Pet>>
+
+    suspend fun getPetListByReporter(reporterId: String): List<Pet>
 
     fun getTreatmentsForPet(petId: String): Flow<List<Treatment>>
 

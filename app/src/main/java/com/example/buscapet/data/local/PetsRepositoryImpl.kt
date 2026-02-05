@@ -20,7 +20,6 @@ class PetsRepositoryImpl @Inject constructor(
 
     override suspend fun insertPet(pet: Pet): Boolean {
         return try {
-            // Also insert into local DB
             petDao.insertPet(pet)
             collection.document(pet.id).set(pet).await()
             true
@@ -82,6 +81,15 @@ class PetsRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getSimilarReports(description: String): List<Pet> {
+        return try {
+            petDao.getSimilarReports(description)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+
     override suspend fun deleteAllPets(allPets: List<Pet>) {
         // Not implemented
     }
@@ -117,11 +125,30 @@ class PetsRepositoryImpl @Inject constructor(
         awaitClose { subscription.remove() }
     }
 
+    override suspend fun getPetListByReporter(reporterId: String): List<Pet> {
+        return try {
+            val snapshot = collection.whereEqualTo("reporterId", reporterId).get().await()
+            snapshot.documents.mapNotNull { it.toObject<Pet>() }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+
     override fun getTreatmentsForPet(petId: String): Flow<List<Treatment>> {
         return petDao.getTreatmentsForPet(petId)
     }
 
     override suspend fun insertTreatment(treatment: Treatment) {
+        val petExists = petDao.getPetById(treatment.petId) != null
+        if (!petExists) {
+            val remotePet = getPetById(treatment.petId)
+            if (remotePet != null) {
+                petDao.insertPet(remotePet)
+            } else {
+                return
+            }
+        }
         petDao.insertTreatment(treatment)
     }
 

@@ -70,13 +70,12 @@ class ReportViewModel @Inject constructor(
                 val pet = petsRepository.getPetById(petId)
                 if (pet != null) {
                     val imageUri = if (!pet.image.isNullOrBlank()) {
-                         saveBase64ToCache(pet.image)
+                        saveBase64ToCache(pet.image)
                     } else null
-                    
+
                     formState = formState.copy(
                         petId = pet.id,
                         petImage = imageUri?.toString(),
-                        name = pet.name ?: "",
                         description = pet.description ?: "",
                         currentLatitude = pet.latitude,
                         currentLongitude = pet.longitude
@@ -89,9 +88,8 @@ class ReportViewModel @Inject constructor(
     fun onEvent(event: ReportEvent) {
         when (event) {
             is ReportEvent.OnImageChanged -> {
-                val imageString = event.image.toString()
-                formState = formState.copy(petImage = imageString)
-                analyzeImage(imageString)
+                formState = formState.copy(petImage = event.image.toString(), petImageError = null)
+                analyzeAndSubmitReport(event.image.toString())
             }
             is ReportEvent.OnLocationRetrieved -> {
                 formState = formState.copy(
@@ -99,48 +97,32 @@ class ReportViewModel @Inject constructor(
                     currentLongitude = event.longitude
                 )
             }
-            is ReportEvent.OnNameChanged -> {
-                formState = formState.copy(name = event.name)
-            }
-            is ReportEvent.OnDescriptionChanged -> {
-                formState = formState.copy(description = event.description)
-            }
-            is ReportEvent.Submit -> submitData()
         }
     }
 
-    private fun analyzeImage(uriString: String) {
+    private fun analyzeAndSubmitReport(uriString: String) {
+        toggleLoadingState(true)
         viewModelScope.launch {
-            val bitmap = bitmapUtils.getBitmapFromUri(uriString)
-            if (bitmap != null) {
-                // Request ANIMAL_TYPE analysis
-                val results = analyzePetImage(bitmap, ModelType.ANIMAL_TYPE)
-                
-                val predictionText = if (results.isNotEmpty()) {
-                    results.first().label
-                } else {
-                    "Desconocido"
+            try {
+                val bitmap = bitmapUtils.getBitmapFromUri(uriString)
+                if (bitmap == null) {
+                    toggleLoadingState(false)
+                    showError("Error al procesar la imagen")
+                    return@launch
                 }
-                
-                // Append result to description
-                val currentDesc = formState.description
-                val newDescription = if (currentDesc.isBlank()) "Tipo: $predictionText" else "$currentDesc\nTipo: $predictionText"
-                
-                formState = formState.copy(description = newDescription)
-                
-                // Automatically submit the report as requested
-                submitData()
+
+                val results = analyzePetImage(bitmap, ModelType.ANIMAL_TYPE)
+                val petType =
+                    if (results.isNotEmpty()) results.first().label else "Mascota desconocida"
+
+                saveReport(petType)
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                toggleLoadingState(false)
+                showError("Error inesperado: ${e.localizedMessage}")
             }
         }
-    }
-
-    private fun submitData() {
-        if (formState.petImage.isNullOrBlank()) {
-            formState = formState.copy(petImageError = "La imagen es obligatoria")
-            return
-        }
-        
-        savePetReport()
     }
 
     data class UiState(
@@ -151,48 +133,42 @@ class ReportViewModel @Inject constructor(
     private fun toggleLoadingState(isLoading: Boolean) =
         _uiState.update { it.copy(loading = isLoading, inputEnable = !isLoading) }
 
-    private fun savePetReport() {
-        toggleLoadingState(true)
-        viewModelScope.launch {
-            try {
-                val imageUriString = formState.petImage
-                if (imageUriString != null) {
-                    val base64Image = convertUriToBase64(imageUriString.toUri())
-                    if (base64Image != null) {
-                        val petId = formState.petId ?: UUID.randomUUID().toString()
-                        val pet = Pet(
-                            id = petId,
-                            image = base64Image,
-                            petState = PetState.LOST,
-                            reporterId = currentUserId,
-                            latitude = formState.currentLatitude ?: 0.0,
-                            longitude = formState.currentLongitude ?: 0.0,
-                            name = formState.name,
-                            description = formState.description
-                        )
-                        val response = petsRepository.insertPet(pet)
-                        if (response) {
-                            _uiEvent.send(ReportUiEvent.SuccessNavigate)
-                        } else {
-                            toggleLoadingState(false)
-                            showError("Error al guardar el reporte en Firebase")
-                        }
-                    } else {
-                        toggleLoadingState(false)
-                        showError("Error al procesar la imagen")
-                    }
-                } else {
-                    toggleLoadingState(false)
-                    showError("Imagen no seleccionada")
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                toggleLoadingState(false)
-                showError("Error inesperado: ${e.localizedMessage}")
-            }
+    private suspend fun saveReport(petType: String) {
+        val imageUriString = formState.petImage
+        if (imageUriString == null) {
+            formState = formState.copy(petImageError = "La imagen es obligatoria")
+            toggleLoadingState(false)
+            return
+        }
+
+        val base64Image = convertUriToBase64(imageUriString.toUri())
+        if (base64Image == null) {
+            toggleLoadingState(false)
+            showError("Error al convertir la imagen")
+            return
+        }
+
+        val petId = formState.petId ?: UUID.randomUUID().toString()
+        val pet = Pet(
+            id = petId,
+            image = base64Image,
+            petState = PetState.LOST,
+            reporterId = currentUserId,
+            latitude = formState.currentLatitude ?: 0.0,
+            longitude = formState.currentLongitude ?: 0.0,
+            name = "", // Name is no longer required
+            description = petType // Description is now the pet type
+        )
+
+        val response = petsRepository.insertPet(pet)
+        if (response) {
+            _uiEvent.send(ReportUiEvent.SuccessNavigate)
+        } else {
+            toggleLoadingState(false)
+            showError("Error al guardar el reporte en Firebase")
         }
     }
-    
+
     private suspend fun saveBase64ToCache(base64String: String): Uri? {
         return withContext(Dispatchers.IO) {
             try {
@@ -212,14 +188,14 @@ class ReportViewModel @Inject constructor(
             }
         }
     }
-    
+
     private suspend fun convertUriToBase64(uri: Uri): String? {
         return withContext(Dispatchers.IO) {
             try {
                 val inputStream = application.contentResolver.openInputStream(uri)
                 val bitmap = BitmapFactory.decodeStream(inputStream)
                 inputStream?.close()
-                
+
                 if (bitmap == null) return@withContext null
 
                 // Resize if too big (max 800x800)
@@ -242,7 +218,7 @@ class ReportViewModel @Inject constructor(
             }
         }
     }
-    
+
     private suspend fun showError(message: String) {
         _uiEvent.send(
             ReportUiEvent.ShowCoreEvent(

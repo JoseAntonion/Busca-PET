@@ -10,6 +10,7 @@ plugins {
 
 android {
     namespace 'com.example.buscapet'
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.example.buscapet"
@@ -116,4 +117,9 @@ dependencies {
     // TensorFlow Lite (Interpreter + Support)
     implementation libs.tensorflow.lite
     implementation libs.tensorflow.lite.support
+
+    // Testing
+    testImplementation "io.mockk:mockk:1.13.10"
+    testImplementation "app.cash.turbine:turbine:1.1.0"
+    testImplementation "org.robolectric:robolectric:4.12.1"
 }

@@ -22,6 +22,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -55,7 +56,6 @@ fun ProfileScreen(
     navController: NavController,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
-    // init values
     val uiState by viewModel.uiState.collectAsState()
     val isLoggingOut by viewModel.isLoggingOut.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -93,7 +93,6 @@ fun ProfileScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Main Container
         MainContainer(
             navController = navController,
             userName = uiState.name,
@@ -117,6 +116,7 @@ fun MainContainer(
     onLogoutClick: () -> Unit = {}
 ) {
     Scaffold(
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
         topBar = {
             AppBarWithBack(
                 title = stringResource(id = R.string.profile_topbar_title),
