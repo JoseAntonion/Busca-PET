@@ -1,6 +1,7 @@
 package com.example.buscapet.data.local
 
 import com.example.buscapet.core.domain.model.Pet
+import com.example.buscapet.core.domain.model.Treatment
 import kotlinx.coroutines.flow.Flow
 
 interface PetsRepository {
@@ -18,5 +19,13 @@ interface PetsRepository {
     suspend fun deletePet(petId: String): Boolean
 
     fun getPetsByReporter(reporter: String): Flow<List<Pet>>
+
+    fun getTreatmentsForPet(petId: String): Flow<List<Treatment>>
+
+    suspend fun insertTreatment(treatment: Treatment)
+
+    suspend fun updateTreatment(treatment: Treatment)
+
+    suspend fun deleteTreatment(treatment: Treatment)
 
 }

@@ -7,8 +7,9 @@ data class AddPetFormState(
     val addPetNameError: String? = null,
     val addPetBreed: String? = null,
     val addPetBreedError: String? = null,
-    val addPetAge: String? = null,
-    val addPetAgeError: String? = null,
-    val addPetBirth: String? = null,
-    val addPetBirthError: String? = null,
+    val addPetBirthDate: Long? = null,
+    val addPetBirthDateFormatted: String? = null,
+    val addPetBirthDateError: String? = null,
+    val addPetCheckupPlan: Int? = null,
+    val addPetCheckupPlanError: String? = null,
 )

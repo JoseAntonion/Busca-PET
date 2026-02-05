@@ -2,6 +2,7 @@ package com.example.buscapet.data.local
 
 import com.example.buscapet.core.data.local.PetDao
 import com.example.buscapet.core.domain.model.Pet
+import com.example.buscapet.core.domain.model.Treatment
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.channels.awaitClose
@@ -11,7 +12,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class PetsRepositoryImpl @Inject constructor(
-    private val petDao: PetDao 
+    private val petDao: PetDao
 ) : PetsRepository {
 
     private val db = FirebaseFirestore.getInstance()
@@ -19,6 +20,8 @@ class PetsRepositoryImpl @Inject constructor(
 
     override suspend fun insertPet(pet: Pet): Boolean {
         return try {
+            // Also insert into local DB
+            petDao.insertPet(pet)
             collection.document(pet.id).set(pet).await()
             true
         } catch (e: Exception) {
@@ -112,5 +115,21 @@ class PetsRepositoryImpl @Inject constructor(
                 trySend(pets)
             }
         awaitClose { subscription.remove() }
+    }
+
+    override fun getTreatmentsForPet(petId: String): Flow<List<Treatment>> {
+        return petDao.getTreatmentsForPet(petId)
+    }
+
+    override suspend fun insertTreatment(treatment: Treatment) {
+        petDao.insertTreatment(treatment)
+    }
+
+    override suspend fun updateTreatment(treatment: Treatment) {
+        petDao.updateTreatment(treatment)
+    }
+
+    override suspend fun deleteTreatment(treatment: Treatment) {
+        petDao.deleteTreatment(treatment)
     }
 }

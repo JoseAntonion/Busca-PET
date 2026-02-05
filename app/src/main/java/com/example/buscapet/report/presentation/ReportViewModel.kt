@@ -8,6 +8,8 @@ import android.util.Base64
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.graphics.scale
+import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -38,7 +40,7 @@ import javax.inject.Inject
 class ReportViewModel @Inject constructor(
     private val petsRepository: PetsRepository,
     private val application: Application,
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val analyzePetImage: AnalyzePetImageUseCase,
     private val bitmapUtils: BitmapUtils
 ) : AndroidViewModel(application) {
@@ -138,19 +140,6 @@ class ReportViewModel @Inject constructor(
             return
         }
         
-        if (formState.currentLatitude == null || formState.currentLongitude == null) {
-             viewModelScope.launch {
-                 _uiEvent.send(
-                     ReportUiEvent.ShowCoreEvent(
-                         CoreUiEvent.ShowSnackbar(
-                             UiText.DynamicString("Ubicación no disponible")
-                         )
-                     )
-                 )
-             }
-             return
-        }
-
         savePetReport()
     }
 
@@ -168,7 +157,7 @@ class ReportViewModel @Inject constructor(
             try {
                 val imageUriString = formState.petImage
                 if (imageUriString != null) {
-                    val base64Image = convertUriToBase64(Uri.parse(imageUriString))
+                    val base64Image = convertUriToBase64(imageUriString.toUri())
                     if (base64Image != null) {
                         val petId = formState.petId ?: UUID.randomUUID().toString()
                         val pet = Pet(
@@ -176,8 +165,8 @@ class ReportViewModel @Inject constructor(
                             image = base64Image,
                             petState = PetState.LOST,
                             reporterId = currentUserId,
-                            latitude = formState.currentLatitude,
-                            longitude = formState.currentLongitude,
+                            latitude = formState.currentLatitude ?: 0.0,
+                            longitude = formState.currentLongitude ?: 0.0,
                             name = formState.name,
                             description = formState.description
                         )
@@ -241,7 +230,7 @@ class ReportViewModel @Inject constructor(
                 )
                 val width = (bitmap.width * ratio).toInt()
                 val height = (bitmap.height * ratio).toInt()
-                val resizedBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true)
+                val resizedBitmap = bitmap.scale(width, height)
 
                 val outputStream = ByteArrayOutputStream()
                 resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)

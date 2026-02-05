@@ -13,10 +13,12 @@ data class Pet(
     val name: String? = null,
     @ColumnInfo(name = "breed")
     val breed: String? = null,
-    @ColumnInfo(name = "age")
-    val age: String? = null,
     @ColumnInfo(name = "birth_date")
-    val birthDate: String? = null,
+    val birthDate: Long? = null,
+    @ColumnInfo(name = "checkup_plan")
+    val checkupPlan: Int? = null,
+    @ColumnInfo(name = "last_checkup_date")
+    val lastCheckupDate: Long? = null,
     @ColumnInfo(name = "caracteristics")
     val caracteristics: List<Caracteristic> = emptyList(),
     @ColumnInfo(name = "description")

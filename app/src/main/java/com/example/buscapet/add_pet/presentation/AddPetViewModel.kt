@@ -23,6 +23,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -59,10 +62,22 @@ class AddPetViewModel @Inject constructor(
 
             is AddPetEvent.OnNameChanged -> formState = formState.copy(addPetName = event.name)
             is AddPetEvent.OnBreedChanged -> formState = formState.copy(addPetBreed = event.breed)
-            is AddPetEvent.OnAgeChanged -> formState = formState.copy(addPetAge = event.age)
-            is AddPetEvent.OnBirthChanged -> formState = formState.copy(addPetBirth = event.birth)
+            is AddPetEvent.OnBirthDateChanged -> {
+                formState = formState.copy(
+                    addPetBirthDate = event.birthDate,
+                    addPetBirthDateFormatted = formatDate(event.birthDate)
+                )
+            }
+
+            is AddPetEvent.OnCheckupPlanChanged -> formState =
+                formState.copy(addPetCheckupPlan = event.plan)
             is AddPetEvent.Submit -> submittData()
         }
+    }
+
+    private fun formatDate(millis: Long): String {
+        val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        return formatter.format(Date(millis))
     }
 
     private fun analyzeImage(uriString: String) {
@@ -74,7 +89,7 @@ class AddPetViewModel @Inject constructor(
                     val topResult = results.first()
                     // Auto-fill breed if empty
                     if (formState.addPetBreed.isNullOrBlank()) {
-                         formState = formState.copy(addPetBreed = topResult.label)
+                        formState = formState.copy(addPetBreed = topResult.label)
                     }
                 }
             }
@@ -86,16 +101,15 @@ class AddPetViewModel @Inject constructor(
         val imageResult = validateImage(formState.addPetImage)
         val nameResult = validateTextField(formState.addPetName)
         val breedResult = validateTextField(formState.addPetBreed)
-        val ageResult = validateTextField(formState.addPetAge)
-        val birthResult = validateTextField(formState.addPetBirth)
+        val birthDateResult = formState.addPetBirthDate != null
+        val checkupPlanResult = formState.addPetCheckupPlan != null
+
 
         // ===== S e a r c h   f o r   e r r o r ======
         val hasError = listOf(
             nameResult,
-            breedResult,
-            ageResult,
-            birthResult
-        ).any { !it.isValid }
+            breedResult
+        ).any { !it.isValid } || !birthDateResult || !checkupPlanResult
         val hasImageError = !imageResult.isValid
 
         // ===== Set the results for view through formState ======
@@ -103,8 +117,8 @@ class AddPetViewModel @Inject constructor(
             formState = formState.copy(
                 addPetNameError = nameResult.error,
                 addPetBreedError = breedResult.error,
-                addPetAgeError = ageResult.error,
-                addPetBirth = birthResult.error,
+                addPetBirthDateError = if (!birthDateResult) "Seleccione una fecha" else null,
+                addPetCheckupPlanError = if (!checkupPlanResult) "Seleccione un plan" else null,
                 addPetImageError = imageResult.error
             )
         } else {
@@ -146,13 +160,14 @@ class AddPetViewModel @Inject constructor(
             val pet = Pet(
                 name = formState.addPetName,
                 breed = formState.addPetBreed,
-                age = formState.addPetAge,
-                birthDate = formState.addPetBirth,
+                birthDate = formState.addPetBirthDate,
+                checkupPlan = formState.addPetCheckupPlan,
+                lastCheckupDate = System.currentTimeMillis(), // Set current date as last checkup
                 image = base64Image, // Save the Base64 string, not the URI
                 petState = PetState.HOME,
                 ownerId = currentUserId
             )
-            
+
             val response = petRepository.insertPet(pet)
             if (response) {
                 _uiEvent.send(AddPetUiEvent.SuccessNavigate)
@@ -168,5 +183,4 @@ class AddPetViewModel @Inject constructor(
             }
         }
     }
-
 }

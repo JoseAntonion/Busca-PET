@@ -7,11 +7,13 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
@@ -21,16 +23,28 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -51,6 +65,7 @@ import com.example.buscapet.ui.theme.BuscaPetTheme
 
 var pickMedia: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>? = null
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddPetScreen(
     navController: NavController = rememberNavController(),
@@ -59,6 +74,7 @@ fun AddPetScreen(
     val uiState by viewModel.uiState.collectAsState()
     val formState = viewModel.formState
     val snackbarHostState = remember { SnackbarHostState() }
+    val openDatePicker = remember { mutableStateOf(false) }
 
     ObserveAsEvents(
         flow = viewModel.uiEvent,
@@ -85,28 +101,61 @@ fun AddPetScreen(
         }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        MainContainter(
+        MainContainer(
             navController = navController,
-            uiState = uiState,
             formState = formState,
             viewModel = viewModel,
-            snackbarHostState = snackbarHostState
+            snackbarHostState = snackbarHostState,
+            onDatePickerClick = { openDatePicker.value = true }
         )
         CommonLoadingOverlay(
             isLoading = uiState.loading,
             message = "Guardando mascota..."
         )
     }
+
+    if (openDatePicker.value) {
+        val datePickerState = rememberDatePickerState()
+        val confirmEnabled = derivedStateOf { datePickerState.selectedDateMillis != null }
+        DatePickerDialog(
+            onDismissRequest = { openDatePicker.value = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        openDatePicker.value = false
+                        datePickerState.selectedDateMillis?.let {
+                            viewModel.onEvent(AddPetEvent.OnBirthDateChanged(it))
+                        }
+                    },
+                    enabled = confirmEnabled.value
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { openDatePicker.value = false }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
 }
 
 @Composable
-fun MainContainter(
+fun MainContainer(
     navController: NavController = rememberNavController(),
-    uiState: AddPetViewModel.UiState,
     formState: AddPetFormState,
     viewModel: AddPetViewModel = hiltViewModel(),
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
+    onDatePickerClick: () -> Unit
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+    val checkupPlans = mapOf(3 to "Cada 3 meses", 6 to "Cada 6 meses", 12 to "Cada 12 meses")
+
     BuscaPetTheme {
         Scaffold(
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -141,18 +190,17 @@ fun MainContainter(
                         Text(text = "Seleccione una imagen de tu mascota")
                     }
                     Spacer(modifier = Modifier.padding(8.dp))
-                    
+
                     if (formState.addPetImage != null) {
                         Card(
-                            modifier = Modifier
-                                .fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(8.dp),
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant,
                                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             ),
                         ) {
-                            Column {
+                            Column(modifier = Modifier.padding(14.dp)) {
                                 AsyncImage(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -161,86 +209,73 @@ fun MainContainter(
                                     placeholder = painterResource(R.drawable.dummy_puppy),
                                     contentDescription = "imagen de la mascota"
                                 )
-                                Box(
-                                    modifier = Modifier
-                                        .padding(14.dp)
-                                ) {
-                                    Column {
-                                        CommonOutlinedTextFieldWithValidation(
-                                            label = "Nombre",
-                                            value = formState.addPetName,
-                                            enabled = uiState.inputEnable,
-                                            isError = formState.addPetNameError != null,
-                                            errorMessage = formState.addPetNameError,
-                                            keyOption = KeyboardOptions(
-                                                keyboardType = KeyboardType.Text,
-                                                imeAction = ImeAction.Next
-                                            ),
-                                            onValueChange = { text ->
-                                                viewModel.onEvent(AddPetEvent.OnNameChanged(text))
-                                            }
-                                        )
+                                Spacer(modifier = Modifier.height(16.dp))
 
-                                        CommonOutlinedTextFieldWithValidation(
-                                            label = "Raza",
-                                            value = formState.addPetBreed,
-                                            enabled = uiState.inputEnable,
-                                            isError = formState.addPetBreedError != null,
-                                            errorMessage = formState.addPetBreedError,
-                                            keyOption = KeyboardOptions(
-                                                keyboardType = KeyboardType.Text,
-                                                imeAction = ImeAction.Next
-                                            ),
-                                            onValueChange = { text ->
-                                                viewModel.onEvent(AddPetEvent.OnBreedChanged(text))
-                                            }
-                                        )
-
-                                        CommonOutlinedTextFieldWithValidation(
-                                            label = "Edad",
-                                            value = formState.addPetAge,
-                                            enabled = uiState.inputEnable,
-                                            isError = formState.addPetAgeError != null,
-                                            errorMessage = formState.addPetAgeError,
-                                            keyOption = KeyboardOptions(
-                                                keyboardType = KeyboardType.Number,
-                                                imeAction = ImeAction.Next
-                                            ),
-                                            onValueChange = { text ->
-                                                viewModel.onEvent(AddPetEvent.OnAgeChanged(text))
-                                            }
-                                        )
-
-                                        CommonOutlinedTextFieldWithValidation(
-                                            label = "Fecha de Nacimiento",
-                                            value = formState.addPetBirth,
-                                            enabled = uiState.inputEnable,
-                                            isError = formState.addPetBirthError != null,
-                                            errorMessage = formState.addPetBirthError,
-                                            keyOption = KeyboardOptions(
-                                                keyboardType = KeyboardType.Text,
-                                                imeAction = ImeAction.Done
-                                            ),
-                                            onValueChange = { text ->
-                                                viewModel.onEvent(AddPetEvent.OnBirthChanged(text))
-                                            }
-                                        )
+                                CommonOutlinedTextFieldWithValidation(
+                                    label = "Nombre",
+                                    value = formState.addPetName ?: "",
+                                    enabled = uiState.inputEnable,
+                                    isError = formState.addPetNameError != null,
+                                    errorMessage = formState.addPetNameError,
+                                    keyOption = KeyboardOptions(
+                                        keyboardType = KeyboardType.Text,
+                                        imeAction = ImeAction.Next
+                                    ),
+                                    onValueChange = { text ->
+                                        viewModel.onEvent(AddPetEvent.OnNameChanged(text))
                                     }
+                                )
+
+                                CommonOutlinedTextFieldWithValidation(
+                                    label = "Raza",
+                                    value = formState.addPetBreed ?: "",
+                                    enabled = uiState.inputEnable,
+                                    isError = formState.addPetBreedError != null,
+                                    errorMessage = formState.addPetBreedError,
+                                    keyOption = KeyboardOptions(
+                                        keyboardType = KeyboardType.Text,
+                                        imeAction = ImeAction.Next
+                                    ),
+                                    onValueChange = { text ->
+                                        viewModel.onEvent(AddPetEvent.OnBreedChanged(text))
+                                    }
+                                )
+
+                                Box(modifier = Modifier.clickable(onClick = onDatePickerClick)) {
+                                    CommonOutlinedTextFieldWithValidation(
+                                        label = "Fecha de Nacimiento",
+                                        value = formState.addPetBirthDateFormatted ?: "",
+                                        enabled = false, // To make it non-editable
+                                        isError = formState.addPetBirthDateError != null,
+                                        errorMessage = formState.addPetBirthDateError,
+                                        keyOption = KeyboardOptions.Default,
+                                        onValueChange = {}
+                                    )
                                 }
+
+                                CheckupPlanDropdown(
+                                    selectedPlan = formState.addPetCheckupPlan,
+                                    onPlanSelected = { plan ->
+                                        viewModel.onEvent(AddPetEvent.OnCheckupPlanChanged(plan))
+                                    },
+                                    plans = checkupPlans,
+                                    isError = formState.addPetCheckupPlanError != null,
+                                    errorMessage = formState.addPetCheckupPlanError
+                                )
                             }
                         }
 
                         Button(
                             modifier = Modifier
-                                .padding(bottom = 14.dp)
+                                .padding(top = 16.dp, bottom = 14.dp)
                                 .align(Alignment.End),
                             onClick = { viewModel.onEvent(AddPetEvent.Submit) },
                             enabled = !uiState.loading
                         ) {
-                             Text(
-                                 text = "Guardar",
-                                 color = MaterialTheme.colorScheme.onPrimary
-                             )
+                            Text(
+                                text = "Guardar",
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
                         }
                     }
                 }
@@ -249,13 +284,67 @@ fun MainContainter(
     }
 }
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CheckupPlanDropdown(
+    selectedPlan: Int?,
+    onPlanSelected: (Int) -> Unit,
+    plans: Map<Int, String>,
+    isError: Boolean,
+    errorMessage: String?
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column {
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
+        ) {
+            OutlinedTextField(
+                modifier = Modifier.menuAnchor(),
+                readOnly = true,
+                value = plans[selectedPlan] ?: "",
+                onValueChange = {},
+                label = { Text("Plan de control sano") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                isError = isError
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                plans.forEach { (planValue, planText) ->
+                    DropdownMenuItem(
+                        text = { Text(planText) },
+                        onClick = {
+                            onPlanSelected(planValue)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+        if (isError) {
+            Text(
+                text = errorMessage ?: "",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
+    }
+}
+
+
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "PreviewDARK")
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "PreviewLIGHT")
 @Composable
 private fun PreviewAddPet() {
-    MainContainter(
+    MainContainer(
         formState = AddPetFormState(),
-        uiState = AddPetViewModel.UiState(loading = false),
-        snackbarHostState = SnackbarHostState()
+        snackbarHostState = SnackbarHostState(),
+        onDatePickerClick = {}
     )
 }

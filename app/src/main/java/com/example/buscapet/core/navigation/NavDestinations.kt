@@ -25,6 +25,11 @@ data class DetailReport(
 )
 
 @Serializable
+data class MedicalTreatment(
+    val petId: String
+)
+
+@Serializable
 data class ReportMap(
     val latitude: String,
     val longitude: String,

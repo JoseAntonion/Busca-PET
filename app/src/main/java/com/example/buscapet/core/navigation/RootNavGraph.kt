@@ -5,11 +5,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.example.buscapet.auth.presentation.SignInScreen
 import com.example.buscapet.add_pet.presentation.AddPetScreen
+import com.example.buscapet.auth.presentation.SignInScreen
 import com.example.buscapet.detail_report.presentation.DetailReportScreen
 import com.example.buscapet.detail_report.presentation.ReportMapScreen
 import com.example.buscapet.home.presentation.HomeScreen
+import com.example.buscapet.medical_treatment.presentation.MedicalTreatmentScreen
 import com.example.buscapet.profile.presentation.ProfileScreen
 import com.example.buscapet.report.presentation.ReportScreen
 
@@ -30,6 +31,11 @@ fun RootNavGraph() {
             DetailReportScreen(
                 navController = navController,
                 petId = pet.id
+            )
+        }
+        composable<MedicalTreatment> {
+            MedicalTreatmentScreen(
+                navController = navController
             )
         }
         composable<ReportMap> { backStackEntry ->

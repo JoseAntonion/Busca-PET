@@ -5,8 +5,10 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.buscapet.core.domain.model.Pet
 import com.example.buscapet.core.domain.model.PetState
+import com.example.buscapet.core.domain.model.Treatment
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -31,4 +33,17 @@ interface PetDao {
 
     @Query("SELECT * FROM pet WHERE description = :reporter")
     fun getPetsByReporter(reporter: String): Flow<List<Pet>>
+
+    // Treatment queries
+    @Query("SELECT * FROM treatment WHERE pet_id = :petId")
+    fun getTreatmentsForPet(petId: String): Flow<List<Treatment>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTreatment(treatment: Treatment)
+
+    @Update
+    suspend fun updateTreatment(treatment: Treatment)
+
+    @Delete
+    suspend fun deleteTreatment(treatment: Treatment)
 }

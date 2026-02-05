@@ -10,12 +10,11 @@ plugins {
 
 android {
     namespace 'com.example.buscapet'
-    compileSdk 35
 
     defaultConfig {
         applicationId "com.example.buscapet"
         minSdk 23
-        targetSdk 33
+        targetSdk 35
         versionCode 1
         versionName "1.0"
 
@@ -42,7 +41,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.5.13'
+        kotlinCompilerExtensionVersion '1.5.14'
     }
     packagingOptions {
         resources {
