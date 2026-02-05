@@ -44,7 +44,8 @@ jobs:
           bump_each_commit: true
 
       - name: Build Debug APK
-        run: ./gradlew app:assembleDebug -PversionCode=${{ steps.version.outputs.version_count }} -PversionName=${{ steps.version.outputs.version }} --parallel --build-cache
+        # Usamos github.run_number como versionCode para garantizar un entero incremental único.
+        run: ./gradlew app:assembleDebug -PversionCode=${{ github.run_number }} -PversionName=${{ steps.version.outputs.version }} --parallel --build-cache
 
       - name: Upload to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
