@@ -17,9 +17,15 @@ android {
         minSdk 23
         targetSdk 35
         
-        // Configuración robusta de versión para CI/CD y desarrollo local
-        def verCode = project.findProperty("versionCode")
-        versionCode (verCode?.toString()?.isInteger()) ? verCode.toInteger() : 1
+        def verCode = 1
+        if (project.hasProperty("versionCode")) {
+            try {
+                verCode = project.property("versionCode").toString().toInteger()
+            } catch (Exception e) {
+                verCode = 1
+            }
+        }
+        versionCode verCode
         
         versionName project.findProperty("versionName") ?: "1.0"
 
