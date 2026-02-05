@@ -20,4 +20,3 @@ local.properties
 /.kotlin/
 /app/src/main/assets/labels.txt
 /app/src/main/assets/mobilenet_v1_1.0_224.tflite
-/gradle/libs.versions.toml
