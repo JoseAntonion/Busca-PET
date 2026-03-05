@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.buscapet.core.domain.model.Pet
 import com.example.buscapet.last_resports.domain.use_case.GetLostPetsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
@@ -41,6 +42,9 @@ class LastReportsViewModel @Inject constructor(
                     _uiState.update { it.copy(isLoading = false, isRefreshing = false) }
                 }
                 .collect { pets ->
+                    if (isRefresh && _uiState.value.isRefreshing) {
+                        delay(1500)
+                    }
                     _uiState.update {
                         it.copy(
                             pets = pets,

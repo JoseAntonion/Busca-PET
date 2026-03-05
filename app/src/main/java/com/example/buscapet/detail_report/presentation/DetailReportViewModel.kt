@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.buscapet.core.domain.model.Pet
+import com.example.buscapet.core.domain.model.PetState
 import com.example.buscapet.core.domain.model.Treatment
 import com.example.buscapet.data.local.PetsRepository
 import com.example.buscapet.my_reports.domain.use_case.DeleteReportUseCase
@@ -61,6 +62,7 @@ class DetailReportViewModel @Inject constructor(
     sealed interface DetailUiEvent {
         data class ShowCoreEvent(val event: com.example.buscapet.core.presentation.util.CoreUiEvent) : DetailUiEvent
         object DeleteSuccess : DetailUiEvent
+        data class EditPet(val petId: String) : DetailUiEvent
         data class EditReport(val petId: String) : DetailUiEvent
     }
 
@@ -68,31 +70,31 @@ class DetailReportViewModel @Inject constructor(
     val uiEvent = _uiEvent.receiveAsFlow()
 
     init {
-        setPetId(petId)
+        observePetChanges()
     }
 
-    private fun setPetId(petId: String) {
+    private fun observePetChanges() {
         viewModelScope.launch {
             _isFetching.value = true
-            val pet = petRepository.getPetById(petId)
-            _petDetails.value = pet
-            _isOwner.value = currentUserId != null && (pet?.reporterId == currentUserId || pet?.ownerId == currentUserId)
+            petRepository.getPetByIdFlow(petId).collect { pet ->
+                _petDetails.value = pet
+                _isOwner.value = currentUserId != null && (pet?.reporterId == currentUserId || pet?.ownerId == currentUserId)
 
-            pet?.description?.let { description ->
-                if (description.isNotEmpty()) {
-                    val similarReports = petRepository.getSimilarReports(description)
-                    val coordinates = similarReports.mapNotNull { report ->
-                        if (report.latitude != null && report.longitude != null) {
-                            LatLng(report.latitude, report.longitude)
-                        } else {
-                            null
+                pet?.description?.let { description ->
+                    if (description.isNotEmpty()) {
+                        val similarReports = petRepository.getSimilarReports(description)
+                        val coordinates = similarReports.mapNotNull { report ->
+                            if (report.latitude != null && report.longitude != null) {
+                                LatLng(report.latitude, report.longitude)
+                            } else {
+                                null
+                            }
                         }
+                        _routeCoordinates.value = coordinates
                     }
-                    _routeCoordinates.value = coordinates
                 }
+                _isFetching.value = false
             }
-
-            _isFetching.value = false
         }
     }
 
@@ -155,9 +157,12 @@ class DetailReportViewModel @Inject constructor(
     }
 
     fun onEditPet() {
-        petId.let { id ->
-            viewModelScope.launch {
-                _uiEvent.send(DetailUiEvent.EditReport(id))
+        val pet = _petDetails.value ?: return
+        viewModelScope.launch {
+            if (pet.petState == PetState.HOME) {
+                _uiEvent.send(DetailUiEvent.EditPet(petId))
+            } else {
+                _uiEvent.send(DetailUiEvent.EditReport(petId))
             }
         }
     }

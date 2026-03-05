@@ -8,5 +8,7 @@ sealed class AddPetEvent {
     data class OnBreedChanged(val breed: String) : AddPetEvent()
     data class OnBirthDateChanged(val birthDate: Long) : AddPetEvent()
     data class OnCheckupPlanChanged(val plan: Int) : AddPetEvent()
+    data class OnWeightChanged(val weight: String) : AddPetEvent()
+    data class OnAnimalTypeChanged(val animalType: String) : AddPetEvent()
     data object Submit : AddPetEvent()
 }

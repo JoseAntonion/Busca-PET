@@ -3,6 +3,7 @@ package com.example.buscapet.add_pet.presentation
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.buscapet.add_pet.domain.use_case.AnalyzePetImageUseCase
@@ -34,11 +35,13 @@ class AddPetViewModel @Inject constructor(
     private val validateTextField: ValidateTextFieldUseCase,
     private val validateImage: ValidatePetImageUseCase,
     private val analyzePetImage: AnalyzePetImageUseCase,
-    private val bitmapUtils: BitmapUtils
+    private val bitmapUtils: BitmapUtils,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val currentUser = FirebaseAuth.getInstance().currentUser
     private val currentUserId = currentUser?.uid
+    private val petId: String? = savedStateHandle.get<String>("petId")
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
@@ -51,6 +54,32 @@ class AddPetViewModel @Inject constructor(
 
     private val _uiEvent = Channel<AddPetUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
+
+    init {
+        loadPetData()
+    }
+
+    private fun loadPetData() {
+        petId?.let { id ->
+            viewModelScope.launch {
+                toggleLoadingState(true)
+                val pet = petRepository.getPetById(id)
+                pet?.let {
+                    formState = formState.copy(
+                        addPetImage = it.image,
+                        addPetName = it.name,
+                        addPetBreed = it.breed,
+                        addPetBirthDate = it.birthDate,
+                        addPetBirthDateFormatted = it.birthDate?.let { date -> formatDate(date) },
+                        addPetCheckupPlan = it.checkupPlan,
+                        addPetWeight = it.weight?.toString(),
+                        addPetAnimalType = it.animalType
+                    )
+                }
+                toggleLoadingState(false)
+            }
+        }
+    }
 
     fun onEvent(event: AddPetEvent) {
         when (event) {
@@ -71,6 +100,9 @@ class AddPetViewModel @Inject constructor(
 
             is AddPetEvent.OnCheckupPlanChanged -> formState =
                 formState.copy(addPetCheckupPlan = event.plan)
+
+            is AddPetEvent.OnWeightChanged -> formState = formState.copy(addPetWeight = event.weight)
+            is AddPetEvent.OnAnimalTypeChanged -> formState = formState.copy(addPetAnimalType = event.animalType)
             is AddPetEvent.Submit -> submittData()
         }
     }
@@ -87,7 +119,6 @@ class AddPetViewModel @Inject constructor(
                 val results = analyzePetImage(bitmap)
                 if (results.isNotEmpty()) {
                     val topResult = results.first()
-                    // Auto-fill breed if empty
                     if (formState.addPetBreed.isNullOrBlank()) {
                         formState = formState.copy(addPetBreed = topResult.label)
                     }
@@ -97,26 +128,28 @@ class AddPetViewModel @Inject constructor(
     }
 
     private fun submittData() {
-        // ===== V a l i d a t i o n =====
         val imageResult = validateImage(formState.addPetImage)
         val nameResult = validateTextField(formState.addPetName)
         val breedResult = validateTextField(formState.addPetBreed)
+        val weightResult = validateTextField(formState.addPetWeight)
+        val animalTypeResult = validateTextField(formState.addPetAnimalType)
         val birthDateResult = formState.addPetBirthDate != null
         val checkupPlanResult = formState.addPetCheckupPlan != null
 
-
-        // ===== S e a r c h   f o r   e r r o r ======
         val hasError = listOf(
             nameResult,
-            breedResult
+            breedResult,
+            weightResult,
+            animalTypeResult
         ).any { !it.isValid } || !birthDateResult || !checkupPlanResult
         val hasImageError = !imageResult.isValid
 
-        // ===== Set the results for view through formState ======
         if (hasError || hasImageError) {
             formState = formState.copy(
                 addPetNameError = nameResult.error,
                 addPetBreedError = breedResult.error,
+                addPetWeightError = weightResult.error,
+                addPetAnimalTypeError = animalTypeResult.error,
                 addPetBirthDateError = if (!birthDateResult) "Seleccione una fecha" else null,
                 addPetCheckupPlanError = if (!checkupPlanResult) "Seleccione un plan" else null,
                 addPetImageError = imageResult.error
@@ -137,12 +170,11 @@ class AddPetViewModel @Inject constructor(
     private fun savePet() {
         toggleLoadingState(true)
         viewModelScope.launch {
-            // Convert URI to Base64 to persist it in Firestore
             val imageUri = formState.addPetImage
-            val base64Image = if (imageUri != null) {
+            val base64Image = if (imageUri != null && imageUri.startsWith("content://")) {
                 bitmapUtils.convertUriToBase64(imageUri)
             } else {
-                null
+                imageUri // It's already base64 (editing) or null
             }
 
             if (base64Image == null && imageUri != null) {
@@ -158,14 +190,17 @@ class AddPetViewModel @Inject constructor(
             }
 
             val pet = Pet(
+                id = petId ?: java.util.UUID.randomUUID().toString(),
                 name = formState.addPetName,
                 breed = formState.addPetBreed,
                 birthDate = formState.addPetBirthDate,
                 checkupPlan = formState.addPetCheckupPlan,
-                lastCheckupDate = System.currentTimeMillis(), // Set current date as last checkup
-                image = base64Image, // Save the Base64 string, not the URI
+                lastCheckupDate = System.currentTimeMillis(),
+                image = base64Image,
                 petState = PetState.HOME,
-                ownerId = currentUserId
+                ownerId = currentUserId,
+                weight = formState.addPetWeight?.toDoubleOrNull(),
+                animalType = formState.addPetAnimalType
             )
 
             val response = petRepository.insertPet(pet)

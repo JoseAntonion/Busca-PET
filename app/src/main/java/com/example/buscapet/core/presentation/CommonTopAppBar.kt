@@ -2,6 +2,7 @@ package com.example.buscapet.core.presentation
 
 import android.content.res.Configuration
 import android.net.Uri
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -21,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -39,6 +41,7 @@ import com.example.buscapet.ui.theme.BuscaPetTheme
 @Composable
 fun CommonTopAppBar(
     userName: String,
+    userEmail: String? = null,
     onAccountClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
     photo: Uri? = null,
@@ -48,11 +51,23 @@ fun CommonTopAppBar(
             containerColor = MaterialTheme.colorScheme.onPrimary
         ),
         title = {
-            Text(
-                text = "Hola, $userName",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
+            Column(
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Hola, $userName",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                if (!userEmail.isNullOrEmpty()) {
+                    Text(
+                        text = userEmail,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
         },
         actions = {
             IconButton(onClick = { onAccountClick() }) {
@@ -99,7 +114,7 @@ fun AppBarWithBack(
         title = {
             Text(
                 text = title,
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -155,6 +170,6 @@ fun PreviewWithBack() {
 @Composable
 fun PreviewWithoutBack() {
     BuscaPetTheme {
-        CommonTopAppBar(userName = "Usuario Prueba")
+        CommonTopAppBar(userName = "Usuario Prueba", userEmail = "usuario@email.com")
     }
 }

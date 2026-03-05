@@ -37,6 +37,10 @@ data class Pet(
     val latitude: Double? = null,
     @ColumnInfo(name = "longitude")
     val longitude: Double? = null,
+    @ColumnInfo(name = "weight")
+    val weight: Double? = null,
+    @ColumnInfo(name = "animal_type")
+    val animalType: String? = null,
     @ColumnInfo(name = "timestamp")
     val timestamp: Long = System.currentTimeMillis()
 )

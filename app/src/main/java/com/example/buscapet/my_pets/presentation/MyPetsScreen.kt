@@ -78,7 +78,7 @@ fun MainContainer(
                             subtitle = "Agrega una nueva mascota",
                             isEmpty = true,
                             onClick = {
-                                navController.navigate(AddPet)
+                                navController.navigate(AddPet(petId = null))
                             }
                         )
                     }

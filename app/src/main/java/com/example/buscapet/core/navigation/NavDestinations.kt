@@ -12,7 +12,9 @@ object Home
 object Profile
 
 @Serializable
-object AddPet
+data class AddPet(
+    val petId: String? = null
+)
 
 @Serializable
 data class Report(

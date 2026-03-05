@@ -95,7 +95,7 @@ fun HomeScreen(
             onDismiss = { openDialog = false },
             onReportLostClick = {
                 openDialog = false
-                navController.navigate(Report())
+                navController.navigate(Report(petId = null))
             },
             onLostMyOwnClick = {
                 openDialog = false
@@ -191,6 +191,7 @@ fun HomeContainer(
             ) {
                 CommonTopAppBar(
                     userName = uiState.currentUser ?: "",
+                    userEmail = uiState.userEmail,
                     photo = uiState.photo,
                     onAccountClick = { onProfileClick() },
                     onMenuClick = { onMenuClick() }
@@ -231,7 +232,7 @@ fun HomeContainer(
 fun PreviewMainView() {
     BuscaPetTheme {
         HomeContainer(
-            uiState = HomeState(currentUser = "Usuario Preview"),
+            uiState = HomeState(currentUser = "Usuario Preview", userEmail = "preview@email.com"),
             navController = rememberNavController(),
             snackbarHostState = SnackbarHostState()
         )

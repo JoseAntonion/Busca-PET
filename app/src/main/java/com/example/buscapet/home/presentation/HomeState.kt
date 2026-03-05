@@ -7,5 +7,6 @@ data class HomeState(
     val isLoading: Boolean = false,
     val myPets: List<Pet> = emptyList(),
     val currentUser: String? = null,
+    val userEmail: String? = null,
     val photo: Uri? = null
 )

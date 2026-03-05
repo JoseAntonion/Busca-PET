@@ -81,6 +81,23 @@ class PetsRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getPetByIdFlow(id: String): Flow<Pet?> = callbackFlow {
+        val subscription = collection.document(id)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    close(e)
+                    return@addSnapshotListener
+                }
+                val pet = try {
+                    snapshot?.toObject<Pet>()
+                } catch (e: Exception) {
+                    null
+                }
+                trySend(pet)
+            }
+        awaitClose { subscription.remove() }
+    }
+
     override suspend fun getSimilarReports(description: String): List<Pet> {
         return try {
             petDao.getSimilarReports(description)

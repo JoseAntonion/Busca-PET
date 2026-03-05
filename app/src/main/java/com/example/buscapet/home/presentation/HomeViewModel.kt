@@ -29,8 +29,7 @@ class HomeViewModel @Inject constructor(
     private val currentUser = FirebaseAuth.getInstance().currentUser
 
     private val _uiState = MutableStateFlow(HomeState())
-    val uiState
-        get() = _uiState.asStateFlow()
+    val uiState = _uiState.asStateFlow()
 
     private val _homeEvents = Channel<CoreUiEvent>()
     val homeEvents = _homeEvents.receiveAsFlow()
@@ -43,7 +42,13 @@ class HomeViewModel @Inject constructor(
         }
 
     init {
-        _uiState.update { it.copy(currentUser = displayName, photo = currentUser?.photoUrl) }
+        _uiState.update {
+            it.copy(
+                currentUser = displayName,
+                userEmail = currentUser?.email,
+                photo = currentUser?.photoUrl
+            )
+        }
         getMyPets()
     }
 

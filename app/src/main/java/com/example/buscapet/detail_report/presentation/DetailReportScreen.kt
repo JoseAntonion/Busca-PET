@@ -13,14 +13,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BrokenImage
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -42,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -55,6 +59,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.buscapet.R
 import com.example.buscapet.core.domain.model.Caracteristic
 import com.example.buscapet.core.domain.model.Pet
+import com.example.buscapet.core.domain.model.PetState
+import com.example.buscapet.core.navigation.AddPet
 import com.example.buscapet.core.navigation.MedicalTreatment
 import com.example.buscapet.core.navigation.Report
 import com.example.buscapet.core.navigation.ReportMap
@@ -94,6 +100,9 @@ fun DetailReportScreen(
                     "Reporte eliminado exitosamente"
                 )
                 navController.popBackStack()
+            }
+            is DetailReportViewModel.DetailUiEvent.EditPet -> {
+                navController.navigate(AddPet(petId = event.petId))
             }
             is DetailReportViewModel.DetailUiEvent.EditReport -> {
                 navController.navigate(Report(petId = event.petId))
@@ -150,6 +159,8 @@ fun MainContainer(
     onNavigateToTreatment: () -> Unit = {},
     snackbarHostState: SnackbarHostState
 ) {
+    var showMedicalRecordDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -208,25 +219,14 @@ fun MainContainer(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        //if (hasActiveTreatment) {
                                         Card(onClick = { onDeletePetClick() }) {
                                             Icon(
                                                 imageVector = Icons.Filled.Delete,
                                                 contentDescription = null,
-                                                modifier = Modifier
-                                                    .padding(8.dp)
-                                                    .align(Alignment.End)
+                                                modifier = Modifier.padding(8.dp)
                                             )
                                         }
-                                        //}
                                         if (isOwner) {
-                                            Card(onClick = { onDeletePetClick() }) {
-                                                Icon(
-                                                    imageVector = Icons.Filled.Delete,
-                                                    contentDescription = null,
-                                                    modifier = Modifier.padding(8.dp)
-                                                )
-                                            }
                                             Card(onClick = { onEditPetClick() }) {
                                                 Icon(
                                                     imageVector = Icons.Filled.Edit,
@@ -243,10 +243,14 @@ fun MainContainer(
                 }
 
                 item {
-                    PetInfoSection(pet = currentPet)
+                    PetInfoSection(
+                        pet = currentPet,
+                        isOwner = isOwner,
+                        onMedicalRecordClick = { showMedicalRecordDialog = true }
+                    )
                 }
 
-                if (isOwner) {
+                if (isOwner && currentPet?.petState == PetState.HOME) {
                     item {
                         Button(
                             onClick = onNavigateToTreatment,
@@ -317,15 +321,40 @@ fun MainContainer(
             }
         }
     }
+
+    if (showMedicalRecordDialog && currentPet != null) {
+        MedicalRecordDialog(
+            pet = currentPet,
+            onDismiss = { showMedicalRecordDialog = false },
+            onModify = {
+                showMedicalRecordDialog = false
+                onEditPetClick()
+            }
+        )
+    }
 }
 
 @Composable
-fun PetInfoSection(pet: Pet?) {
+fun PetInfoSection(
+    pet: Pet?,
+    isOwner: Boolean,
+    onMedicalRecordClick: () -> Unit
+) {
     if (pet == null) return
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        pet.birthDate?.let {
-            InfoSection(title = "Edad", content = calculateAge(it))
+        if (isOwner && pet.petState == PetState.HOME) {
+            Button(
+                onClick = onMedicalRecordClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Ficha Médica")
+            }
+        } else {
+            pet.birthDate?.let {
+                InfoSection(title = "Edad", content = calculateAge(it))
+            }
         }
+
         pet.lastCheckupDate?.let {
             InfoSection(
                 title = "Próximo Control",
@@ -335,6 +364,77 @@ fun PetInfoSection(pet: Pet?) {
     }
 }
 
+@Composable
+fun MedicalRecordDialog(
+    pet: Pet,
+    onDismiss: () -> Unit,
+    onModify: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = "Ficha Médica de ${pet.name}") },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Base64Image(
+                    base64String = pet.image,
+                    contentDescription = "Pet photo",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape),
+                    placeholder = {
+                        Image(
+                            painter = painterResource(id = R.drawable.dummy_puppy),
+                            contentDescription = "Pet photo placeholder",
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                )
+
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    MedicalRecordItem(label = "Edad", value = pet.birthDate?.let { calculateAge(it) } ?: "N/A")
+                    MedicalRecordItem(label = "Fecha de nacimiento", value = pet.birthDate?.let { formatDate(it) } ?: "N/A")
+                    MedicalRecordItem(label = "Peso", value = pet.weight?.let { "$it Kg" } ?: "N/A")
+                    MedicalRecordItem(label = "Animal", value = pet.animalType ?: "N/A")
+                    MedicalRecordItem(label = "Raza", value = pet.breed ?: "N/A")
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onModify) {
+                Text("Modificar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cerrar")
+            }
+        }
+    )
+}
+
+@Composable
+fun MedicalRecordItem(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = "$label:", fontWeight = FontWeight.Bold)
+        Text(text = value)
+    }
+}
+
+private fun formatDate(date: Long): String {
+    return SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(java.util.Date(date))
+}
+
 private fun calculateAge(birthDate: Long): String {
     val dob = Calendar.getInstance().apply { timeInMillis = birthDate }
     val today = Calendar.getInstance()
@@ -342,7 +442,7 @@ private fun calculateAge(birthDate: Long): String {
     if (today.get(Calendar.DAY_OF_YEAR) < dob.get(Calendar.DAY_OF_YEAR)) {
         age--
     }
-    return "$age años"
+    return if (age < 0) "0 años" else "$age años"
 }
 
 private fun calculateNextCheckup(lastCheckup: Long, plan: Int?): String {

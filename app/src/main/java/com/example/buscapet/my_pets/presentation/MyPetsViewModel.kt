@@ -6,6 +6,7 @@ import com.example.buscapet.core.domain.model.Pet
 import com.example.buscapet.data.local.PetsRepository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
@@ -50,6 +51,9 @@ class MyPetsViewModel @Inject constructor(
                     _uiState.update { it.copy(isLoading = false, isRefreshing = false) }
                 }
                 .collect { pets ->
+                    if (isRefresh && _uiState.value.isRefreshing) {
+                        delay(1500)
+                    }
                     _uiState.update {
                         it.copy(
                             petList = pets,

@@ -6,6 +6,7 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -15,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -47,6 +47,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -60,6 +62,7 @@ import com.example.buscapet.R
 import com.example.buscapet.core.presentation.AppBarWithBack
 import com.example.buscapet.core.presentation.CommonLoadingOverlay
 import com.example.buscapet.core.presentation.CommonOutlinedTextFieldWithValidation
+import com.example.buscapet.core.presentation.util.Base64Image
 import com.example.buscapet.core.presentation.util.ObserveAsEvents
 import com.example.buscapet.ui.theme.BuscaPetTheme
 
@@ -116,7 +119,7 @@ fun AddPetScreen(
 
     if (openDatePicker.value) {
         val datePickerState = rememberDatePickerState()
-        val confirmEnabled = derivedStateOf { datePickerState.selectedDateMillis != null }
+        val confirmEnabled = remember { derivedStateOf { datePickerState.selectedDateMillis != null } }
         DatePickerDialog(
             onDismissRequest = { openDatePicker.value = false },
             confirmButton = {
@@ -155,13 +158,14 @@ fun MainContainer(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val checkupPlans = mapOf(3 to "Cada 3 meses", 6 to "Cada 6 meses", 12 to "Cada 12 meses")
+    val animalTypes = listOf("Perro", "Gato", "Ave", "Pez", "Otro")
 
     BuscaPetTheme {
         Scaffold(
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             topBar = {
                 AppBarWithBack(
-                    title = "Agregar nueva mascota",
+                    title = if (formState.addPetName != null) "Editar mascota" else "Agregar nueva mascota",
                     onBackClick = { navController.navigateUp() }
                 )
             }
@@ -180,16 +184,18 @@ fun MainContainer(
                         .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Button(onClick = {
-                        pickMedia?.launch(
-                            PickVisualMediaRequest(
-                                ActivityResultContracts.PickVisualMedia.ImageOnly
+                    if (formState.addPetImage == null) {
+                        Button(onClick = {
+                            pickMedia?.launch(
+                                PickVisualMediaRequest(
+                                    ActivityResultContracts.PickVisualMedia.ImageOnly
+                                )
                             )
-                        )
-                    }) {
-                        Text(text = "Seleccione una imagen de tu mascota")
+                        }) {
+                            Text(text = "Seleccione una imagen de tu mascota")
+                        }
+                        Spacer(modifier = Modifier.padding(8.dp))
                     }
-                    Spacer(modifier = Modifier.padding(8.dp))
 
                     if (formState.addPetImage != null) {
                         Card(
@@ -201,14 +207,55 @@ fun MainContainer(
                             ),
                         ) {
                             Column(modifier = Modifier.padding(14.dp)) {
-                                AsyncImage(
+                                Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .wrapContentHeight(Alignment.CenterVertically),
-                                    model = formState.addPetImage,
-                                    placeholder = painterResource(R.drawable.dummy_puppy),
-                                    contentDescription = "imagen de la mascota"
-                                )
+                                        .height(250.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .clickable {
+                                            pickMedia?.launch(
+                                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                            )
+                                        }
+                                ) {
+                                    if (formState.addPetImage!!.startsWith("content://")) {
+                                        AsyncImage(
+                                            modifier = Modifier.fillMaxSize(),
+                                            model = formState.addPetImage,
+                                            contentDescription = "imagen de la mascota",
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    } else {
+                                        Base64Image(
+                                            base64String = formState.addPetImage,
+                                            contentDescription = "imagen de la mascota",
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentScale = ContentScale.Crop,
+                                            placeholder = {
+                                                Image(
+                                                    painter = painterResource(id = R.drawable.dummy_puppy),
+                                                    contentDescription = null,
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    contentScale = ContentScale.Crop
+                                                )
+                                            }
+                                        )
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.BottomCenter)
+                                            .fillMaxWidth()
+                                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
+                                            .padding(8.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "Toca para cambiar imagen",
+                                            style = MaterialTheme.typography.labelMedium
+                                        )
+                                    }
+                                }
+
                                 Spacer(modifier = Modifier.height(16.dp))
 
                                 CommonOutlinedTextFieldWithValidation(
@@ -226,6 +273,16 @@ fun MainContainer(
                                     }
                                 )
 
+                                AnimalTypeDropdown(
+                                    selectedType = formState.addPetAnimalType,
+                                    onTypeSelected = { type ->
+                                        viewModel.onEvent(AddPetEvent.OnAnimalTypeChanged(type))
+                                    },
+                                    types = animalTypes,
+                                    isError = formState.addPetAnimalTypeError != null,
+                                    errorMessage = formState.addPetAnimalTypeError
+                                )
+
                                 CommonOutlinedTextFieldWithValidation(
                                     label = "Raza",
                                     value = formState.addPetBreed ?: "",
@@ -238,6 +295,21 @@ fun MainContainer(
                                     ),
                                     onValueChange = { text ->
                                         viewModel.onEvent(AddPetEvent.OnBreedChanged(text))
+                                    }
+                                )
+
+                                CommonOutlinedTextFieldWithValidation(
+                                    label = "Peso (Kg)",
+                                    value = formState.addPetWeight ?: "",
+                                    enabled = uiState.inputEnable,
+                                    isError = formState.addPetWeightError != null,
+                                    errorMessage = formState.addPetWeightError,
+                                    keyOption = KeyboardOptions(
+                                        keyboardType = KeyboardType.Number,
+                                        imeAction = ImeAction.Next
+                                    ),
+                                    onValueChange = { text ->
+                                        viewModel.onEvent(AddPetEvent.OnWeightChanged(text))
                                     }
                                 )
 
@@ -273,7 +345,7 @@ fun MainContainer(
                             enabled = !uiState.loading
                         ) {
                             Text(
-                                text = "Guardar",
+                                text = if (uiState.loading) "Guardando..." else "Guardar",
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                         }
@@ -302,7 +374,9 @@ fun CheckupPlanDropdown(
             onExpandedChange = { expanded = !expanded }
         ) {
             OutlinedTextField(
-                modifier = Modifier.menuAnchor(),
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth(),
                 readOnly = true,
                 value = plans[selectedPlan] ?: "",
                 onValueChange = {},
@@ -320,6 +394,60 @@ fun CheckupPlanDropdown(
                         text = { Text(planText) },
                         onClick = {
                             onPlanSelected(planValue)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+        if (isError) {
+            Text(
+                text = errorMessage ?: "",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AnimalTypeDropdown(
+    selectedType: String?,
+    onTypeSelected: (String) -> Unit,
+    types: List<String>,
+    isError: Boolean,
+    errorMessage: String?
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column {
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
+        ) {
+            OutlinedTextField(
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth(),
+                readOnly = true,
+                value = selectedType ?: "",
+                onValueChange = {},
+                label = { Text("Tipo de Animal") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                isError = isError
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                types.forEach { type ->
+                    DropdownMenuItem(
+                        text = { Text(type) },
+                        onClick = {
+                            onTypeSelected(type)
                             expanded = false
                         }
                     )
