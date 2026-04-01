@@ -98,6 +98,7 @@ fun MainView(
                                 modifier = Modifier.padding(vertical = 8.dp),
                                 title = pet.name ?: "Sin Nombre",
                                 subtitle = pet.description ?: "Sin Descripción",
+                                contactInfo = pet.contactEmail,
                                 image = pet.image,
                                 onClick = {
                                     navController.navigate(DetailReport(pet.id))

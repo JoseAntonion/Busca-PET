@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- El splash nativo utiliza el logo con el padding oficial ya inyectado
+     en la imagen (vector_buscapet.png). No usamos insets nativos. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/vector_buscapet" />
+</layer-list>

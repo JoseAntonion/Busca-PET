@@ -21,9 +21,9 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/buscapet_icon"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/buscapet_icon"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.App.Starting"
         android:name=".BuscaPetApp"
@@ -42,12 +42,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <service
-            android:name=".core.services.ProximityAlertService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="location" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

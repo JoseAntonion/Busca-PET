@@ -27,12 +27,12 @@ class TfLiteImageClassifier @Inject constructor(
 
     private val modelFiles = mapOf(
         ModelType.BREED to "mobilenet_v1_1.0_224.tflite",
-        ModelType.ANIMAL_TYPE to "animal_type_model.tflite"
+        ModelType.ANIMAL_TYPE to "mobilenet_v1_1.0_224.tflite"
     )
 
     private val labelFiles = mapOf(
         ModelType.BREED to "labels.txt",
-        ModelType.ANIMAL_TYPE to "animal_labels.txt"
+        ModelType.ANIMAL_TYPE to "labels.txt"
     )
 
     // Cache interpreters to avoid reloading

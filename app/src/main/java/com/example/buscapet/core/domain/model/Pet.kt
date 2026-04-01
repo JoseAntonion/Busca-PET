@@ -33,6 +33,8 @@ data class Pet(
     val ownerId: String? = null,
     @ColumnInfo(name = "reporter_id")
     val reporterId: String? = null,
+    @ColumnInfo(name = "contact_email")
+    val contactEmail: String? = null,
     @ColumnInfo(name = "latitude")
     val latitude: Double? = null,
     @ColumnInfo(name = "longitude")

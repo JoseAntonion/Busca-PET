@@ -84,7 +84,8 @@ class HomeViewModel @Inject constructor(
         val updatedPet = pet.copy(
             petState = PetState.LOST,
             timestamp = System.currentTimeMillis(),
-            reporterId = currentUser?.uid
+            reporterId = currentUser?.uid,
+            contactEmail = currentUser?.email
         )
 
         viewModelScope.launch {

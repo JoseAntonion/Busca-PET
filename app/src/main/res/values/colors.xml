@@ -7,4 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="splash_login_background">#FFFFFFFF</color>
+    <!-- Soft cyan equivalent for API 31+ SplashScreen solid color -->
+    <color name="splash_login_background_soft">#B2EBF2</color>
 </resources>

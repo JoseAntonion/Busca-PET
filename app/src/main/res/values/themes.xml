@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <style name="Theme.BuscaPet" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@color/purple_700</item>
     </style>
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground" tools:targetApi="upside_down_cake">@android:color/system_background_dark</item>
+        <!-- Background for API < 31 (gradient) -->
+        <item name="android:windowBackground">@drawable/bg_gradient_soft</item>
+        <!-- Background for API 31+ (must be solid color, using the soft cyan) -->
+        <item name="windowSplashScreenBackground">@color/splash_login_background_soft</item>
         <item name="postSplashScreenTheme">@style/Theme.BuscaPet</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/buscapet_icon_splash</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/buscapet_splash_padded</item>
     </style>
 </resources>

@@ -154,6 +154,7 @@ class ReportViewModel @Inject constructor(
             image = base64Image,
             petState = PetState.LOST,
             reporterId = currentUserId,
+            contactEmail = currentUser?.email,
             latitude = formState.currentLatitude ?: 0.0,
             longitude = formState.currentLongitude ?: 0.0,
             name = "", // Name is no longer required

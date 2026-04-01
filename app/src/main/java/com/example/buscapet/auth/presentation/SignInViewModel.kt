@@ -64,10 +64,8 @@ class SignInViewModel @Inject constructor(
         return GoogleSignIn.getClient(context, gso)
     }
 
-    private fun toggleLoading() = _uiState.update { it.copy(loading = !it.loading) }
-
     private fun startGoogleAccountSelector(activity: Activity) {
-        toggleLoading()
+        _uiState.update { it.copy(loading = true) }
         Log.d("TAG", "startGoogleAccountSelector: INIT")
         viewModelScope.launch {
             val client = getGoogleSignInClient(context = activity)
@@ -76,7 +74,13 @@ class SignInViewModel @Inject constructor(
         }
     }
 
-    private fun signIn(accountData: Task<GoogleSignInAccount>) {
+    private fun signIn(accountData: Task<GoogleSignInAccount>?) {
+        if (accountData == null || accountData.exception != null || !accountData.isSuccessful) {
+            // Manejar el caso donde el usuario cierra el modal o falla el inicio de sesion a nivel sistema
+            _uiState.update { it.copy(loading = false) }
+            return
+        }
+
         signInUseCase(accountData) { result ->
             viewModelScope.launch {
                 if (result.success) {
@@ -86,8 +90,8 @@ class SignInViewModel @Inject constructor(
                     Log.d("TAG", "signInWithAccountData: Error")
                     _signInChannel.send(SignInEventResult.OnSignInError(result.errorMessage))
                 }
+                _uiState.update { it.copy(loading = false) }
             }
         }
     }
-
 }

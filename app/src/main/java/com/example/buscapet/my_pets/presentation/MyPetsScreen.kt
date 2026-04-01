@@ -93,6 +93,7 @@ fun MainContainer(
                                 modifier = Modifier.padding(vertical = 8.dp),
                                 title = pet.name,
                                 subtitle = pet.breed,
+                                contactInfo = pet.contactEmail,
                                 image = pet.image,
                                 onClick = {
                                     navController.navigate(DetailReport(pet.id))

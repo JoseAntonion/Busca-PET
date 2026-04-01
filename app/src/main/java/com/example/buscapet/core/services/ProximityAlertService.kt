@@ -66,11 +66,11 @@ class ProximityAlertService : Service() {
             val notification = NotificationCompat.Builder(this, "proximity_alerts")
                 .setContentTitle("Buscando mascotas cercanas")
                 .setContentText("Monitoreando tu ubicación para alertarte sobre avistamientos.")
-                .setSmallIcon(R.drawable.buscapet_icon)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setOngoing(true)
                 .build()
 
-            startForeground(NOTIFICATION_ID, notification)
+            //startForeground(NOTIFICATION_ID, notification)
 
             val locationRequest =
                 LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, UPDATE_INTERVAL)
@@ -89,7 +89,7 @@ class ProximityAlertService : Service() {
 
     private fun stop() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
-        stopForeground(STOP_FOREGROUND_REMOVE)
+        //stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
@@ -99,7 +99,7 @@ class ProximityAlertService : Service() {
         val notification = NotificationCompat.Builder(this, "proximity_alerts")
             .setContentTitle("¡Alerta de Proximidad!")
             .setContentText("Estás cerca de una zona donde se reportó un $petType.")
-            .setSmallIcon(R.drawable.buscapet_icon)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
             .build()
