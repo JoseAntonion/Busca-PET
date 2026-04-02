@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@drawable/buscapet_icon" />
+    <background>
+        <layer-list>
+            <!-- Desplaza el PNG 6dp hacia la izquierda y 6dp hacia abajo (sin modificar el archivo .png original) -->
+            <item
+                android:left="-3dp"
+                android:right="3dp"
+                android:top="3dp"
+                android:bottom="-3dp">
+                <bitmap android:src="@drawable/buscapet_icon" android:gravity="fill" />
+            </item>
+        </layer-list>
+    </background>
     <foreground android:drawable="@android:color/transparent" />
+    <!-- Monocromo utiliza el logo vector padding (con zona segura nativa) -->
     <monochrome android:drawable="@drawable/vector_buscapet" />
 </adaptive-icon>

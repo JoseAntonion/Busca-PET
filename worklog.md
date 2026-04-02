@@ -4,6 +4,21 @@ Este archivo centraliza el historial de cambios, mejoras y flujo de trabajo del 
 
 ---
 
+## 📋 Iteración: Corrección de Login con Google (Google Sign-In)
+
+### 🐞 Correcciones (Bug Fixes)
+- **Login Silencioso Fallido (Google Sign-In)**:
+    - Se solucionó un problema crítico donde el inicio de sesión fallaba silenciosamente tras seleccionar la cuenta de Google, ocultando el indicador de carga sin realizar ninguna acción.
+    - Se agregó manejo explícito de errores cuando `Task<GoogleSignInAccount>` no es exitoso en `SignInViewModel`.
+    - Se agregó validación para casos donde `account.idToken` es `null` en `SignInUseCase`, devolviendo un error claro al usuario en lugar de colgar el proceso.
+    - Se implementó el envío de mensajes de error de inicio de sesión a través del canal de eventos para que la UI los muestre en un `Toast` (ej. si falla por no tener el SHA-1 configurado o por cancelación del usuario).
+
+### 📂 Archivos Clave Modificados
+- `auth/presentation/SignInViewModel.kt`: Manejo de errores de inicio de sesión y propagación a la UI.
+- `auth/domain/use_case/SignInUseCase.kt`: Prevención de cuelgues por `idToken` nulo y captura adecuada de excepciones (incluyendo `ApiException`).
+
+---
+
 ## 📋 Iteración: Ficha Médica, UI y Optimizaciones
 
 ### 🚀 Nuevas Funcionalidades

@@ -76,8 +76,13 @@ class SignInViewModel @Inject constructor(
 
     private fun signIn(accountData: Task<GoogleSignInAccount>?) {
         if (accountData == null || accountData.exception != null || !accountData.isSuccessful) {
+            val exceptionMessage = accountData?.exception?.message ?: "Inicio de sesión cancelado o fallido"
+            Log.e("TAG", "signIn Error: $exceptionMessage", accountData?.exception)
             // Manejar el caso donde el usuario cierra el modal o falla el inicio de sesion a nivel sistema
-            _uiState.update { it.copy(loading = false) }
+            viewModelScope.launch {
+                _signInChannel.send(SignInEventResult.OnSignInError(exceptionMessage))
+                _uiState.update { it.copy(loading = false) }
+            }
             return
         }
 

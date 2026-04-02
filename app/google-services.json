@@ -31,6 +31,14 @@
           }
         },
         {
+          "client_id": "493811003769-nksttgljcqbj574ifam4o7r30c3ktkiu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.buscapet",
+            "certificate_hash": "8b3c36624cd1810dbd9ce10cf2b1b23dd781dcef"
+          }
+        },
+        {
           "client_id": "493811003769-9n3nn17e6fverv04pkuvqjl8t9i4nka4.apps.googleusercontent.com",
           "client_type": 3
         }

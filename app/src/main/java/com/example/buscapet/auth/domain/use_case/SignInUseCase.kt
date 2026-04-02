@@ -18,7 +18,9 @@ class SignInUseCase @Inject constructor() {
             Log.d("TAG", "SignInUseCase: INIT... accountData: ${accountData.isSuccessful}")
             val account: GoogleSignInAccount = accountData.getResult(ApiException::class.java)
             Log.d("TAG", "SignInUseCase: account.idToken: ${account.idToken}")
-            account.idToken?.let { token ->
+            
+            if (account.idToken != null) {
+                val token = account.idToken!!
                 val auth = FirebaseAuth.getInstance()
                 val credential = GoogleAuthProvider.getCredential(token, null)
                 auth.signInWithCredential(credential).addOnCompleteListener { authResult ->
@@ -30,20 +32,34 @@ class SignInUseCase @Inject constructor() {
                         result(
                             SignInResult(
                                 success = false,
-                                errorMessage = authResult.exception?.message ?: "SignIn fail"
+                                errorMessage = authResult.exception?.message ?: "Error de autenticación con Firebase"
                             )
                         )
                     }
                 }
+            } else {
+                Log.e("TAG", "SignInUseCase: idToken es null")
+                result(
+                    SignInResult(
+                        success = false,
+                        errorMessage = "Token de Google no disponible. Verifique la configuración del Web Client ID."
+                    )
+                )
             }
-        } catch (e: Exception) {
-            Log.e("TAG", "SignInUseCase: Error signin ${e.message}")
-            Log.e("TAG", "SignInUseCase: Error signin ${e.cause}")
-            Log.e("TAG", "SignInUseCase: Error signin ${e.stackTrace}")
+        } catch (e: ApiException) {
+            Log.e("TAG", "SignInUseCase: ApiException ${e.statusCode} ${e.message}")
             result(
                 SignInResult(
                     success = false,
-                    errorMessage = e.message ?: "SignIn error"
+                    errorMessage = "Error de Google SignIn: Código ${e.statusCode}"
+                )
+            )
+        } catch (e: Exception) {
+            Log.e("TAG", "SignInUseCase: Error general ${e.message}", e)
+            result(
+                SignInResult(
+                    success = false,
+                    errorMessage = e.message ?: "Error al iniciar sesión"
                 )
             )
         }
